@@ -81,4 +81,11 @@
         delay: 0
     - ping:
 
- 
+    - setup:
+      register: machine_facts
+
+    - set_fact:
+        host_ip: "{{ machine_facts.ansible_facts.ansible_default_ipv4.address }}"
+        host_interface: "{{ machine_facts.ansible_facts.ansible_default_ipv4.interface }}"
+        host_mac: "{{ machine_facts.ansible_facts.ansible_default_ipv4.macaddress }}"
+        host_fqdn: "{{ machine_facts.ansible_facts.ansible_fqdn }}" 

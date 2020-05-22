@@ -2,7 +2,7 @@ k8s:
   control_plane:
     vcpu: 2
     mem: 8
-    vms: 1 
+    vms: 2
     disk: 20
   worker_nodes:
     vcpu: 2

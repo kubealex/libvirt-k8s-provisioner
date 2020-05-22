@@ -1,0 +1,53 @@
+- name: This play provisions loadbalancer VM for control plane
+  hosts: vm_host
+  vars_files:
+    - vars/k8s_cluster.yml
+    - vars/libvirt.yml
+  tasks:
+    - name: Provision loadbalancer vm
+      block:
+        - terraform:
+            project_path: "files/terraform/loadbalancer"
+            force_init: true
+            variables:
+              hostname: "k8s-loadbalancer"
+              domain: "{{ libvirt.network.domain }}"
+              libvirt_network: "{{ libvirt.network.name }}"
+              libvirt_pool: "{{ libvirt.storage.pool_name }}"
+            state: present
+          register: output_loadbalancer
+
+        - name: Add loadbalancer to inventory
+          add_host:
+            hostname: 'k8s-loadbalancer'
+            node_hostname: 'k8s-loadbalancer'
+            node_mac: "{{ output_loadbalancer.outputs.macs.value[0]|lower }}"
+            node_fqdn: k8s-loadbalancer.{{ libvirt.network.domain }} 
+            ansible_ssh_private_key_file: "id_rsa"
+            ansible_user: kube
+            ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+            groups:
+              - "loadbalancer"
+
+        - name: Ensure to clean known_hosts
+          known_hosts:
+            host: "{{ item }}"
+            path: ~/.ssh/known_hosts
+            state: absent
+          loop: "{{ groups['loadbalancer'] }}"
+      when: k8s.control_plane.vms > 1
+
+- name: Check connection to loadbalancer
+  hosts: loadbalancer
+  gather_facts: no
+  vars_files:
+    - vars/k8s_cluster.yml
+  tasks:
+    - block:
+        - name: Wait 600 seconds for target connection to become reachable/usable
+          wait_for_connection:
+            timeout: 120
+            delay: 0
+        - ping:
+      when: k8s.control_plane.vms > 1
+ 

@@ -13,6 +13,7 @@
       loop:
         - workers
         - masters
+        - loadbalancer
 
     - name: Remove libvirt network
       virt_net:

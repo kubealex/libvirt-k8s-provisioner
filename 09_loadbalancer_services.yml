@@ -1,0 +1,71 @@
+---
+- name: Loadbalancer configuration play
+  hosts: loadbalancer
+  become: true
+  ignore_unreachable: true
+  vars_files:
+    - vars/k8s_cluster.yml
+  tasks:
+    - block:
+        - debug:
+            var: hostvars[k8s-master-0]
+        - name: Install packages
+          yum:
+            name: "{{ packages }}"
+            state: latest
+              
+        - name: Enable firewalld
+          service:
+            name: "{{ item }}"
+            enabled: true
+            state: started
+          loop:
+            - firewalld
+            - haproxy
+
+        - name: Adding interface to firewall internal zone  
+          firewalld:
+            zone: internal
+            interface: "eth0"
+            permanent: yes
+            state: enabled
+
+        - name: Allow service for internal zone
+          firewalld:
+            zone: internal
+            state: enabled
+            permanent: yes
+            service: "{{ item }}"
+          loop: "{{ services }}"
+
+        - name: Allow ports for internal zone
+          firewalld:
+            zone: internal
+            state: enabled
+            permanent: yes
+            port: "{{ item }}"
+          loop: "{{ internal_zone_port }}"
+
+        - name: Reload firewalld service
+          service:
+            name: firewalld
+            state: restarted 
+
+        - name: Enabling selinux boolean for haproxy
+          seboolean:
+            name: haproxy_connect_any
+            state: yes
+            persistent: yes
+
+        - name: Firing haproxy template
+          template:
+            src: templates/haproxy.j2
+            dest: /etc/haproxy/haproxy.cfg
+
+        - name: Reload haproxy service
+          service:
+            name: haproxy
+            state: restarted
+            enabled: true
+      when: k8s.control_plane.vms > 1
+
