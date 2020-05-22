@@ -1,0 +1,43 @@
+---
+- name: Cleanup playbook
+  hosts: vm_host
+  vars_files:
+    - vars/libvirt.yml
+  tasks:
+
+    - name: Destroy bootstrap VM
+      terraform:
+        force_init: true
+        project_path: "files/terraform/{{ item }}"
+        state: absent
+      loop:
+        - workers
+        - masters
+
+    - name: Remove libvirt network
+      virt_net:
+        name: "{{ libvirt.network.name }}"
+        state: absent
+
+    - name: Remove libvirt pool
+      virt_pool:
+        name: "{{ libvirt.storage.pool_name }}"
+        state: absent
+
+#    - name: Delete all created paths
+#      file:
+#        path: "{{ item }}"
+#        state: absent
+#      loop: 
+#        - ~/libvirt-provider
+#        - ~/.terraform.d
+#        - "{{ gopath }}"
+#        - "{{ libvirt.storage.pool_path }}"
+#
+#    - name: Delete all created paths - root 
+#      become: true
+#      file:
+#        path: "{{ item }}"
+#        state: absent
+#      loop:
+#        - /usr/bin/terraform

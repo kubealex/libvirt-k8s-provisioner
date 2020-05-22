@@ -1,0 +1,11 @@
+k8s:
+  control_plane:
+    vcpu: 2
+    mem: 8
+    vms: 1 
+    disk: 20
+  worker_nodes:
+    vcpu: 2
+    mem: 4
+    vms: 1
+    disk: 20

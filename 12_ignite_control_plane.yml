@@ -1,0 +1,52 @@
+---
+- name: Install cluster with kubeadm
+  vars_files:
+    - vars/k8s_cluster.yml
+  hosts: masters
+  tasks:
+    - name: Start kubeadm install
+      command: kubeadm init --pod-network-cidr 10.100.0.0/17
+      become: true
+      register: kubeadm_output
+
+    - name: Print output
+      debug:
+        var: kubeadm_output
+
+    - name: Finish installation
+      block:
+
+        - name: Create kube directory
+          file:
+            path: /home/kube/.kube
+            state: directory
+
+        - name: Copy kubeconfig
+          copy:
+            src: /etc/kubernetes/admin.conf
+            dest: /home/kube/.kube/config
+            remote_src: true
+            owner: kube
+            group: kube
+          become: true
+
+
+    - name: Apply network addon
+      command: kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml
+
+
+    - name: Get token 
+      shell: kubeadm token list | awk 'NR==2{ print $1 }'
+      register: kube_token
+
+    - name: Set token as fact
+      set_fact:
+        kubetoken: "{{ kube_token.stdout }}"
+
+    - name: Get hash
+      shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+      register: kube_hash
+
+    - name: Set hash as fact
+      set_fact:
+        kubehash: "{{ kube_hash.stdout }}"

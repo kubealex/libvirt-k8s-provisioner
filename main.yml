@@ -1,0 +1,7 @@
+#ansible-playbook 01_install_virtualization_tools.yml
+- import_playbook: 02_provision_libvirt_resources.yml
+- import_playbook: 05_provisioning_vms.yml
+- import_playbook: 10_container_runtimes.yml
+- import_playbook: 11_install_kube_packages.yml
+- import_playbook: 12_ignite_control_plane.yml
+- import_playbook: 20_join_nodes.yml

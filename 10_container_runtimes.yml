@@ -1,0 +1,50 @@
+---
+- name: Install container runtime
+  hosts: masters,workers
+  become: true
+  tasks:
+    - name: Ensure required packages are present
+      yum:
+        name:
+          - yum-utils 
+          - device-mapper-persistent-data 
+          - lvm2
+        state: latest
+
+    - name: Add docker repository
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+
+    - name: Ensure docker is installed
+      yum:
+        name:
+          - containerd.io-1.2.13
+          - docker-ce-19.03.8
+          - docker-ce-cli-19.03.8
+        state: latest
+
+    - name: Create /etc/docker
+      file:
+        state: directory
+        path: /etc/docker
+    
+    - name: Copy docker configuration in /etc/docker
+      copy:
+        src: files/daemon.json
+        dest: /etc/docker/
+
+    - name: Create systemd folder
+      file:
+        path: /etc/systemd/system/docker.service.d
+        state: directory
+
+    - name: just force systemd to reread configs (2.4 and above)
+      systemd:
+        daemon_reload: yes
+
+    - name: 
+      systemd: 
+        name: docker
+        state: restarted
+        enabled: true

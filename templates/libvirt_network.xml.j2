@@ -1,0 +1,15 @@
+<network>
+  <name>{{ libvirt.network.name }}</name>
+  <forward mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+  </forward>
+  <bridge name='brk8s' stp='on' delay='0'/>
+  <domain name='{{ libvirt.network.domain }}' localOnly='yes'/>
+  <ip address='{{ libvirt.network.net | next_nth_usable(1) }}' netmask='{{ libvirt.network.net | ipaddr('netmask') }}'>
+    <dhcp>
+      <range start='{{ libvirt.network.net | next_nth_usable(2) }}' end='{{ libvirt.network.net | ipaddr('last_usable') }}'/>
+    </dhcp>
+  </ip>
+</network>

@@ -1,0 +1,38 @@
+---
+- name: Ensure kube packages are installed
+  hosts: masters,workers
+  become: true
+  tasks:
+    - name: Add Kubernetes repository
+      yum_repository:
+        name: kubernetes
+        description: Kubernetes repo
+        baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+        gpgcheck: true
+        repo_gpgcheck: true
+        gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+        exclude: kubelet kubeadm kubectl
+    
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+      register: selinux_output
+      notify: reboot
+
+    - name: Install kubepackages
+      yum:
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl 
+        disable_excludes: kubernetes
+
+    - name: Enable kubelet
+      systemd: 
+        name: kubelet
+        state: started
+        enabled: true
+
+  handlers:
+    - name: reboot
+      reboot:

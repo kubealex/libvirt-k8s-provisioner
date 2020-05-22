@@ -1,0 +1,7 @@
+---
+- name: Play to join nodes in the cluster
+  hosts: workers
+  tasks:
+    - name: Join cluster
+      command: kubeadm join --token {{ hostvars['k8s-master-0'].kubetoken }}  k8s-master-0.k8s.lab:6443 --discovery-token-ca-cert-hash sha256:{{ hostvars['k8s-master-0'].kubehash }}
+      become: true

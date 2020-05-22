@@ -1,0 +1,46 @@
+---
+- name: This play installs needed tools to provision infrastructure VMs
+  hosts: vm_host
+  vars_files:
+    - vars/libvirt.yml
+  tasks:
+
+    - name: Ensure pool path exists
+      file:
+        path: "{{ libvirt.storage.pool_path }}"
+        state: directory
+      become: true
+
+    - name: Define libvirt network
+      virt_net:
+        command: define
+        name: "{{ libvirt.network.name }}"
+        xml: '{{ lookup("template", "templates/libvirt_network.xml.j2") }}'
+
+    - name: Make libvirt network autostart
+      virt_net:
+        name: "{{ libvirt.network.name }}"
+        autostart: true
+
+    - name: Start libvirt network
+      virt_net:
+        command: start
+        name: "{{ libvirt.network.name }}"
+        state: active
+
+    - name: Define libvirt pool
+      virt_pool:
+        command: define
+        name: "{{ libvirt.storage.pool_name }}"
+        xml: '{{ lookup("template", "templates/libvirt_pool.xml.j2") }}'
+
+    - name: Make libvirt pool autostart
+      virt_pool:
+        name: "{{ libvirt.storage.pool_name }}"
+        autostart: true
+
+    - name: Start libvirt pool
+      virt_pool:
+        command: start
+        name: "{{ libvirt.storage.pool_name }}"
+        state: active

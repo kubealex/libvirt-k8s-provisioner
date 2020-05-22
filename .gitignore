@@ -1,0 +1,7 @@
+id_rsa*
+debug.yml
+terraform.tfstate*
+vars/vars.yml
+test.yml
+.terraform
+roles

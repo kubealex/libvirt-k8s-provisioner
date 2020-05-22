@@ -1,0 +1,50 @@
+---
+- name: This play installs needed tools to provision infrastructure VMs
+  hosts: vm_host
+  vars_files:
+    - vars/libvirt.yml
+  tasks:
+
+    - name: Download and provision Terraform
+      unarchive: 
+        src: https://releases.hashicorp.com/terraform/0.12.24/terraform_0.12.24_linux_amd64.zip
+        dest: /usr/bin/
+        mode: 755
+        remote_src: yes
+      become: true
+
+    - name: Install qemu, libvirt, git
+      yum:
+        name: "{{ virtualization_packages }}"
+        state: latest
+      become: true
+
+    - name: Virtualization services are enabled
+      service:
+        name: libvirtd
+        state: started
+        enabled: true
+      become: true
+
+    - git:
+        repo: https://github.com/dmacvicar/terraform-provider-libvirt.git
+        dest: ~/libvirt-provider
+        force: true
+
+    - name: Run 'install' target on libivrt-provider
+      make:
+        chdir: ~/libvirt-provider
+        target: install
+
+    - name: Ensures terraform plugins directory exists
+      file:
+        path: ~/.terraform.d/plugins
+        state: directory
+        mode: 0744
+
+    - name: Copy libvirt provider to plugins directory
+      copy:
+        src: "{{ gopath }}/bin/terraform-provider-libvirt"
+        dest: ~/.terraform.d/plugins/
+        remote_src: true
+        mode: 0755
