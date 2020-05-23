@@ -1,0 +1,33 @@
+---
+- name: Prepare files for cluster management
+  hosts: masters
+  tasks:
+    - name: Create kube directory
+      file:
+        path: /home/kube/.kube
+        state: directory
+
+    - name: Copy kubeconfig
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/kube/.kube/config
+        remote_src: true
+        owner: kube
+        group: kube
+      become: true
+
+#    - name: Get token
+#      shell: kubeadm token list | awk 'NR==2{ print $1 }'
+#      register: kube_token
+
+#    - name: Set token as fact
+#      set_fact:
+#        kubetoken: "{{ kube_token.stdout }}"
+
+#    - name: Get hash
+#      shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+#      register: kube_hash
+
+#    - name: Set hash as fact
+#      set_fact:
+#        kubehash: "{{ kube_hash.stdout }}"

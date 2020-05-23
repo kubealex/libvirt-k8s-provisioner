@@ -1,0 +1,7 @@
+---
+- name: Apply network plugin
+  hosts: masters
+  run_once: true
+  tasks:
+    - name: Apply network addon - Calico
+      command: kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml

@@ -1,4 +1,4 @@
-- name: This play provisions OCP VMs based on intial config
+- name: This play provisions k8s VMs based on intial config
   hosts: vm_host
   vars_files:
     - vars/k8s_cluster.yml
@@ -89,3 +89,22 @@
         host_interface: "{{ machine_facts.ansible_facts.ansible_default_ipv4.interface }}"
         host_mac: "{{ machine_facts.ansible_facts.ansible_default_ipv4.macaddress }}"
         host_fqdn: "{{ machine_facts.ansible_facts.ansible_fqdn }}" 
+
+    - name: Enable br_netfilter
+      modprobe:
+        name: br_netfilter
+        state: present
+      become: true
+
+    - name: Enable iptables inspection on bridge ifaces
+      blockinfile:
+        path: /etc/sysctl.d/k8s.conf
+        block: |
+          net.bridge.bridge-nf-call-ip6tables = 1
+          net.bridge.bridge-nf-call-iptables = 1
+        create: true
+      become: true
+
+    - name: Reload sysctl
+      shell: sysctl --system
+      become: true

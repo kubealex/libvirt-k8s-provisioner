@@ -7,8 +7,6 @@
     - vars/k8s_cluster.yml
   tasks:
     - block:
-        - debug:
-            var: hostvars[k8s-master-0]
         - name: Install packages
           yum:
             name: "{{ packages }}"

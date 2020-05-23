@@ -34,16 +34,16 @@
         src: files/daemon.json
         dest: /etc/docker/
 
-    - name: Create systemd folder
+    - name: Create systemd folder for Docker service
       file:
         path: /etc/systemd/system/docker.service.d
         state: directory
 
-    - name: just force systemd to reread configs (2.4 and above)
+    - name: Force systemd to reread configs
       systemd:
         daemon_reload: yes
 
-    - name: 
+    - name: Ensure docker is enabled and started
       systemd: 
         name: docker
         state: restarted

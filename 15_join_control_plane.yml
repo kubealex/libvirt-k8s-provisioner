@@ -1,0 +1,12 @@
+---
+- name: Play to join control plane nodes in the cluster
+  hosts: masters
+  vars_files:
+    - vars/k8s_cluster.yml
+  tasks:
+    - name: Join cluster
+      command: kubeadm join {{ hostvars['k8s-loadbalancer'].node_fqdn }}:6443 --token {{ hostvars[groups['masters'][0]].kubetoken }} --discovery-token-ca-cert-hash sha256:{{ hostvars[groups['masters'][0]].kubehash }} --control-plane --certificate-key {{ hostvars[groups['masters'][0]].kubecertkey }}
+      become: true
+      when: 
+        - inventory_hostname != groups['masters'][0]
+        - k8s.control_plane.vms > 1

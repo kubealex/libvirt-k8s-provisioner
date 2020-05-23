@@ -14,35 +14,6 @@
           debug:
             var: kubeadm_output
 
-        - name: Create kube directory
-          file:
-            path: /home/kube/.kube
-            state: directory
-
-        - name: Copy kubeconfig
-          copy:
-            src: /etc/kubernetes/admin.conf
-            dest: /home/kube/.kube/config
-            remote_src: true
-            owner: kube
-            group: kube
-          become: true
-
-        - name: Get token 
-          shell: kubeadm token list | awk 'NR==2{ print $1 }'
-          register: kube_token
-
-        - name: Set token as fact
-          set_fact:
-            kubetoken: "{{ kube_token.stdout }}"
-
-        - name: Get hash
-          shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
-          register: kube_hash
-
-        - name: Set hash as fact
-          set_fact:
-            kubehash: "{{ kube_hash.stdout }}"
       when: k8s.control_plane.vms == 1
 
     - block:
@@ -51,8 +22,23 @@
           become: true
           register: ha_kubeadm_output
         - debug:
-            var: ha_kubeadm_output
-      when: k8s.control_plane.vms > 1
+            var: kubeadm_output
+        
+        - name: "set certificate key fact"
+          set_fact:
+            kubecertkey: "{{ kubeadm_output.stdout | regex_search('certificate-key [0-9a-zA-Z]{64}') | regex_search('[0-9a-zA-Z]{64}') }}"
+        
+      when: 
+        - k8s.control_plane.vms > 1
+        - inventory_hostname == groups['masters'][0]
 
-    - name: Apply network addon
-      command: kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml
+    - block
+        - name: "set token fact"
+          set_fact:
+            kubetoken: kubeadm_output | regex_search('--token ([0-9a-zA-Z]{6}.[0-9a-zA-Z]{16})') | regex_search('([0-9a-zA-Z]{6}.[0-9a-zA-Z]{16})')
+
+        - name: "set hash fact"
+          set_fact:
+            kubehash: kubeadm_output | regex_search('sha256:[0-9a-zA-Z]{64}') | regex_search('[0-9a-zA-Z]{64}')
+      when:
+        - inventory_hostname == groups['masters'][0]
