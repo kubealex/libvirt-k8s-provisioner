@@ -20,7 +20,7 @@
         - name: Start kubeadm install - HA
           command: sudo kubeadm init --control-plane-endpoint k8s-loadbalancer.k8s.lab --upload-certs
           become: true
-          register: ha_kubeadm_output
+          register: kubeadm_output
         - debug:
             var: kubeadm_output
         
@@ -32,13 +32,12 @@
         - k8s.control_plane.vms > 1
         - inventory_hostname == groups['masters'][0]
 
-    - block
+    - block:
         - name: "set token fact"
           set_fact:
-            kubetoken: kubeadm_output | regex_search('--token ([0-9a-zA-Z]{6}.[0-9a-zA-Z]{16})') | regex_search('([0-9a-zA-Z]{6}.[0-9a-zA-Z]{16})')
+            kubetoken: "{{ kubeadm_output.stdout | regex_search('--token ([0-9a-zA-Z]{6}.[0-9a-zA-Z]{16})') | regex_search('([0-9a-zA-Z]{6}.[0-9a-zA-Z]{16})') }}"
 
         - name: "set hash fact"
           set_fact:
-            kubehash: kubeadm_output | regex_search('sha256:[0-9a-zA-Z]{64}') | regex_search('[0-9a-zA-Z]{64}')
-      when:
-        - inventory_hostname == groups['masters'][0]
+            kubehash: "{{ kubeadm_output.stdout | regex_search('sha256:[0-9a-zA-Z]{64}') | regex_search('[0-9a-zA-Z]{64}') }}"
+      when: inventory_hostname == groups['masters'][0]

@@ -3,5 +3,5 @@
   hosts: workers
   tasks:
     - name: Join cluster
-      command: kubeadm join --token {{ hostvars[groups['masters'][0]].kubetoken }}  {{ hostvars['loadbalancer'].fqdn | default(hostvars[groups['masters'][0]].node_fqdn) }}:6443 --discovery-token-ca-cert-hash sha256:{{ hostvars[groups['masters'][0]].kubehash }}
+      command: kubeadm join --token {{ hostvars[groups['masters'][0]].kubetoken }}  {{ hostvars[groups['loadbalancer'][0]].node_fqdn | default(hostvars[groups['masters'][0]].node_fqdn) }}:6443 --discovery-token-ca-cert-hash sha256:{{ hostvars[groups['masters'][0]].kubehash }}
       become: true
