@@ -2,21 +2,31 @@
 # libvirt-k8s-provisioner - Automate your cluster provisioning from 0 to k8s!
 Welcome to the home of the project!
 
-- Loadbalancer machine provisioned with:
-	- haproxy
+With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want.
+
+Terraform will take care of the provisioning of:
+- Loadbalancer machine with **haproxy** installed and configured for **HA** clusters
 - k8s Master(s) VM(s)
-- OCP Worker(s) VM(s)
+- k8s Worker(s) VM(s)
 
 It also takes care of preparing the host machine with needed packages, configuring:
+
 - dedicated libvirt dnsmasq configuration
 - dedicated libvirt network (fully customizable)
 - dedicated libvirt storage pool (fully customizable) 
 - terraform 
 - libvirt-terraform-provider ( compiled and initialized based on [https://github.com/dmacvicar/terraform-provider-libvirt](https://github.com/dmacvicar/terraform-provider-libvirt))
 
-## **loadbalancer** VMs spec:
+You can customize the setup choosing:
 
-- OS: Centos8 Generic Cloud base image [https://cloud.centos.org/centos/8/x86_64/images/](https://cloud.centos.org/centos/8/x86_64/images/)  
+- **container runtime** that you want to use (docker, cri-o, containerd).
+- **service** and **pod** CIDR to use during installation.
+- **network plugin** to use, based on the documentation
+
+
+## All VMs are specular,prepared with:
+
+- OS: Centos7 Generic Cloud base image [https://cloud.centos.org/centos/8/x86_64/images/](https://cloud.centos.org/centos/7/images/)  
 - cloud-init:   
   - user: kube
   - pass: kuberocks  
@@ -33,12 +43,11 @@ You can quickly make it work by configuring the needed vars, but you can go stra
 
 Recommended values are:
 
-| Role | vCPU | RAM | Storage |
+| Role | vCPU | RAM |
 |--|--|--|--|
-| master | 4 | 16G | 120G |
-| worker | 2 | 8G | 120G |
+| master | 2 | 2G | 
+| worker | 1 | 1G | 
 
-For testing purposes, minimum storage value is set at **40GB**.
 
 Feel free to suggest modifications/improvements.
 
