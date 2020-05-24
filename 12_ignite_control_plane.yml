@@ -3,6 +3,7 @@
   vars_files:
     - vars/k8s_cluster.yml
   hosts: masters
+  run_once: true
   tasks:
     - block: 
         - name: Start kubeadm install
@@ -30,7 +31,6 @@
         
       when: 
         - k8s.control_plane.vms > 1
-        - inventory_hostname == groups['masters'][0]
 
     - block:
         - name: "set token fact"
@@ -40,4 +40,18 @@
         - name: "set hash fact"
           set_fact:
             kubehash: "{{ kubeadm_output.stdout | regex_search('sha256:[0-9a-zA-Z]{64}') | regex_search('[0-9a-zA-Z]{64}') }}"
-      when: inventory_hostname == groups['masters'][0]
+
+    - name: Create kube directory
+      file:
+        path: /home/kube/.kube
+        state: directory
+ 
+    - name: Copy kubeconfig
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/kube/.kube/config
+        remote_src: true
+        owner: kube
+        group: kube
+      become: true
+           
