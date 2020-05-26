@@ -41,13 +41,30 @@ The playbook is meant to be ran against a/many local or remote host/s, defined u
 
 You can quickly make it work by configuring the needed vars, but you can go straight with the defaults!
 
-Recommended values are:
+Recommended sizings are:
 
 | Role | vCPU | RAM |
 |--|--|--|--|
 | master | 2 | 2G | 
 | worker | 1 | 1G | 
 
+**vars/k8s_cluster.yml**
+
+    k8s:
+      control_plane:
+        vcpu: 2
+        mem: 8
+        vms: 2
+      worker_nodes:
+        vcpu: 2
+        mem: 4
+        vms: 1
+
+      network:
+        service_cidr:
+        pod_cidr:
+      container_runtime: docker
+      master_schedulable: false
 
 Feel free to suggest modifications/improvements.
 

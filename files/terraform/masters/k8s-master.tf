@@ -18,7 +18,8 @@ resource "libvirt_volume" "os_image" {
   count = var.vm_count
   name = "${var.hostname}-os_image-${count.index}"
   pool = var.libvirt_pool
-  source = "https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2"
+  #source = "https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2"
+  source = "../images/CentOS-7-x86_64-GenericCloud.qcow2"
   format = "qcow2"
 }
 

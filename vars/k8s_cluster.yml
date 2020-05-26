@@ -12,3 +12,4 @@ k8s:
     service_cidr: 
     pod_cidr: 
   container_runtime: docker
+  master_schedulable: false

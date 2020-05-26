@@ -5,3 +5,5 @@ vars/vars.yml
 test.yml
 .terraform
 roles
+utils.yml
+files/terraform/images/
