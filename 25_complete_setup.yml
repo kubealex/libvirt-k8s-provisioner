@@ -17,6 +17,7 @@
             owner: kube
             group: kube
           become: true
+
       when: inventory_hostname != groups['masters'][0]
 
 

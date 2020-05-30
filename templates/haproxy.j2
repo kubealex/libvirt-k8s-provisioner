@@ -38,4 +38,36 @@ backend kubernetes-control-plane
 
 {% for node in groups['masters'] %}
     server {{ hostvars[node].host_fqdn }} {{ hostvars[node].host_ip }}:6443 check
-{%endfor%}
+{% endfor %}
+
+
+{% if k8s.install_nginx and hostvars[groups['masters'][0]].k8s_installed  %}
+frontend nginx_http_nodeport
+    bind *:80
+    default_backend nginx_http_nodeport
+    mode tcp
+    option tcplog
+
+backend nginx_http_nodeport
+    balance source
+    mode tcp
+
+{% for node in groups['workers'] %}
+    server {{ hostvars[node].host_fqdn }} {{ hostvars[node].host_ip }}:{{ hostvars[groups['masters'][0]].nginx_http_port }} check
+{% endfor %}
+
+frontend kubernetes-control-plane
+    bind *:443
+    default_backend nginx_https_nodeport
+    mode tcp
+    option tcplog
+
+backend nginx_https_nodeport
+    balance source
+    mode tcp
+
+{% for node in groups['workers'] %}
+    server {{ hostvars[node].host_fqdn }} {{ hostvars[node].host_ip }}:{{ hostvars[groups['masters'][0]].nginx_https_port }} check
+{% endfor %}
+
+{% endif %}

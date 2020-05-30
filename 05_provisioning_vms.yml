@@ -41,6 +41,7 @@
     - name: Add masters to given group
       add_host:
         hostname: 'k8s-master-{{ item }}'
+        k8s_installed: false
         node_hostname: 'k8s-master-{{ item }}'
         node_mac: "{{ output_masters.outputs.macs.value[item]|lower }}"
         node_fqdn: k8s-master-{{ item }}.{{ libvirt.network.domain }} 

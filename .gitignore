@@ -7,3 +7,4 @@ test.yml
 roles
 utils.yml
 files/terraform/images/
+inventory_test

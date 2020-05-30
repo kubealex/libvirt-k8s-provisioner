@@ -13,3 +13,5 @@ k8s:
     pod_cidr: 
   container_runtime: docker
   master_schedulable: false
+  install_nginx: true
+  install_rancher: true

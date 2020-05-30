@@ -1,0 +1,77 @@
+--- 
+- name: Prepare cluster to install rancher
+  hosts: masters
+  run_once: true
+  tasks:
+    - block:
+        - name: Ensure helm is installed
+          unarchive:
+            src: https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
+            dest: /tmp/
+            remote_src: true
+
+        - name: Install helm in PATH
+          copy:
+            src: /tmp/linux-amd64/helm
+            dest: /usr/local/bin/
+            remote_src: true
+            mode: +x
+          become: true
+
+        - name: remove directory
+          file:
+            path: /tmp/linux-amd64
+            state: absent
+
+        - name: Add helm repo
+          shell: helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
+
+        - name: Ensure rancher namespace exists
+          shell: kubectl create namespace cattle-system
+
+        - name: Install CRDs
+          shell: kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.0/cert-manager.crds.yaml
+       
+        - name: Ensure cert-manager namespace exists
+          shell: kubectl create namespace cert-manager
+
+        - name: Add cert-manager helm repo
+          shell: helm repo add jetstack https://charts.jetstack.io
+
+        - name: Update helm repos
+          shell: helm repo update
+
+        - name: Install helm chart
+          shell: helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v0.15.0
+
+        - name: Wait for all cert-manager pods become created
+          shell: "kubectl get po --namespace=cert-manager --output=jsonpath='{.items[*].metadata.name}'"
+          register: cert_manager_pods_created
+          until: item in cert_manager_pods_created.stdout
+          retries: 10
+          delay: 30
+          with_items:
+            - cert-manager
+            - cert-manager-cainjector
+            - cert-manager-webhook
+
+        - name: Wait for cert-manager pods to become ready
+          shell: "kubectl wait --namespace=cert-manager --for=condition=Ready pods --all --timeout=600s"
+          register: cert_manager_pods_ready
+
+        - debug: 
+            var: cert_manager_pods_ready.stdout_lines
+
+        - wait_for:
+            timeout: 120
+
+        - name: Install rancher
+          shell: helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname={{ hostvars[groups['loadbalancer'][0]].node_fqdn }}
+
+        - name: Wait for rancher deploy to end
+          shell: "kubectl -n cattle-system rollout status deploy/rancher"
+          register: rancher_rollout_succeeded
+          until: '"successfully rolled out" in rancher_rollout_succeeded.stdout'
+          retries: 10
+          delay: 30
+      when: k8s.install_rancher
