@@ -48,7 +48,7 @@ You can quickly make it work by configuring the needed vars, but you can go stra
 Recommended sizings are:
 
 | Role | vCPU | RAM |
-|--|--|--|--|
+|--|--|--|
 | master | 2 | 2G | 
 | worker | 1 | 1G | 
 
