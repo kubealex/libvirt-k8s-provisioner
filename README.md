@@ -20,8 +20,12 @@ It also takes care of preparing the host machine with needed packages, configuri
 You can customize the setup choosing:
 
 - **container runtime** that you want to use (docker, cri-o, containerd).
-- **service** and **pod** CIDR to use during installation.
-- **network plugin** to use, based on the documentation
+- **service** CIDR to use during installation. 
+- **pod** CIDR to use during installation. 
+- **network plugin** to use, based on the documentation. 
+- **nginx-ingress-controller** if you want to enable ingress management.  
+- **@rancher** installation to manage your cluster. 
+- **master schedulable** if you want to schedule on your master nodes or leave the taint.
 
 
 ## All VMs are specular,prepared with:
@@ -53,18 +57,20 @@ Recommended sizings are:
     k8s:
       control_plane:
         vcpu: 2
-        mem: 8
+        mem: 2
         vms: 2
       worker_nodes:
-        vcpu: 2
-        mem: 4
+        vcpu: 1
+        mem: 1
         vms: 1
 
       network:
-        service_cidr:
-        pod_cidr:
+        service_cidr: 10.96.0.0/12
+        pod_cidr: 10.217.0.0/16
       container_runtime: docker
       master_schedulable: false
+      install_nginx: false
+      install_rancher: false
 
 Feel free to suggest modifications/improvements.
 
