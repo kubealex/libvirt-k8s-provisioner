@@ -22,8 +22,8 @@ You can customize the setup choosing:
 - **container runtime** that you want to use (docker, cri-o, containerd).
 - **service** CIDR to use during installation. 
 - **pod** CIDR to use during installation. 
-- **network plugin** to use, based on the documentation. 
-- **nginx-ingress-controller** if you want to enable ingress management.  
+- **network plugin** to use, based on the documentation. **Defaults to Calico.** (WIP)
+- **[nginx-ingress-controller](https://kubernetes.github.io/ingress-nginx/)** if you want to enable ingress management.  
 - **[Rancher](https://rancher.com/)** installation to manage your cluster. 
 - **master schedulable** if you want to schedule on your master nodes or leave the taint.
 
