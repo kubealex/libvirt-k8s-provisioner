@@ -4,6 +4,7 @@ variable "domain" { default = "k8s.lab" }
 variable "memory" { default = 6 }
 variable "cpu" { default = 3 }
 variable "vm_count" { default = 2 }
+variable "vm_volume_size" { default = 10 }
 variable "iface" { default = "eth0" }
 variable "libvirt_network" { default = "k8s" }
 variable "libvirt_pool" { default= "k8s" }
@@ -16,11 +17,19 @@ provider "libvirt" {
 # fetch the latest ubuntu release image from their mirrors
 resource "libvirt_volume" "os_image" {
   count = var.vm_count
-  name = "${var.hostname}-os_image-${count.index}"
+  name = "${var.hostname}-${count.index}-os_image"
   pool = var.libvirt_pool
 #  source = "https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2"
   source = "../images/CentOS-7-x86_64-GenericCloud.qcow2"
 
+  format = "qcow2"
+}
+
+resource "libvirt_volume" "storage_image" {
+  count = var.vm_count
+  name = "${var.hostname}-${count.index}-storage_image"
+  pool = var.libvirt_pool
+  size = var.vm_volume_size*1073741824
   format = "qcow2"
 }
 
@@ -65,6 +74,9 @@ resource "libvirt_domain" "k8s-worker" {
 
   disk {
      volume_id = libvirt_volume.os_image[count.index].id
+  }
+  disk {
+     volume_id = libvirt_volume.storage_image[count.index].id
   }
 
   network_interface {

@@ -1,0 +1,48 @@
+---
+- name: Provision storage on nodes
+  hosts: masters,workers
+  become: true
+  vars: 
+    paths:
+      - dev: /dev/vdb1
+        path: /var/lib/kubelet
+#      - dev: /dev/vdb2
+#        path: /var/log
+  tasks:
+    - name: Create log partitions
+      parted:
+        device: /dev/vdb
+        label: msdos
+        number: 1
+        part_start: 0%
+        part_end: 100%
+        #part_end: 5%
+        state: present
+
+#    - name: Create storage partition
+#      parted: 
+#        dev: /dev/vdb
+#        number: 2
+#        part_start: 5%
+#        part_end: 100%
+#       state: present
+
+    - name: Create filesystem on partitions
+      filesystem:
+        fstype: ext4
+        dev: "{{ item.dev }}"
+      loop: "{{ paths }}"
+
+    - name: Create mountpoints
+      file: 
+        path: "{{ item.path }}"
+        state: directory
+      loop: "{{ paths }}"
+
+    - name: Mount the filesystems
+      mount:
+        fstype: ext4
+        src: "{{ item.dev }}"
+        path: "{{ item.path }}"
+        state: mounted
+      loop: "{{ paths }}"

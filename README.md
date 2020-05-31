@@ -59,10 +59,13 @@ Recommended sizings are:
         vcpu: 2
         mem: 2
         vms: 2
+	disk: 10
+
       worker_nodes:
         vcpu: 1
         mem: 1
         vms: 1
+        disk: 10
 
       network:
         service_cidr: 10.96.0.0/12
@@ -71,6 +74,8 @@ Recommended sizings are:
       master_schedulable: false
       install_nginx: false
       install_rancher: false
+
+Size for **disk** and **mem** is in GB. **disk** allows to provision space for pod's ephemeral storage.
 
 Feel free to suggest modifications/improvements.
 

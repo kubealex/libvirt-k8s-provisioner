@@ -1,6 +1,7 @@
 #ansible-playbook 01_install_virtualization_tools.yml
 - import_playbook: 02_provision_libvirt_resources.yml
 - import_playbook: 05_provisioning_vms.yml
+- import_playbook: 06_provision_storage.yml
 - import_playbook: 07_provisioning_loadbalancer.yml
 - import_playbook: 09_loadbalancer_services.yml
 - import_playbook: 10_container_runtimes.yml

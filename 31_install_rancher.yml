@@ -2,6 +2,8 @@
 - name: Prepare cluster to install rancher
   hosts: masters
   run_once: true
+  vars_files:
+    - vars/k8s_cluster.yml
   tasks:
     - block:
         - name: Ensure helm is installed
