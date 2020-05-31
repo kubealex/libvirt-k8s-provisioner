@@ -24,7 +24,7 @@ You can customize the setup choosing:
 - **pod** CIDR to use during installation. 
 - **network plugin** to use, based on the documentation. 
 - **nginx-ingress-controller** if you want to enable ingress management.  
-- **@rancher** installation to manage your cluster. 
+- **[Rancher](https://rancher.com/)** installation to manage your cluster. 
 - **master schedulable** if you want to schedule on your master nodes or leave the taint.
 
 
