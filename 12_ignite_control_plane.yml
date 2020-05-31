@@ -7,7 +7,7 @@
   tasks:
     - block: 
         - name: Start kubeadm install
-          shell: kubeadm init --pod-network-cidr={{ k8s.pod_cidr | default("10.217.0.0/16") }}
+          shell: kubeadm init --pod-network-cidr={{ k8s.pod_cidr | default("10.217.0.0/16") }} --service-cidr={{ k8s.service_cidr | default("10.96.0.0/12") }}
           become: true
           register: kubeadm_output
 

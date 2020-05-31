@@ -1,17 +1,17 @@
 k8s:
   control_plane:
     vcpu: 2
-    mem: 8
+    mem: 2
     vms: 2
   worker_nodes:
-    vcpu: 2
-    mem: 4
+    vcpu: 1
+    mem: 1
     vms: 1
 
   network:
-    service_cidr: 
-    pod_cidr: 
+    service_cidr: 10.96.0.0/12
+    pod_cidr: 10.217.0.0/16
   container_runtime: docker
   master_schedulable: false
-  install_nginx: true
-  install_rancher: true
+  install_nginx: false
+  install_rancher: false
