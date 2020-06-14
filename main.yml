@@ -1,4 +1,4 @@
-#ansible-playbook 01_install_virtualization_tools.yml
+- import_playbook: 01_install_virtualization_tools.yml
 - import_playbook: 02_provision_libvirt_resources.yml
 - import_playbook: 05_provisioning_vms.yml
 - import_playbook: 06_provision_storage.yml
