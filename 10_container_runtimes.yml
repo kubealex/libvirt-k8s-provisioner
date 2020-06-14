@@ -82,6 +82,7 @@
             name: docker
             state: restarted
             enabled: true
+
       when: k8s.container_runtime == 'docker'
 
     - name: Install cri-o
@@ -90,12 +91,12 @@
           get_url:
             url: "{{ item.url }}"
             dest: "{{ item.file }}"
+            validate_certs: false
           loop: 
             - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable.repo"
-              url: "https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/CentOS_7/devel:kubic:libcontainers:stable.repo"
+              url: "http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_7/devel:kubic:libcontainers:stable.repo"
             - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:1.18.repo"
-              url: "https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:1.18/CentOS_7/devel:kubic:libcontainers:stable:cri-o:1.18.repo"
-
+              url: "http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.18/CentOS_7/devel:kubic:libcontainers:stable:cri-o:1.18.repo"
         - name: Ensure cri-o is installed
           yum:
             name: cri-o
@@ -105,14 +106,35 @@
           replace:
             path: /etc/crio/crio.conf
             regexp: '^cgroup_manager.*'
-            replace: 'cgroup_manager = "systemd"'
+            replace: 'cgroup_manager = "cgroupfs"'
+        - block: 
 
-        - name: Ensure systemd as default cgroup_manager
-          lineinfile:
-            path: /etc/sysconfig/kubelet
-            regexp: '^KUBELET_EXTRA_ARGS='
-            line: 'KUBELET_EXTRA_ARGS=--cgroup-driver=systemd'
-            create: true
+            - name: Ensure MKNOD is enable if installing Rancher
+              lineinfile:
+                path: /etc/crio/crio.conf
+                line: '"MKNOD",'
+                insertafter: 'default_capabilities'
+
+            - name: Ensure MKNOD is enable if installing Rancher
+              lineinfile:
+                path: /etc/crio/crio.conf
+                line: '"NET_RAW",'
+                insertafter: 'default_capabilities'
+          when: k8s.install_rancher
+           
+        - name: Ensure to use all possible plugins dir
+          replace:
+            path: /etc/crio/crio.conf
+            regexp: '"/usr/libexec/cni",'
+            replace: '"/usr/libexec/cni", "/opt/cni/bin/",'
+
+        - name: Remove example CNI configs
+          file:
+            path: "/etc/cni/net.d/{{ item }}"
+            state: absent
+          loop:
+            - 100-crio-bridge.conf
+            - 200-loopback.conf
 
         - name: Force systemd to reread configs
           systemd:

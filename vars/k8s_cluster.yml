@@ -1,21 +1,22 @@
 k8s:
   control_plane:
     vcpu: 2
-    mem: 2
-    vms: 2
-    disk: 10
+    mem: 5
+    vms: 3
+    disk: 5
 
   worker_nodes:
     vcpu: 1
-    mem: 1
-    vms: 1
-    disk: 10
+    mem: 3
+    vms: 3
+    disk: 5
 
   network:
-    service_cidr: 10.96.0.0/12
-    pod_cidr: 10.217.0.0/16
+    pod_cidr: 10.200.0.0/16
+    service_cidr: 10.50.0.0/16 
+    cni_plugin: calico
 
-  container_runtime: docker
+  container_runtime: crio
   master_schedulable: false
-  install_nginx: false
-  install_rancher: false
+  install_nginx: true
+  install_rancher: true

@@ -7,7 +7,7 @@
   tasks:
     - block: 
         - name: Start kubeadm install
-          shell: kubeadm init --pod-network-cidr={{ ('10.244.0.0/16' if (k8s.network.cni_plugin == 'flannel') else k8s.network.pod_cidr) | default('10.217.0.0/16') }} --service-cidr={{ k8s.network.service_cidr | default("10.96.0.0/12") }}
+          shell: kubeadm init --pod-network-cidr={{ k8s.network.pod_cidr | default("10.217.0.0/16") }} --service-cidr={{ k8s.network.service_cidr | default("10.96.0.0/12") }}
           become: true
           register: kubeadm_output
 
@@ -19,7 +19,7 @@
 
     - block:
         - name: Start kubeadm install - HA
-          shell: kubeadm init --control-plane-endpoint {{ hostvars['k8s-loadbalancer'].node_fqdn }} --upload-certs --pod-network-cidr={{ ('10.244.0.0/16' if (k8s.network.cni_plugin == 'flannel') else k8s.network.pod_cidr) | default('10.217.0.0/16') }} --service-cidr={{ k8s.network.service_cidr | default("10.96.0.0/12") }}
+          shell: sudo kubeadm init --control-plane-endpoint {{ hostvars['k8s-loadbalancer'].node_fqdn }} --upload-certs --pod-network-cidr={{ k8s.network.pod_cidr | default("10.217.0.0/16") }} --service-cidr={{ k8s.network.service_cidr | default("10.96.0.0/12") }}
           become: true
           register: kubeadm_output
         - debug:

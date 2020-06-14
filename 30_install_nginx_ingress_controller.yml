@@ -24,8 +24,8 @@
           shell: "kubectl wait --namespace=ingress-nginx --for=condition=Ready pods --selector app.kubernetes.io/component=controller  --timeout=600s"
           register: ingress_nginx_pods_ready
 
-        - wait_for:
-            timeout: 100
+#        - wait_for:
+#            timeout: 100
 
         - name: Save nodePorts in master facts
           shell: kubectl get svc ingress-nginx-controller  -n ingress-nginx -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'

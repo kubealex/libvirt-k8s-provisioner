@@ -2,19 +2,84 @@
 - name: Apply network plugin
   hosts: masters
   run_once: true
+  vars_files:
+    - vars/k8s_cluster.yml
   tasks:
-    - name: Apply network addon - Calico
-      command: kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml
+    - block:
+        - name: Apply network addon - Calico
+          command: kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml
 
-    - name: Wait for kube-dns pods become created
-      shell: "kubectl get po --namespace=kube-system --selector k8s-app=kube-dns --output=jsonpath='{.items[*].metadata.name}'"
-      register: kube_dns_pods_created
-      until: item in kube_dns_pods_created.stdout
-      retries: 10
-      delay: 30
-      with_items:
-        - coredns
+        - name: Force calico to ignore cni0 interface when installing
+          shell: 'kubectl set env ds/calico-node -n kube-system  --containers="calico-node" IP_AUTODETECTION_METHOD=can-reach=8.8.8.8'
+          when: k8s.container_runtime == 'crio'
 
-    - name: Wait for core-dns pods become ready
-      shell: "kubectl wait --namespace=kube-system --for=condition=Ready pods --selector k8s-app=kube-dns --timeout=600s"
-      register: kube_dns_pods_ready
+        - name: Wait for flannel pods become created
+          shell: "kubectl get po --namespace=kube-system --selector k8s-app=calico-node --output=jsonpath='{.items[*].metadata.name}'"
+          register: calico_dns_pods_created
+          until: item in calico_dns_pods_created.stdout
+          retries: 10
+          delay: 30
+          with_items:
+            - calico-node
+
+        - name: Wait for core-dns pods become ready
+          shell: "kubectl wait --namespace=kube-system --for=condition=Ready pods --selector k8s-app=calico-node --timeout=600s"
+          register: calico_dns_pods_ready
+
+        - name: Wait for kube-dns pods become created
+          shell: "kubectl get po --namespace=kube-system --selector k8s-app=kube-dns --output=jsonpath='{.items[*].metadata.name}'"
+          register: kube_dns_pods_created
+          until: item in kube_dns_pods_created.stdout
+          retries: 10
+          delay: 30
+          with_items:
+            - coredns
+
+        - name: Wait for core-dns pods become ready
+          shell: "kubectl wait --namespace=kube-system --for=condition=Ready pods --selector k8s-app=kube-dns --timeout=600s"
+          register: kube_dns_pods_ready
+
+      when: k8s.network.cni_plugin == 'calico'
+
+    - block:
+        - name: Download flannel manifest
+          get_url:
+            url: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+            dest: /tmp/kube-flannel.yml
+        
+        - name: Patch kube-flannel to use host-gw instead of vxlan
+          replace:
+            path: /tmp/kube-flannel.yml
+            regexp: 'vxlan'
+            replace: 'host-gw'
+
+        - name: apply network addon - Flannel
+          shell: kubectl apply -f /tmp/kube-flannel.yml
+
+        - name: Wait for flannel pods become created
+          shell: "kubectl get po --namespace=kube-system --selector app=flannel --output=jsonpath='{.items[*].metadata.name}'"
+          register: flannel_dns_pods_created
+          until: item in flannel_dns_pods_created.stdout
+          retries: 10
+          delay: 30
+          with_items:
+            - kube-flannel-ds-amd64
+
+        - name: Wait for core-dns pods become ready
+          shell: "kubectl wait --namespace=kube-system --for=condition=Ready pods --selector app=flannel --timeout=600s"
+          register: flannel_dns_pods_ready
+
+        - name: Wait for kube-dns pods become created
+          shell: "kubectl get po --namespace=kube-system --selector k8s-app=kube-dns --output=jsonpath='{.items[*].metadata.name}'"
+          register: kube_dns_pods_created
+          until: item in kube_dns_pods_created.stdout
+          retries: 10
+          delay: 30
+          with_items:
+            - coredns
+
+        - name: Wait for core-dns pods become ready
+          shell: "kubectl wait --namespace=kube-system --for=condition=Ready pods --selector k8s-app=kube-dns --timeout=600s"
+          register: kube_dns_pods_ready
+
+      when: k8s.network.cni_plugin == 'flannel'
