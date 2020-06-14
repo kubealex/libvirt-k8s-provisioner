@@ -54,26 +54,28 @@ Recommended sizings are:
 
 **vars/k8s_cluster.yml**
 
-    k8s:
-      control_plane:
-        vcpu: 2
-        mem: 2
-        vms: 2
-	disk: 10
+	k8s:
+	  control_plane:
+	    vcpu: 2
+	    mem: 4
+	    vms: 2
+	    disk: 10
 
-      worker_nodes:
-        vcpu: 1
-        mem: 1
-        vms: 1
-        disk: 10
+	  worker_nodes:
+	    vcpu: 1
+	    mem: 2
+	    vms: 1
+	    disk: 10
 
-      network:
-        service_cidr: 10.96.0.0/12
-        pod_cidr: 10.217.0.0/16
-      container_runtime: docker
-      master_schedulable: false
-      install_nginx: false
-      install_rancher: false
+	  network:
+	    pod_cidr: 10.200.0.0/16
+	    service_cidr: 10.50.0.0/16
+	    cni_plugin: calico
+
+	  container_runtime: docker
+	  master_schedulable: false
+	  install_nginx: false
+	  install_rancher: false
 
 Size for **disk** and **mem** is in GB. **disk** allows to provision space for pod's ephemeral storage.
 

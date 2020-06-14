@@ -2,14 +2,14 @@ k8s:
   control_plane:
     vcpu: 2
     mem: 4
-    vms: 2
-    disk: 5
+    vms: 2 
+    disk: 10
 
   worker_nodes:
     vcpu: 1
     mem: 2
-    vms: 2
-    disk: 5
+    vms: 1
+    disk: 10
 
   network:
     pod_cidr: 10.200.0.0/16
