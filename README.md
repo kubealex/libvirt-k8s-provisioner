@@ -79,6 +79,12 @@ Recommended sizings are:
 
 Size for **disk** and **mem** is in GB. **disk** allows to provision space for pod's ephemeral storage.
 
+VMS are created with these names by default (customizing them is work in progress):
+
+	- k8s-loadbalancer.**domain**
+	- k8s-master-N.**domain**
+	- k8s-worker-N.**domain**
+
 These are the default for libvirt resources:
 
 **vars/libvirt.yml**
