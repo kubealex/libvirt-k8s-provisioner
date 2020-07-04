@@ -79,6 +79,19 @@ Recommended sizings are:
 
 Size for **disk** and **mem** is in GB. **disk** allows to provision space for pod's ephemeral storage.
 
+These are the default for libvirt resources:
+
+**vars/libvirt.yml**
+
+	libvirt:
+	  network:
+	    domain: k8s.lab
+	    name: k8s
+	    net: 192.168.200.0/24
+	  storage:
+	    pool_name: k8s
+	    pool_path: /var/lib/libvirt/images/k8s
+
 Feel free to suggest modifications/improvements.
 
 Alex
