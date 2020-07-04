@@ -1,0 +1,33 @@
+---
+- name: Pre-flight checklist before installing k8s
+  hosts: vm_host
+  vars_files:
+    - vars/k8s_cluster.yml
+  tasks:
+    - name: Check at least one vm for each type is defined
+      fail:
+        msg: At least one control plane should be selected
+      when: 
+        - k8s.control_plane.vms is not defined or k8s.control_plane.vms <= 0
+
+    - name: Fail fast if no container runtime is defined
+      fail:
+        msg: Select at least container runtime 'docker', 'containerd', 'crio'
+      when: 
+        - k8s.container_runtime != 'crio'
+        - k8s.container_runtime != 'docker'
+        - k8s.container_runtime != 'containerd'
+
+    - name: Fail fast if no container plugin selected
+      fail:
+        msg: Select at least a CNI plugin 'calico' or 'flannel'
+      when:
+        - k8s.network.cni_plugin != 'calico'
+        - k8s.network.cni_plugin != 'flannel'
+
+    - name: Check if nginx ingress is selected before installing rancher
+      fail:
+        msg: To install Rancher, install_nginx must be true
+      when:
+        - k8s.install_rancher
+        - k8s.install_nginx == false

@@ -76,4 +76,16 @@
           until: '"successfully rolled out" in rancher_rollout_succeeded.stdout'
           retries: 10
           delay: 30
+        
+#        - name: Patch deployments to use unqualified images with CRI-O until rancher team decides to merge my PR.
+#          block:
+#            - name: Patch cattle-node-agent deamonset
+#              shell: |
+#                kubectl patch --type="json" -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value":"docker.io/rancher/rancher-agent:v2.4.5"}]' daemonset.apps/cattle-node-agent -n cattle-system
+#            
+#            - name: Patch cattle-cluster-agent deployment
+#              shell: |
+#                kubectl patch --type="json" -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value":"docker.io/rancher/rancher-agent:v2.4.5"}]' deployment.apps/cattle-cluster-agent -n cattle-system
+#          when: k8s.container_runtime == 'crio'
       when: k8s.install_rancher
+

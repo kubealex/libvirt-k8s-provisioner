@@ -97,6 +97,7 @@
               url: "http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_7/devel:kubic:libcontainers:stable.repo"
             - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:1.18.repo"
               url: "http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.18/CentOS_7/devel:kubic:libcontainers:stable:cri-o:1.18.repo"
+
         - name: Ensure cri-o is installed
           yum:
             name: cri-o
@@ -107,18 +108,20 @@
             path: /etc/crio/crio.conf
             regexp: '^cgroup_manager.*'
             replace: 'cgroup_manager = "cgroupfs"'
-        - block: 
 
-            - name: Ensure MKNOD is enable if installing Rancher
+        - name: Ensure NET_RAW is enabled to support DNS resolution from coredns while PR is accepted
+          lineinfile:
+            path: /etc/crio/crio.conf
+            line: '"NET_RAW",'
+            insertafter: 'default_capabilities'
+
+        - name: Add capabilities due to particular capabilities required by Rancher
+          block: 
+
+            - name: Ensure MKNOD is enabled if installing Rancher
               lineinfile:
                 path: /etc/crio/crio.conf
                 line: '"MKNOD",'
-                insertafter: 'default_capabilities'
-
-            - name: Ensure MKNOD is enable if installing Rancher
-              lineinfile:
-                path: /etc/crio/crio.conf
-                line: '"NET_RAW",'
                 insertafter: 'default_capabilities'
           when: k8s.install_rancher
            
@@ -127,6 +130,12 @@
             path: /etc/crio/crio.conf
             regexp: '"/usr/libexec/cni",'
             replace: '"/usr/libexec/cni", "/opt/cni/bin/",'
+
+        - name: Add docker.io to registries due to bad usage of unqualified images from many dev teams
+          lineinfile:
+            path: /etc/crio/crio.conf
+            regexp: '^#registries'
+            line: 'registries = [ "docker.io", "quay.io" ]'
 
         - name: Remove example CNI configs
           file:
