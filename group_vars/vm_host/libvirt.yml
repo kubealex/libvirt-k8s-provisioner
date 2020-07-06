@@ -1,6 +1,10 @@
 virtualization_packages:
   - git
+  - golang
+  - gcc
+  - make
   - python3-lxml
+  - python3-netaddr
   - python3-libvirt
   - libvirt-devel
   - libvirt

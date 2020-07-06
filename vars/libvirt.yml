@@ -1,3 +1,4 @@
+gopath: "~/go"
 libvirt:
   network:
     domain: k8s.lab

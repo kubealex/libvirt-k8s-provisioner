@@ -4,6 +4,11 @@
     - vars/k8s_cluster.yml
     - vars/libvirt.yml
   tasks:
+
+    - name: Create ssh keypair
+      openssh_keypair:
+        path: "id_rsa"
+
     - terraform:
         project_path: "files/terraform/masters"
         force_init: true
@@ -33,10 +38,6 @@
           vm_count: "{{ k8s.worker_nodes.vms }}"
         state: present
       register: output_workers
-
-    - name: Create ssh keypair
-      openssh_keypair:
-        path: "id_rsa"
 
     - name: Add masters to given group
       add_host:

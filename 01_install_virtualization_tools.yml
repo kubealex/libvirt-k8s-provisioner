@@ -13,7 +13,7 @@
         remote_src: yes
       become: true
 
-    - name: Install qemu, libvirt, git
+    - name: Install required packages
       yum:
         name: "{{ virtualization_packages }}"
         state: latest
