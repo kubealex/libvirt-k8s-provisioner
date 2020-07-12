@@ -25,6 +25,7 @@
           - kubelet
           - kubeadm
           - kubectl 
+        lock_timeout: 60
         disable_excludes: kubernetes
 
     - name: Enable kubelet

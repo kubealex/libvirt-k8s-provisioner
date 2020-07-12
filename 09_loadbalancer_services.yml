@@ -10,6 +10,7 @@
         - name: Install packages
           yum:
             name: "{{ packages }}"
+            lock_timeout: 60
             state: latest
               
         - name: Enable firewalld

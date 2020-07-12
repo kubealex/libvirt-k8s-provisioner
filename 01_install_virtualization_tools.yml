@@ -17,6 +17,7 @@
       yum:
         name: "{{ virtualization_packages }}"
         state: latest
+        lock_timeout: 60
       become: true
 
     - name: Virtualization services are enabled

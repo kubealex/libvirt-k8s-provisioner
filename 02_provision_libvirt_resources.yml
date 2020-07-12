@@ -22,6 +22,24 @@
         name: "{{ libvirt.network.name }}"
         autostart: true
 
+    - name: Configure NetworkManager for local DNS
+      copy:
+        src: files/localdns.conf
+        dest: /etc/NetworkManager/conf.d/localdns.conf
+
+    - name: Configure NetworkManager for libvirt network
+      copy:
+        src: files/libvirt_dnsmasq.conf
+        dest: /etc/NetworkManager/dnsmasq.d/libvirt_dnsmasq.conf
+
+    - name: Configure DNS search domain
+      command: nmcli connection modify "{{ ansible_default_ipv4.interface }}" ipv4.dns-search "{{ libvirt.network.domain }}"
+
+    - name: Restart NetworkManager
+      service:
+        name: NetworkManager
+        state: restarted
+
     - name: Start libvirt network
       virt_net:
         command: start

@@ -43,6 +43,7 @@
               - yum-utils 
               - device-mapper-persistent-data 
               - lvm2
+            lock_timeout: 60
             state: latest
 
         - name: Add docker repository
@@ -56,6 +57,7 @@
               - containerd.io-1.2.13
               - docker-ce-19.03.8
               - docker-ce-cli-19.03.8
+            lock_timeout: 60
             state: latest
 
         - name: Create /etc/docker
@@ -101,6 +103,7 @@
         - name: Ensure cri-o is installed
           yum:
             name: cri-o
+            lock_timeout: 60
             state: latest
 
         - name: Ensure systemd as default cgroup_manager
@@ -164,6 +167,7 @@
               - yum-utils
               - device-mapper-persistent-data
               - lvm2
+            lock_timeout: 60
             state: latest
 
         - name: Add containerd repository
@@ -174,6 +178,7 @@
         - name: Ensure containerd is installed
           yum:
             name: containerd.io
+            lock_timeout: 60
             state: latest
 
         - name: Create /etc/containers
