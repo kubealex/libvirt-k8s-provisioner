@@ -41,9 +41,9 @@
 
     - name: Add masters to given group
       add_host:
-        hostname: 'k8s-master-{{ item }}'
+        hostname: 'k8s-master-{{ item }}.{{ libvirt.network.domain }}'
         k8s_installed: false
-        node_hostname: 'k8s-master-{{ item }}'
+        node_hostname: 'k8s-master-{{ item }}.{{ libvirt.network.domain }}'
         node_mac: "{{ output_masters.outputs.macs.value[item]|lower }}"
         node_fqdn: k8s-master-{{ item }}.{{ libvirt.network.domain }} 
         ansible_ssh_private_key_file: "id_rsa"
@@ -55,8 +55,8 @@
 
     - name: Add workers to given group
       add_host:
-        hostname: 'k8s-worker-{{ item }}'
-        node_hostname: 'k8s-worker-{{ item }}'
+        hostname: 'k8s-worker-{{ item }}.{{ libvirt.network.domain }}'
+        node_hostname: 'k8s-worker-{{ item }}.{{ libvirt.network.domain }}'
         node_mac: "{{ output_workers.outputs.macs.value[item]|lower }}"
         node_fqdn: k8s-worker-{{ item }}.{{ libvirt.network.domain }}
         ansible_ssh_private_key_file: "id_rsa"

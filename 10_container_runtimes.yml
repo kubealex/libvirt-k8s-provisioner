@@ -109,11 +109,11 @@
             regexp: '^cgroup_manager.*'
             replace: 'cgroup_manager = "cgroupfs"'
 
-        - name: Ensure NET_RAW is enabled to support DNS resolution from coredns while PR is accepted
-          lineinfile:
-            path: /etc/crio/crio.conf
-            line: '"NET_RAW",'
-            insertafter: 'default_capabilities'
+#        - name: Ensure NET_RAW is enabled to support DNS resolution from coredns while PR is accepted
+#          lineinfile:
+#            path: /etc/crio/crio.conf
+#            line: '"NET_RAW",'
+#            insertafter: 'default_capabilities'
 
         - name: Add capabilities due to particular capabilities required by Rancher
           block: 

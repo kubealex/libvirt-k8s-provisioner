@@ -25,20 +25,33 @@
         name: "{{ libvirt.storage.pool_name }}"
         state: absent
 
-#    - name: Delete all created paths
-#      file:
-#        path: "{{ item }}"
-#        state: absent
-#      loop: 
-#        - ~/libvirt-provider
-#        - ~/.terraform.d
-#        - "{{ gopath }}"
-#        - "{{ libvirt.storage.pool_path }}"
-#
-#    - name: Delete all created paths - root 
-#      become: true
-#      file:
-#        path: "{{ item }}"
-#        state: absent
-#      loop:
-#        - /usr/bin/terraform
+    - name: Delete all created paths
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop: 
+        - ~/libvirt-provider
+        - ~/.terraform.d
+        - "{{ gopath }}"
+        - "{{ libvirt.storage.pool_path }}"
+
+    - name: Delete all created paths - root 
+      become: true
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /usr/bin/terraform
+
+    - name: Cleanup local DNS config
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/NetworkManager/dnsmasq.d/libvirt_dnsmasq.conf
+        - /etc/NetworkManager/conf.d/localdns.conf
+
+    - name: Restart NetworkManager
+      service:
+        name: NetworkManager
+        state: restarted

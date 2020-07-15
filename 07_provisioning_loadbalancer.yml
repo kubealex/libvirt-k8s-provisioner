@@ -19,8 +19,8 @@
 
         - name: Add loadbalancer to inventory
           add_host:
-            hostname: 'k8s-loadbalancer'
-            node_hostname: 'k8s-loadbalancer'
+            hostname: 'k8s-loadbalancer.{{ libvirt.network.domain }}'
+            node_hostname: 'k8s-loadbalancer.{{ libvirt.network.domain }}'
             node_mac: "{{ output_loadbalancer.outputs.macs.value[0]|lower }}"
             node_fqdn: k8s-loadbalancer.{{ libvirt.network.domain }} 
             ansible_ssh_private_key_file: "id_rsa"
