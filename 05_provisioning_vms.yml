@@ -5,6 +5,12 @@
     - vars/libvirt.yml
   tasks:
 
+    - name: Download CentOS image
+      get_url:
+        url: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
+        dest: /tmp/CentOS-7-x86_64-GenericCloud.qcow2
+        mode: 0777
+
     - name: Create ssh keypair
       openssh_keypair:
         path: "id_rsa"
