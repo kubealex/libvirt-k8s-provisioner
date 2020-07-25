@@ -1,3 +1,4 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # libvirt-k8s-provisioner - Automate your cluster provisioning from 0 to k8s!
 Welcome to the home of the project!
