@@ -11,6 +11,9 @@
         dest: /tmp/CentOS-7-x86_64-GenericCloud.qcow2
         mode: 0777
 
+    - name: Grow cloud partition to avoid disk pressure
+      shell: qemu-img resize /tmp/CentOS-7-x86_64-GenericCloud.qcow2 {{ k8s.ephemeral_storage }}G
+
     - name: Create ssh keypair
       openssh_keypair:
         path: "id_rsa"
@@ -25,7 +28,7 @@
           libvirt_pool: "{{ libvirt.storage.pool_name }}"
           cpu: "{{ k8s.control_plane.vcpu }}"
           memory: "{{ k8s.control_plane.mem }}"
-          vm_volume_size: "{{ k8s.control_plane.disk }}"
+          vm_volume_size: "{{ k8s.control_plane.additional_storage }}"
           vm_count: "{{ k8s.control_plane.vms }}"
         state: present
       register: output_masters
@@ -40,7 +43,7 @@
           libvirt_pool: "{{ libvirt.storage.pool_name }}"
           cpu: "{{ k8s.worker_nodes.vcpu }}"
           memory: "{{ k8s.worker_nodes.mem }}"
-          vm_volume_size: "{{ k8s.worker_nodes.disk }}"
+          vm_volume_size: "{{ k8s.worker_nodes.additional_storage }}"
           vm_count: "{{ k8s.worker_nodes.vms }}"
         state: present
       register: output_workers

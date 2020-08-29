@@ -9,7 +9,7 @@
 #      - dev: /dev/vdb2
 #        path: /var/log
   tasks:
-    - name: Create log partitions
+    - name: Create kubelet partition
       parted:
         device: /dev/vdb
         label: msdos
