@@ -10,6 +10,13 @@
       when: 
         - k8s.control_plane.vms is not defined or k8s.control_plane.vms <= 0
 
+    - name: Fail fast if rook and less than 3 worker nodes
+      fail: 
+        msg: In order to use rook, at least three worker nodes must be present
+      when:
+        - k8s.worker_nodes.vms < 3 
+        - rook_ceph.install_rook 
+
     - name: Fail fast if no container runtime is defined
       fail:
         msg: Select at least container runtime 'docker', 'containerd', 'crio'
