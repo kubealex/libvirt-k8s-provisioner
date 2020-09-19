@@ -1,23 +1,40 @@
+# General configuration
 k8s:
-  ephemeral_storage: 30
+  container_runtime: crio
+  master_schedulable: false
+
+# Nodes configuration
+
   control_plane:
     vcpu: 1
     mem: 2
-    vms: 2
-    additional_storage: 10
+    vms: 3
+    disk: 30
 
   worker_nodes:
     vcpu: 1
-    mem: 1
-    vms: 2
-    additional_storage: 10
+    mem: 2
+    vms: 3
+    disk: 30
+
+# Network configuration
 
   network:
     pod_cidr: 10.200.0.0/16
     service_cidr: 10.50.0.0/16
     cni_plugin: calico
 
-  container_runtime: docker
-  master_schedulable: false
-  install_nginx: false
+# Rook configuration
+
+rook_ceph:
+  install_rook: false
+  volume_size: 50
+
+# Ingress controller configuration [nginx/haproxy]
+
+ingress_controller:
+  install_ingress_controller: true
+  type: nginx
+
+rancher:
   install_rancher: false

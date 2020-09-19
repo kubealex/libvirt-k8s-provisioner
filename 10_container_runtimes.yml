@@ -1,10 +1,16 @@
 ---
 - name: Install container runtime
-  hosts: masters,workers
+  hosts: k8s_nodes
   become: true
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
+
+    - name: Upgrade all packages
+      yum:
+        name: '*'
+        state: latest
+
     - name: Ensure prerequisites are met.
       block:
         - name: Add modules to autostart
@@ -17,7 +23,7 @@
 
         - name: Enable br_netfilter
           modprobe:
-            name: "{{ item }}"
+            name: "{{ item }}"
             state: present
           loop:
             - br_netfilter
@@ -47,15 +53,12 @@
 
         - name: Add docker repository
           get_url:
-            url: "https://download.docker.com/linux/centos/docker-ce.repo"
+            url: "{{ docker.docker_repo }}"
             dest: "/etc/yum.repos.d/docker-ce.repo"
 
         - name: Ensure docker is installed
           yum:
-            name:
-              - containerd.io-1.2.13
-              - docker-ce-19.03.8
-              - docker-ce-cli-19.03.8
+            name: "{{ docker.docker_packages }}"
             state: latest
 
         - name: Create /etc/docker
@@ -86,7 +89,8 @@
       when: k8s.container_runtime == 'docker'
 
     - name: Install cri-o
-      block: 
+      block:
+
         - name: Add kubic CentOS7 repository
           get_url:
             url: "{{ item.url }}"
@@ -94,9 +98,9 @@
             validate_certs: false
           loop: 
             - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable.repo"
-              url: "http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_7/devel:kubic:libcontainers:stable.repo"
-            - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:1.18.repo"
-              url: "http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.18/CentOS_7/devel:kubic:libcontainers:stable:cri-o:1.18.repo"
+              url: "{{ crio.libcontainers_repo }}"
+            - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:{{ crio.crio_version }}.repo"
+              url: "{{ crio.crio_repo }}"
 
         - name: Ensure cri-o is installed
           yum:
@@ -109,6 +113,12 @@
             regexp: '^cgroup_manager.*'
             replace: 'cgroup_manager = "cgroupfs"'
 
+        - name: Ensure systemd as default cgroup_manager
+          replace:
+            path: /etc/crio/crio.conf
+            regexp: '^conmon_cgroup.*'
+            replace: 'conmon_cgroup = "pod"'
+
 #        - name: Ensure NET_RAW is enabled to support DNS resolution from coredns while PR is accepted
 #          lineinfile:
 #            path: /etc/crio/crio.conf
@@ -117,13 +127,12 @@
 
         - name: Add capabilities due to particular capabilities required by Rancher
           block: 
-
             - name: Ensure MKNOD is enabled if installing Rancher
               lineinfile:
                 path: /etc/crio/crio.conf
                 line: '"MKNOD",'
                 insertafter: 'default_capabilities'
-          when: k8s.install_rancher
+          when: rancher.install_rancher
            
         - name: Ensure to use all possible plugins dir
           replace:
@@ -145,9 +154,9 @@
             - 100-crio-bridge.conf
             - 200-loopback.conf
 
-        - name: Force systemd to reread configs
-          systemd:
-            daemon_reload: yes
+#        - name: Force systemd to reread configs
+#          systemd:
+#            daemon_reload: yes
 
         - name: Ensure cri-o is enabled and started
           systemd:
@@ -168,7 +177,7 @@
 
         - name: Add containerd repository
           get_url:
-            url: "https://download.docker.com/linux/centos/docker-ce.repo"
+            url: "{{ containerd.containerd_repo }}"
             dest: "/etc/yum.repos.d/docker-ce.repo"
 
         - name: Ensure containerd is installed

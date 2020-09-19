@@ -1,3 +1,4 @@
 packages:
   - haproxy
   - firewalld
+  - NetworkManager

@@ -1,6 +1,6 @@
 ---
 - name: Provision storage on nodes
-  hosts: masters,workers
+  hosts: k8s_nodes
   become: true
   vars: 
     paths:

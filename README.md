@@ -21,18 +21,18 @@ It also takes care of preparing the host machine with needed packages, configuri
 You can customize the setup choosing:
 
 - **container runtime** that you want to use (docker, cri-o, containerd).
-- **service** CIDR to use during installation. 
-- **pod** CIDR to use during installation. 
-- **network plugin** to use, based on the documentation. **Defaults to Calico.** (WIP)
-- **[nginx-ingress-controller](https://kubernetes.github.io/ingress-nginx/)** if you want to enable ingress management.  
+- **schedulable master** if you want to schedule on your master nodes or leave the taint.
+- **service CIDR** to be used during installation. 
+- **pod CIDR** to be used during installation. 
+- **network plugin** to be used, based on the documentation. **[Project Calico](https://www.projectcalico.org/calico-networking-for-kubernetes/)** **[Flannel](https://github.com/coreos/flannel)**
+- **[nginx-ingress-controller](https://kubernetes.github.io/ingress-nginx/)** or **[haproxy-ingress-controller](https://github.com/haproxytech/kubernetes-ingress)** if you want to enable ingress management.  
 - **[Rancher](https://rancher.com/)** installation to manage your cluster. 
-- **master schedulable** if you want to schedule on your master nodes or leave the taint.
-
+- **[Rook-Ceph](https://rook.io/docs/rook/v1.4/ceph-storage.html)** - **WIP**
 
 ## All VMs are specular,prepared with:
 
 - OS: Centos7 Generic Cloud base image [https://cloud.centos.org/centos/8/x86_64/images/](https://cloud.centos.org/centos/7/images/)  
-- cloud-init:   {{ toYaml .Values.jackett.volumeMounts | indent 12 }}
+- cloud-init: 
 
   - user: kube
   - pass: kuberocks  
@@ -56,33 +56,49 @@ Recommended sizings are:
 
 **vars/k8s_cluster.yml**
 
+	# General configuration
 	k8s:
-          ephemeral_storage: 40
+	  container_runtime: crio
+	  master_schedulable: false
+
+	# Nodes configuration
+
 	  control_plane:
-	    vcpu: 2
-	    mem: 2
-	    vms: 2
-	    additional_storage: 10
+	    vcpu: 1
+            mem: 2
+	    vms: 3
+	    disk: 30
 
 	  worker_nodes:
 	    vcpu: 1
-	    mem: 1
-	    vms: 1
-	    additional_storage: 10
+	    mem: 2
+	    vms: 3
+	    disk: 30
+
+	# Network configuration
 
 	  network:
 	    pod_cidr: 10.200.0.0/16
 	    service_cidr: 10.50.0.0/16
 	    cni_plugin: calico
 
-	  container_runtime: docker
-	  master_schedulable: false
-	  install_nginx: false
-	  install_rancher: false
+	# Rook configuration
 
-Size for **ephemeral_storage**, **additional_storage**  and **mem** is in GB. 
-**ephemeral_storage** allows to provision space in the cloud image for pod's ephemeral storage. 
-**additional_storage** allows to create a separated partition for **kubelet** dir.
+	rook_ceph:
+	  install_rook: false
+	  volume_size: 50
+
+	# Ingress controller configuration [nginx/haproxy]
+
+	ingress_controller:
+	  install_ingress_controller: true
+	  type: nginx
+
+	rancher:
+ 	  install_rancher: false
+
+Size for **disk** and **mem** is in GB. 
+**disk** allows to provision space in the cloud image for pod's ephemeral storage. 
 
 VMS are created with these names by default (customizing them is work in progress):
 

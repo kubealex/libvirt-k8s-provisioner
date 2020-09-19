@@ -1,0 +1,21 @@
+cni_plugins:
+  calico:
+    calico_repo: https://docs.projectcalico.org/v3.14/manifests/calico.yaml
+  flannel:
+    flannel_repo: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+ingresses:
+  nginx_repo: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.35.0/deploy/static/provider/baremetal/deploy.yaml
+  haproxy_repo: https://raw.githubusercontent.com/haproxytech/kubernetes-ingress/master/deploy/haproxy-ingress.yaml
+
+helm:
+  helm_installer: https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
+
+rancher_helm:
+  rancher_chart: https://releases.rancher.com/server-charts/latest
+  cert_manager_crd: https://github.com/jetstack/cert-manager/releases/download/v0.15.0/cert-manager.crds.yaml
+  cert_manager_chart: https://charts.jetstack.io
+
+rook:
+  rook_repo: https://github.com/rook/rook.git
+  rook_version: v1.4.4

@@ -25,9 +25,9 @@
         - k8s.network.cni_plugin != 'calico'
         - k8s.network.cni_plugin != 'flannel'
 
-    - name: Check if nginx ingress is selected before installing rancher
+    - name: Check if an ingress controller is selected before installing rancher
       fail:
-        msg: To install Rancher, install_nginx must be true
+        msg: To install Rancher, install_ingress_controller must be true
       when:
-        - k8s.install_rancher
-        - k8s.install_nginx == false
+        - rancher.install_rancher
+        - ingress_controller.install_ingress_controller == false

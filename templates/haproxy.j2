@@ -41,33 +41,33 @@ backend kubernetes-control-plane
 {% endfor %}
 
 
-{% if k8s.install_nginx and hostvars[groups['masters'][0]].k8s_installed  %}
-frontend nginx_http_nodeport
+{% if ingress_controller.install_ingress_controller and hostvars[groups['masters'][0]].k8s_installed  %}
+frontend ingress_http_nodeport
     bind *:80
-    default_backend nginx_http_nodeport
+    default_backend ingress_http_nodeport
     mode tcp
     option tcplog
 
-backend nginx_http_nodeport
+backend ingress_http_nodeport
     balance source
     mode tcp
 
 {% for node in groups['workers'] %}
-    server {{ hostvars[node].host_fqdn }} {{ hostvars[node].host_ip }}:{{ hostvars[groups['masters'][0]].nginx_http_port }} check
+    server {{ hostvars[node].host_fqdn }} {{ hostvars[node].host_ip }}:{{ hostvars[groups['masters'][0]].ingress_http_port }} check
 {% endfor %}
 
-frontend kubernetes-control-plane
+frontend ingress_https_nodeport
     bind *:443
-    default_backend nginx_https_nodeport
+    default_backend ingress_https_nodeport
     mode tcp
     option tcplog
 
-backend nginx_https_nodeport
+backend ingress_https_nodeport
     balance source
     mode tcp
 
 {% for node in groups['workers'] %}
-    server {{ hostvars[node].host_fqdn }} {{ hostvars[node].host_ip }}:{{ hostvars[groups['masters'][0]].nginx_https_port }} check
+    server {{ hostvars[node].host_fqdn }} {{ hostvars[node].host_ip }}:{{ hostvars[groups['masters'][0]].ingress_https_port }} check
 {% endfor %}
 
 {% endif %}

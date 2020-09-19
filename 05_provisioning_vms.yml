@@ -4,15 +4,29 @@
     - vars/k8s_cluster.yml
     - vars/libvirt.yml
   tasks:
-
     - name: Download CentOS image
       get_url:
-        url: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
+        url: "{{ centos_cloud_image }}"
         dest: /tmp/CentOS-7-x86_64-GenericCloud.qcow2
         mode: 0777
 
+    - name: Create a copy for master nodes
+      copy: 
+        src: /tmp/CentOS-7-x86_64-GenericCloud.qcow2
+        dest: /tmp/CentOS-7-x86_64-GenericCloud-master.qcow2
+        remote_src: true
+
+    - name: Create a copy for worker nodes
+      copy:
+        src: /tmp/CentOS-7-x86_64-GenericCloud.qcow2
+        dest: /tmp/CentOS-7-x86_64-GenericCloud-worker.qcow2
+        remote_src: true
+
     - name: Grow cloud partition to avoid disk pressure
-      shell: qemu-img resize /tmp/CentOS-7-x86_64-GenericCloud.qcow2 {{ k8s.ephemeral_storage }}G
+      shell: qemu-img resize /tmp/CentOS-7-x86_64-GenericCloud-master.qcow2 {{ k8s.control_plane.disk }}G
+
+    - name: Grow cloud partition to avoid disk pressure
+      shell: qemu-img resize /tmp/CentOS-7-x86_64-GenericCloud-worker.qcow2 {{ k8s.worker_nodes.disk }}G
 
     - name: Create ssh keypair
       openssh_keypair:
@@ -28,7 +42,6 @@
           libvirt_pool: "{{ libvirt.storage.pool_name }}"
           cpu: "{{ k8s.control_plane.vcpu }}"
           memory: "{{ k8s.control_plane.mem }}"
-          vm_volume_size: "{{ k8s.control_plane.additional_storage }}"
           vm_count: "{{ k8s.control_plane.vms }}"
         state: present
       register: output_masters
@@ -43,10 +56,26 @@
           libvirt_pool: "{{ libvirt.storage.pool_name }}"
           cpu: "{{ k8s.worker_nodes.vcpu }}"
           memory: "{{ k8s.worker_nodes.mem }}"
-          vm_volume_size: "{{ k8s.worker_nodes.additional_storage }}"
           vm_count: "{{ k8s.worker_nodes.vms }}"
         state: present
       register: output_workers
+      when: not rook_ceph.install_rook
+
+    - terraform:
+        project_path: "files/terraform/workers-rook"
+        force_init: true
+        variables:
+          hostname: "k8s-worker"
+          domain: "{{ libvirt.network.domain }}"
+          libvirt_network: "{{ libvirt.network.name }}"
+          libvirt_pool: "{{ libvirt.storage.pool_name }}"
+          cpu: "{{ k8s.worker_nodes.vcpu }}"
+          memory: "{{ k8s.worker_nodes.mem }}"
+          rook_volume_size: "{{ rook_ceph.volume_size }}"
+          vm_count: "{{ k8s.worker_nodes.vms }}"
+        state: present
+      register: output_workers
+      when: rook_ceph.install_rook
 
     - name: Add masters to given group
       add_host:
@@ -60,6 +89,7 @@
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
         groups:
           - "masters"
+        group_children: "k8s_nodes"
       loop: "{{ range(0, k8s.control_plane.vms) | list }}"
 
     - name: Add workers to given group
@@ -73,6 +103,7 @@
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
         groups:
           - "workers"
+        group_children: "k8s_nodes"
       loop: "{{ range(0, k8s.worker_nodes.vms) | list }}"
 
     - name: Ensure to clean known_hosts
@@ -91,6 +122,13 @@
         timeout: 120
         delay: 0
     - ping:
+
+    - name: add hosts to children groups
+      group_by:
+        key: "{{ group_children }}"
+
+    - debug:
+        var: groups
 
     - setup:
       register: machine_facts

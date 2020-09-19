@@ -3,6 +3,7 @@
   hosts: vm_host
   vars_files:
     - vars/libvirt.yml
+    - vars/k8s_cluster.yml
   tasks:
 
     - name: Destroy cluster VM
@@ -12,8 +13,21 @@
         state: absent
       loop:
         - workers
+        - workers-rook
         - masters
         - loadbalancer
+      when: not rook_ceph.install_rook
+
+    - name: Destroy cluster VM
+      terraform:
+        force_init: true
+        project_path: "files/terraform/{{ item }}"
+        state: absent
+      loop:
+        - workers-rook
+        - masters
+        - loadbalancer
+      when: rook_ceph.install_rook
 
     - name: Remove libvirt network
       virt_net:

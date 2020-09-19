@@ -7,6 +7,12 @@
     - vars/k8s_cluster.yml
   tasks:
     - block:
+
+        - name: Upgrade all packages
+          yum:
+            name: '*'
+            state: latest
+
         - name: Install packages
           yum:
             name: "{{ packages }}"
@@ -20,6 +26,17 @@
           loop:
             - firewalld
             - haproxy
+            - NetworkManager
+
+        # Workaround to fix firewalld zone not persisting after reboot: https://github.com/firewalld/firewalld/issues/195
+ 
+        - name: Set interface to internal zone 
+          shell: nmcli connection modify System\ eth0 connection.zone internal
+
+        - name: Stop NetworkManager
+          service: 
+            name: NetworkManager
+            state: stopped
 
         - name: Adding interface to firewall internal zone  
           firewalld:
@@ -27,6 +44,12 @@
             interface: "eth0"
             permanent: yes
             state: enabled
+
+        - name: Start NetworkManager
+          service:
+            name: NetworkManager
+            state: started
+            enabled: true
 
         - name: Allow service for internal zone
           firewalld:
@@ -65,5 +88,8 @@
             name: haproxy
             state: restarted
             enabled: true
+        
+        - name: Reboot loadbalancer
+          reboot: 
       when: k8s.control_plane.vms > 1
 

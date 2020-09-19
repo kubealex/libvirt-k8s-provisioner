@@ -1,16 +1,18 @@
 ---
 - name: Ensure kube packages are installed
-  hosts: masters,workers
+  hosts: k8s_nodes
   become: true
+  vars_files:
+    - vars/k8s_cluster.yml
   tasks:
     - name: Add Kubernetes repository
       yum_repository:
         name: kubernetes
         description: Kubernetes repo
-        baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+        baseurl: "{{ kubernetes.k8s_repo }}"
         gpgcheck: true
         repo_gpgcheck: true
-        gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+        gpgkey: "{{ kubernetes.k8s_repo_key }}"
         exclude: kubelet kubeadm kubectl
     
     - name: Disable SELinux
@@ -21,11 +23,13 @@
 
     - name: Install kubepackages
       yum:
-        name:
-          - kubelet
-          - kubeadm
-          - kubectl 
+        name: "{{ kubernetes.k8s_packages }}"
         disable_excludes: kubernetes
+
+    - name: Install lvm2 for rook_ceph.support and git for installing rook
+      yum:
+        name: lvm2
+      when: rook_ceph.install_rook
 
     - name: Enable kubelet
       systemd: 

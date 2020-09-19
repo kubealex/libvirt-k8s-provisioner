@@ -7,13 +7,13 @@
   tasks:
     - block:
         - name: Apply network addon - Calico
-          command: kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml
+          command: kubectl apply -f {{ cni_plugins.calico.calico_repo }}
 
-        - name: Force calico to ignore cni0 interface when installing
+        - name: Force Calico to ignore cni0 interface when installing
           shell: 'kubectl set env ds/calico-node -n kube-system  --containers="calico-node" IP_AUTODETECTION_METHOD=can-reach=8.8.8.8'
           when: k8s.container_runtime == 'crio'
 
-        - name: Wait for flannel pods become created
+        - name: Wait for Calico pods to be created
           shell: "kubectl get po --namespace=kube-system --selector k8s-app=calico-node --output=jsonpath='{.items[*].metadata.name}'"
           register: calico_dns_pods_created
           until: item in calico_dns_pods_created.stdout
@@ -44,7 +44,7 @@
     - block:
         - name: Download flannel manifest
           get_url:
-            url: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+            url: "{{ cni_plugins.flannel.flannel_repo }}"
             dest: /tmp/kube-flannel.yml
         
         - name: Patch kube-flannel to use host-gw instead of vxlan

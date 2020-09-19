@@ -8,7 +8,7 @@
     - block:
         - name: Ensure helm is installed
           unarchive:
-            src: https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
+            src: "{{ helm.helm_installer }}"
             dest: /tmp/
             remote_src: true
 
@@ -25,20 +25,22 @@
             path: /tmp/linux-amd64
             state: absent
 
+        - debug:
+            var: rancher
         - name: Add helm repo
-          shell: helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
+          shell: helm repo add rancher-latest {{ rancher_helm.rancher_chart }}
 
         - name: Ensure rancher namespace exists
           shell: kubectl create namespace cattle-system
 
         - name: Install CRDs
-          shell: kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.0/cert-manager.crds.yaml
+          shell: kubectl apply --validate=false -f {{ rancher_helm.cert_manager_crd }}
        
         - name: Ensure cert-manager namespace exists
           shell: kubectl create namespace cert-manager
 
         - name: Add cert-manager helm repo
-          shell: helm repo add jetstack https://charts.jetstack.io
+          shell: helm repo add jetstack {{ rancher_helm.cert_manager_chart }}
 
         - name: Update helm repos
           shell: helm repo update
@@ -64,9 +66,6 @@
         - debug: 
             var: cert_manager_pods_ready.stdout_lines
 
-        - wait_for:
-            timeout: 120
-
         - name: Install rancher
           shell: helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname={{ hostvars[groups['loadbalancer'][0]].node_fqdn }}
 
@@ -77,15 +76,7 @@
           retries: 10
           delay: 30
         
-#        - name: Patch deployments to use unqualified images with CRI-O until rancher team decides to merge my PR.
-#          block:
-#            - name: Patch cattle-node-agent deamonset
-#              shell: |
-#                kubectl patch --type="json" -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value":"docker.io/rancher/rancher-agent:v2.4.5"}]' daemonset.apps/cattle-node-agent -n cattle-system
-#            
-#            - name: Patch cattle-cluster-agent deployment
-#              shell: |
-#                kubectl patch --type="json" -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value":"docker.io/rancher/rancher-agent:v2.4.5"}]' deployment.apps/cattle-cluster-agent -n cattle-system
-#          when: k8s.container_runtime == 'crio'
-      when: k8s.install_rancher
+        - name: Wait for rancher pods to be ready
+          shell: "kubectl wait --namespace=cattle-system --for=condition=Ready pods --all --timeout=600s"
+      when: rancher.install_rancher
 

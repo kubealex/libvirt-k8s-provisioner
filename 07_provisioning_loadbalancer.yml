@@ -37,11 +37,6 @@
           loop: "{{ groups['loadbalancer'] }}"
       when: k8s.control_plane.vms > 1
 
-    - name: Delete image file
-      file:
-        path: /tmp/CentOS-7-x86_64-GenericCloud.qcow2
-        state: absent 
-
 - name: Check connection to loadbalancer
   hosts: loadbalancer
   gather_facts: no
