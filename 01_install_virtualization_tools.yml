@@ -9,6 +9,12 @@
       yum:
         name: '*'
         state: latest
+        
+    - name: Install required packages
+      yum:
+        name: "{{ virtualization_packages }}"
+        state: latest
+      become: true
 
     - name: Download and provision Terraform
       unarchive: 
@@ -16,12 +22,6 @@
         dest: /usr/bin/
         mode: 755
         remote_src: yes
-      become: true
-
-    - name: Install required packages
-      yum:
-        name: "{{ virtualization_packages }}"
-        state: latest
       become: true
 
     - name: Virtualization services are enabled
