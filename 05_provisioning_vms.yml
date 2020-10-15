@@ -74,7 +74,7 @@
           rook_volume_size: "{{ rook_ceph.volume_size }}"
           vm_count: "{{ k8s.worker_nodes.vms }}"
         state: present
-      register: output_workers
+      register: output_workers_rook
       when: rook_ceph.install_rook
 
     - name: Add masters to given group

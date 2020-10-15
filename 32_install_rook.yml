@@ -1,5 +1,5 @@
 --- 
-- name: Prepare cluster to install rancher
+- name: Prepare cluster to install rook
   hosts: masters
   run_once: true
   vars_files:
@@ -38,8 +38,8 @@
         shell: "kubectl get po --namespace=rook-ceph --output=jsonpath='{.items[*].metadata.name}'"
         register: rook_ceph_pods_created
         until: item in rook_ceph_pods_created.stdout
-        retries: 30
-        delay: 20
+        retries: 20
+        delay: 30
         with_items:
           - csi-cephfsplugin
           - csi-cephfsplugin-provisioner
@@ -52,6 +52,6 @@
 
       - name: Wait for cluster pods to be ready (May take a while..)
         shell: "kubectl wait --namespace=rook-ceph --for=condition=Ready pods -l 'app in (csi-cephfsplugin,csi-cephfsplugin-provisioner,csi-rbdplugin,csi-rbdplugin-provisioner,rook-ceph-crashcollector,rook-ceph-mgr,rook-ceph-mon,rook-ceph-osd)' --timeout=600s"
-
+        register: rook_cluster_pod_ready
       when: rook_ceph.install_rook
 
