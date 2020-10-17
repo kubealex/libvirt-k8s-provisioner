@@ -10,6 +10,12 @@
         msg: Your distribution is actually unsupported
       when:
         - ansible_distribution != 'CentOS'
+        - ansible_distribution_major_version | int < 7
+
+    - name: Check if distribution is supported
+      fail:
+        msg: Your distribution is actually unsupported
+      when:
         - ansible_distribution != 'Fedora'
 
     - name: Check at least one vm for each type is defined
