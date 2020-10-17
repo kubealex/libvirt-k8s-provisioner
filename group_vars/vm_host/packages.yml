@@ -1,0 +1,45 @@
+virtualization_packages:
+  centos7:
+    - unzip
+    - git
+    - golang
+    - gcc
+    - make
+    - python-lxml
+    - python-netaddr
+    - python-libvirt
+    - libvirt-devel
+    - libvirt
+    - qemu-kvm
+    - virt-install
+    - virt-manager
+  
+  centos8:
+    - unzip
+    - git
+    - golang
+    - gcc
+    - make
+    - python3-lxml
+    - python3-netaddr
+    - python3-libvirt
+    - libvirt-devel
+    - libvirt
+    - qemu-kvm
+    - virt-install
+    - virt-manager
+
+  fedora:
+    - unzip
+    - git
+    - golang
+    - gcc
+    - make
+    - python3-lxml
+    - python3-netaddr
+    - python3-libvirt
+    - libvirt-devel
+    - libvirt
+    - qemu-kvm
+    - virt-install
+    - virt-manager

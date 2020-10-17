@@ -10,18 +10,38 @@
         name: '*'
         state: latest
 
+    - name: Install required packages
+      yum:
+        name: "{{ virtualization_packages.centos8 }}"
+        state: latest
+      become: true
+      when:
+        - ansible_distribution == 'CentOS'
+        - ansible_distribution_major_version | int == 8
+
+    - name: Install required packages
+      yum:
+        name: "{{ virtualization_packages.centos7 }}"
+        state: latest
+      become: true
+      when:
+        - ansible_distribution == 'CentOS'
+        - ansible_distribution_major_version | int == 7
+
+    - name: Install required packages
+      yum:
+        name: "{{ virtualization_packages.fedora }}"
+        state: latest
+      become: true
+      when:
+        - ansible_distribution == 'Fedora'
+
     - name: Download and provision Terraform
       unarchive: 
         src: "{{ terraform_url }}"
         dest: /usr/bin/
         mode: 755
         remote_src: yes
-      become: true
-
-    - name: Install required packages
-      yum:
-        name: "{{ virtualization_packages }}"
-        state: latest
       become: true
 
     - name: Virtualization services are enabled
@@ -44,13 +64,14 @@
 
     - name: Ensures terraform plugins directory exists
       file:
-        path: ~/.terraform.d/plugins
+        #path: ~/.terraform.d/plugins
+        path: "{{ libvirt_plugin_dir }}"
         state: directory
         mode: 0744
 
     - name: Copy libvirt provider to plugins directory
       copy:
         src: "{{ gopath }}/bin/terraform-provider-libvirt"
-        dest: ~/.terraform.d/plugins/
+        dest: "{{ libvirt_plugin_dir }}"
         remote_src: true
         mode: 0755
