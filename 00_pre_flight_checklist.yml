@@ -4,11 +4,20 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
+
+    - name: Check if distribution is supported
+      fail: 
+        msg: Your distribution is actually unsupported
+      when:
+        - ansible_distribution != 'CentOS'
+        - ansible_distribution != 'Fedora'
+
     - name: Check at least one vm for each type is defined
       fail:
         msg: At least one control plane should be selected
       when: 
         - k8s.control_plane.vms is not defined or k8s.control_plane.vms <= 0
+        - 
 
     - name: Fail fast if rook and less than 3 worker nodes
       fail: 
