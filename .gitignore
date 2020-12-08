@@ -6,6 +6,7 @@ test.yml
 .terraform
 roles
 utils.yml
+vars/k8s_cluster.yml.bak
 files/terraform/images/
 inventory_test
 98_remove_k8s.yml
