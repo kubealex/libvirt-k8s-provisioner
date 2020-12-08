@@ -10,6 +10,11 @@
         msg: Your distribution is actually unsupported
       when: ( ansible_distribution != 'CentOS' and ansible_distribution != 'Fedora' ) or ( ansible_distribution != 'CentOS' and ansible_distribution_major_version | int < 7 ) 
 
+    - name: Check if distribution is supported
+      fail:
+        msg: Using docker or containerd on your target distribution (CentOS8) is actually unsupported
+      when: (k8s.container_runtime == 'docker' or k8s.container_runtime == 'containerd') and ( k8s.cluster_os == 'CentOS8' )
+
     - name: Check at least one vm for each type is defined
       fail:
         msg: At least one control plane should be selected

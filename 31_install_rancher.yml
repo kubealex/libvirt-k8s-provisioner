@@ -25,8 +25,6 @@
             path: /tmp/linux-amd64
             state: absent
 
-        - debug:
-            var: rancher
         - name: Add helm repo
           shell: helm repo add rancher-latest {{ rancher_helm.rancher_chart }}
 
@@ -46,7 +44,7 @@
           shell: helm repo update
 
         - name: Install helm chart
-          shell: helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v0.15.0
+          shell: helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.0.4
 
         - name: Wait for all cert-manager pods become created
           shell: "kubectl get po --namespace=cert-manager --output=jsonpath='{.items[*].metadata.name}'"
@@ -63,9 +61,6 @@
           shell: "kubectl wait --namespace=cert-manager --for=condition=Ready pods --all --timeout=600s"
           register: cert_manager_pods_ready
 
-        - debug: 
-            var: cert_manager_pods_ready.stdout_lines
-
         - name: Install rancher
           shell: helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname={{ hostvars[groups['loadbalancer'][0]].node_fqdn }}
 
@@ -75,8 +70,9 @@
           until: '"successfully rolled out" in rancher_rollout_succeeded.stdout'
           retries: 10
           delay: 30
-        
+
         - name: Wait for rancher pods to be ready
-          shell: "kubectl wait --namespace=cattle-system --for=condition=Ready pods --all --timeout=600s"
+#          shell: "kubectl wait --namespace=cattle-system --for=condition=Ready pods --all --timeout=600s"
+          shell: "kubectl wait --for=condition=available --timeout=600s deployment/rancher -n cattle-system"
       when: rancher.install_rancher
 

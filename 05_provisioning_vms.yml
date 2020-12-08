@@ -2,31 +2,39 @@
   hosts: vm_host
   vars_files:
     - vars/k8s_cluster.yml
-    - vars/libvirt.yml
+    
   tasks:
-    - name: Download CentOS image
+    - name: Download CentOS8 image
       get_url:
-        url: "{{ centos_cloud_image }}"
-        dest: /tmp/CentOS-7-x86_64-GenericCloud.qcow2
+        url: "{{ centos8.cloud_image }}"
+        dest: /tmp/{{ image_name }}.qcow2
         mode: 0777
+      when: k8s.cluster_os == 'CentOS8'
+
+    - name: Download CentOS7 image
+      get_url:
+        url: "{{ centos7.cloud_image }}"
+        dest: /tmp/{{ image_name }}.qcow2
+        mode: 0777
+      when: k8s.cluster_os == 'CentOS7'
 
     - name: Create a copy for master nodes
       copy: 
-        src: /tmp/CentOS-7-x86_64-GenericCloud.qcow2
-        dest: /tmp/CentOS-7-x86_64-GenericCloud-master.qcow2
+        src: /tmp/{{ image_name }}.qcow2
+        dest: /tmp/{{ image_name }}-master.qcow2
         remote_src: true
 
     - name: Create a copy for worker nodes
       copy:
-        src: /tmp/CentOS-7-x86_64-GenericCloud.qcow2
-        dest: /tmp/CentOS-7-x86_64-GenericCloud-worker.qcow2
+        src: /tmp/{{ image_name }}.qcow2
+        dest: /tmp/{{ image_name }}-worker.qcow2
         remote_src: true
 
     - name: Grow cloud partition to avoid disk pressure
-      shell: qemu-img resize /tmp/CentOS-7-x86_64-GenericCloud-master.qcow2 {{ k8s.control_plane.disk }}G
+      shell: qemu-img resize /tmp/{{ image_name }}-master.qcow2 {{ k8s.control_plane.disk }}G
 
     - name: Grow cloud partition to avoid disk pressure
-      shell: qemu-img resize /tmp/CentOS-7-x86_64-GenericCloud-worker.qcow2 {{ k8s.worker_nodes.disk }}G
+      shell: qemu-img resize /tmp/{{ image_name }}-worker.qcow2 {{ k8s.worker_nodes.disk }}G
 
     - name: Create ssh keypair
       openssh_keypair:
@@ -36,13 +44,14 @@
         project_path: "files/terraform/masters"
         force_init: true
         variables:
-          hostname: "k8s-master"
-          domain: "{{ libvirt.network.domain }}"
-          libvirt_network: "{{ libvirt.network.name }}"
-          libvirt_pool: "{{ libvirt.storage.pool_name }}"
+          hostname: "{{ k8s.cluster_name }}-master"
+          domain: "{{ k8s.network.domain }}"
+          libvirt_network: "{{ k8s.cluster_name }}"
+          libvirt_pool: "{{ k8s.cluster_name }}"
           cpu: "{{ k8s.control_plane.vcpu }}"
           memory: "{{ k8s.control_plane.mem }}"
           vm_count: "{{ k8s.control_plane.vms }}"
+          os_image_name: "{{ image_name }}-master.qcow2"
         state: present
       register: output_masters
 
@@ -50,40 +59,43 @@
         project_path: "files/terraform/workers"
         force_init: true
         variables:
-          hostname: "k8s-worker"
-          domain: "{{ libvirt.network.domain }}"
-          libvirt_network: "{{ libvirt.network.name }}"
-          libvirt_pool: "{{ libvirt.storage.pool_name }}"
+          hostname: "{{ k8s.cluster_name }}-worker"
+          domain: "{{ k8s.network.domain }}"
+          libvirt_network: "{{ k8s.cluster_name }}"
+          libvirt_pool: "{{ k8s.cluster_name }}"
           cpu: "{{ k8s.worker_nodes.vcpu }}"
           memory: "{{ k8s.worker_nodes.mem }}"
-          vm_count: "{{ k8s.worker_nodes.vms }}"
+          vm_count: "{{ (k8s.worker_nodes.vms - rook.rook_cluster_size) if rook_ceph.install_rook else k8s.worker_nodes.vms }}"
+          vm_counter: "{{ rook.rook_cluster_size if rook_ceph.install_rook else 0 }}" 
+          os_image_name: "{{ image_name }}-worker.qcow2"
         state: present
       register: output_workers
-      when: not rook_ceph.install_rook
 
     - terraform:
         project_path: "files/terraform/workers-rook"
         force_init: true
         variables:
-          hostname: "k8s-worker"
-          domain: "{{ libvirt.network.domain }}"
-          libvirt_network: "{{ libvirt.network.name }}"
-          libvirt_pool: "{{ libvirt.storage.pool_name }}"
+          hostname: "{{ k8s.cluster_name }}-worker"
+          domain: "{{ k8s.network.domain }}"
+          libvirt_network: "{{ k8s.cluster_name }}"
+          libvirt_pool: "{{ k8s.cluster_name }}"
           cpu: "{{ k8s.worker_nodes.vcpu }}"
           memory: "{{ k8s.worker_nodes.mem }}"
           rook_volume_size: "{{ rook_ceph.volume_size }}"
-          vm_count: "{{ k8s.worker_nodes.vms }}"
+          #vm_count: "{{ k8s.worker_nodes.vms }}"
+          vm_count: "{{ rook.rook_cluster_size }}"
+          os_image_name: "{{ image_name }}-worker.qcow2"
         state: present
       register: output_workers_rook
       when: rook_ceph.install_rook
 
     - name: Add masters to given group
       add_host:
-        hostname: 'k8s-master-{{ item }}.{{ libvirt.network.domain }}'
+        hostname: '{{ k8s.cluster_name }}-master-{{ item }}.{{ k8s.network.domain }}'
         k8s_installed: false
-        node_hostname: 'k8s-master-{{ item }}.{{ libvirt.network.domain }}'
+        node_hostname: '{{ k8s.cluster_name }}-master-{{ item }}.{{ k8s.network.domain }}'
         node_mac: "{{ output_masters.outputs.macs.value[item]|lower }}"
-        node_fqdn: k8s-master-{{ item }}.{{ libvirt.network.domain }} 
+        node_fqdn: '{{ k8s.cluster_name }}-master-{{ item }}.{{ k8s.network.domain }}'
         ansible_ssh_private_key_file: "id_rsa"
         ansible_user: kube
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
@@ -94,10 +106,10 @@
 
     - name: Add workers to given group
       add_host:
-        hostname: 'k8s-worker-{{ item }}.{{ libvirt.network.domain }}'
-        node_hostname: 'k8s-worker-{{ item }}.{{ libvirt.network.domain }}'
-        node_mac: "{{ output_workers.outputs.macs.value[item]|lower }}"
-        node_fqdn: k8s-worker-{{ item }}.{{ libvirt.network.domain }}
+        hostname: '{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}'
+        node_hostname: '{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}'
+        node_mac: "{{ output_workers_rook.outputs.macs.value[item]|lower if (rook_ceph.install_rook and item <= 2) else output_workers_rook.outputs.macs.value[item - rook.rook_cluster_size]|lower if (rook_ceph.install_rook and item > 2 ) else output_workers.outputs.macs.value[item]|lower }}"
+        node_fqdn: "{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}"
         ansible_ssh_private_key_file: "id_rsa"
         ansible_user: kube
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
@@ -113,7 +125,7 @@
         state: absent
       loop: "{{ query('inventory_hostnames', 'all:!vm_host') }}"
 
-- name: Check connection, rename connection and set facts
+- name: Check connection and set facts
   hosts: masters,workers
   gather_facts: no
   tasks:
@@ -126,9 +138,6 @@
     - name: add hosts to children groups
       group_by:
         key: "{{ group_children }}"
-
-    - debug:
-        var: groups
 
     - setup:
       register: machine_facts

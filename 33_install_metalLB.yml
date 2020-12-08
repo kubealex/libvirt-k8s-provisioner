@@ -1,0 +1,46 @@
+--- 
+- name: Prepare cluster to install metalLB
+  hosts: masters
+  run_once: true
+  vars_files:
+    - vars/k8s_cluster.yml
+  tasks:
+    - block:
+
+      - name: Prepare setup script
+        template:
+          src: templates/metallb-setup.j2
+          dest: /tmp/metallb-setup.sh
+          mode: +x
+
+      - name: Execute setup script 
+        shell:  /tmp/metallb-setup.sh
+        ignore_errors: true
+
+      - name: Wait for metallb-pods to be created
+        shell: "kubectl wait --namespace=metallb-system --for=condition=Ready pods -l 'app=metallb'  --timeout=600s"
+
+      - name: Render template for L2 configuration
+        template:
+          src: templates/metallb-l2.j2
+          dest: /tmp/metallb-l2.yaml
+
+      - name: Create configmap for l2 setup 
+        shell: "kubectl create -f /tmp/metallb-l2.yaml"
+        ignore_errors: true
+
+      - name: Wait for all metallLB pods to be created
+        shell: "kubectl get po --namespace=metallb-system --output=jsonpath='{.items[*].metadata.name}'"
+        register: metallb_pods_created
+        until: item in metallb_pods_created.stdout
+        retries: 30
+        delay: 20
+        with_items:
+          - controller
+          - speaker
+
+      - name: Wait for metalLB pods to be ready (May take a while..)
+        shell: "kubectl wait --namespace=metallb-system --for=condition=Ready pods -l 'app=metallb' --timeout=600s"
+
+      when: metallb.install_metallb
+

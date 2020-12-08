@@ -1,6 +1,6 @@
 <pool type='dir'>
-  <name>{{ libvirt.storage.pool_name }}</name>
+  <name>{{ k8s.cluster_name }}</name>
   <target>
-    <path>{{ libvirt.storage.pool_path }}</path>
+    <path>{{ libvirt.storage.pool_path }}/{{ k8s.cluster_name }}</path>
   </target>
 </pool>

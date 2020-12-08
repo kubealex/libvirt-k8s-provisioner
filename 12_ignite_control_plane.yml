@@ -10,11 +10,6 @@
           shell: kubeadm init --pod-network-cidr={{ ('10.244.0.0/16' if (k8s.network.cni_plugin == 'flannel') else k8s.network.pod_cidr) | default('10.217.0.0/16') }} --service-cidr={{ k8s.network.service_cidr | default("10.96.0.0/12") }}
           become: true
           register: kubeadm_output
-
-        - name: Print output
-          debug:
-            var: kubeadm_output
-
       when: k8s.control_plane.vms == 1
 
     - block:
@@ -22,8 +17,6 @@
           shell: kubeadm init --control-plane-endpoint {{ hostvars[groups['loadbalancer'][0]].node_fqdn }} --upload-certs --pod-network-cidr={{ ('10.244.0.0/16' if (k8s.network.cni_plugin == 'flannel') else k8s.network.pod_cidr) | default('10.217.0.0/16') }} --service-cidr={{ k8s.network.service_cidr | default("10.96.0.0/12") }}
           become: true
           register: kubeadm_output
-        - debug:
-            var: kubeadm_output
         
         - name: "set certificate key fact"
           set_fact:

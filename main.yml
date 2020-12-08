@@ -16,3 +16,4 @@
 - import_playbook: 30_install_haproxy_ingress_controller.yml
 - import_playbook: 31_install_rancher.yml
 - import_playbook: 32_install_rook.yml
+- import_playbook: 33_install_metalLB.yml

@@ -1,15 +1,15 @@
 <network>
-  <name>{{ libvirt.network.name }}</name>
+  <name>{{ k8s.cluster_name }}</name>
   <forward mode='nat'>
     <nat>
       <port start='1024' end='65535'/>
     </nat>
   </forward>
-  <bridge name='brk8s' stp='on' delay='0'/>
-  <domain name='{{ libvirt.network.domain }}' localOnly='yes'/>
-  <ip address='{{ libvirt.network.net | next_nth_usable(1) }}' netmask='{{ libvirt.network.net | ipaddr('netmask') }}'>
+  <bridge name='{{ k8s.cluster_name }}' stp='on' delay='0'/>
+  <domain name='{{ k8s.network.domain }}' localOnly='yes'/>
+  <ip address='{{ k8s.network.network_cidr | next_nth_usable(1) }}' netmask='{{ k8s.network.network_cidr | ipaddr('netmask') }}'>
     <dhcp>
-      <range start='{{ libvirt.network.net | next_nth_usable(2) }}' end='{{ libvirt.network.net | ipaddr('last_usable') }}'/>
+      <range start='{{ k8s.network.network_cidr | next_nth_usable(2) }}' end='{{ k8s.network.network_cidr | ipaddr('last_usable') }}'/>
     </dhcp>
   </ip>
 </network>

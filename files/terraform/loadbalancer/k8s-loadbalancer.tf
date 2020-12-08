@@ -6,6 +6,7 @@ variable "cpu" { default = 1 }
 variable "iface" { default = "eth0" }
 variable "libvirt_network" { default = "k8s" }
 variable "libvirt_pool" { default= "k8s" }
+variable "os_image_name" { default= "CentOS-GenericCloud.qcow2" }
 
 # instance the provider
 provider "libvirt" {
@@ -16,9 +17,7 @@ provider "libvirt" {
 resource "libvirt_volume" "os_image" {
   name = "${var.hostname}-os_image"
   pool = var.libvirt_pool
-  source = "/tmp/CentOS-7-x86_64-GenericCloud.qcow2"
-#  source = "https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2"
-
+  source = "/tmp/${var.os_image_name}"
   format = "qcow2"
 }
 
@@ -93,9 +92,9 @@ terraform {
 }
 
 output "ips" {
-  value = "${flatten(libvirt_domain.k8s-loadbalancer.*.network_interface.0.addresses)}"
+  value = flatten(libvirt_domain.k8s-loadbalancer.*.network_interface.0.addresses)
 }
 
 output "macs" {
-  value = "${flatten(libvirt_domain.k8s-loadbalancer.*.network_interface.0.mac)}"
+  value = flatten(libvirt_domain.k8s-loadbalancer.*.network_interface.0.mac)
 }

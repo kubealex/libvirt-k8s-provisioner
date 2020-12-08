@@ -19,6 +19,10 @@
           version: "{{ rook.rook_version }}"
           force: true
 
+      - name: Create CRDs for rook-ceph
+        shell:  "kubectl create -f /tmp/rook/cluster/examples/kubernetes/ceph/crds.yaml"
+        ignore_errors: true
+
       - name: Create common resources for rook-ceph
         shell:  "kubectl create -f /tmp/rook/cluster/examples/kubernetes/ceph/common.yaml"
         ignore_errors: true
@@ -27,14 +31,26 @@
         shell:  "kubectl create -f /tmp/rook/cluster/examples/kubernetes/ceph/operator.yaml"
         ignore_errors: true
 
+      - name: Wait for all rook-ceph-operator pods to be created
+        shell: "kubectl get po --namespace=rook-ceph --output=jsonpath='{.items[*].metadata.name}'"
+        register: rook_ceph_operator_pods_created
+        until: item in rook_ceph_operator_pods_created.stdout
+        retries: 20
+        delay: 30
+        with_items:
+          - rook-ceph-operator
+
       - name: Wait for operator pod to be ready
-        shell: "kubectl wait --namespace=rook-ceph --for=condition=Ready pods -l 'app in (rook-ceph-operator,rook-discover)'  --timeout=600s"
+        shell: "kubectl wait --namespace=rook-ceph --for=condition=Ready pods -l 'app in (rook-ceph-operator)'  --timeout=600s"
 
       - name: Create cluster resources for rook_ceph
         shell: "kubectl create -f /tmp/rook/cluster/examples/kubernetes/ceph/cluster.yaml"
         ignore_errors: true
 
-      - name: Wait for all rook-ceph pods become created
+      - name: Wait for cluster pod creation
+        shell: sleep 60s
+
+      - name: Wait for all rook-ceph pods to be created
         shell: "kubectl get po --namespace=rook-ceph --output=jsonpath='{.items[*].metadata.name}'"
         register: rook_ceph_pods_created
         until: item in rook_ceph_pods_created.stdout
@@ -49,6 +65,9 @@
           - rook-ceph-mgr
           - rook-ceph-mon
           - rook-ceph-osd
+
+      - name: Create cluster resources for rook_ceph
+        shell: sleep 60s
 
       - name: Wait for cluster pods to be ready (May take a while..)
         shell: "kubectl wait --namespace=rook-ceph --for=condition=Ready pods -l 'app in (csi-cephfsplugin,csi-cephfsplugin-provisioner,csi-rbdplugin,csi-rbdplugin-provisioner,rook-ceph-crashcollector,rook-ceph-mgr,rook-ceph-mon,rook-ceph-osd)' --timeout=600s"

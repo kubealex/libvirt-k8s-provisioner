@@ -1,1 +1,1 @@
-server=/{{ libvirt.network.domain }}/{{ libvirt.network.net | next_nth_usable(1) }}
+server=/{{ k8s.network.domain }}/{{ k8s.network.network_cidr | next_nth_usable(1) }}

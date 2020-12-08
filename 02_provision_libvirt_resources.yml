@@ -2,47 +2,47 @@
 - name: This play installs needed tools to provision infrastructure VMs
   hosts: vm_host
   vars_files:
-    - vars/libvirt.yml
+    - vars/k8s_cluster.yml    
   tasks:
 
     - name: Ensure pool path exists
       file:
-        path: "{{ libvirt.storage.pool_path }}"
+        path: "{{ libvirt.storage.pool_path }}/{{ k8s.cluster_name }}"
         state: directory
       become: true
 
     - name: Define libvirt network
       virt_net:
         command: define
-        name: "{{ libvirt.network.name }}"
+        name: "{{ k8s.cluster_name }}"
         xml: '{{ lookup("template", "templates/libvirt_network.xml.j2") }}'
 
     - name: Make libvirt network autostart
       virt_net:
-        name: "{{ libvirt.network.name }}"
+        name: "{{ k8s.cluster_name }}"
         autostart: true
 
     - name: Start libvirt network
       virt_net:
         command: start
-        name: "{{ libvirt.network.name }}"
+        name: "{{ k8s.cluster_name }}"
         state: active
 
     - name: Define libvirt pool
       virt_pool:
         command: define
-        name: "{{ libvirt.storage.pool_name }}"
+        name: "{{ k8s.cluster_name }}"
         xml: '{{ lookup("template", "templates/libvirt_pool.xml.j2") }}'
 
     - name: Make libvirt pool autostart
       virt_pool:
-        name: "{{ libvirt.storage.pool_name }}"
+        name: "{{ k8s.cluster_name }}"
         autostart: true
 
     - name: Start libvirt pool
       virt_pool:
         command: start
-        name: "{{ libvirt.storage.pool_name }}"
+        name: "{{ k8s.cluster_name }}"
         state: active
 
     - name: Configure NetworkManager for local DNS
@@ -56,7 +56,7 @@
         dest: /etc/NetworkManager/dnsmasq.d/libvirt_dnsmasq.conf
 
 #    - name: Configure DNS search domain
-#      command: nmcli connection modify "{{ ansible_default_ipv4.interface }}" ipv4.dns-search "{{ libvirt.network.domain }}"
+#      command: nmcli connection modify "{{ ansible_default_ipv4.interface }}" ipv4.dns-search "{{ k8s.network.domain }}"
 
     - name: Restart NetworkManager
       service:

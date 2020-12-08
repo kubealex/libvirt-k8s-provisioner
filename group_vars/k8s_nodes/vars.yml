@@ -1,5 +1,6 @@
 kubernetes:
-  k8s_repo: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+  #k8s_repo: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+  k8s_repo: https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
   k8s_repo_key: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
   k8s_packages: 
     - kubelet
@@ -14,10 +15,13 @@ docker:
     - docker-ce-cli-19.03.8
 
 crio:
-  os_version: CentOS_7
   crio_version: 1.19
-  libcontainers_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_7/devel:kubic:libcontainers:stable.repo
-  crio_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.19/CentOS_7/devel:kubic:libcontainers:stable:cri-o:1.19.repo
+  centos8:
+    libcontainers_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_8/devel:kubic:libcontainers:stable.repo
+    crio_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.19/CentOS_8/devel:kubic:libcontainers:stable:cri-o:1.19.repo
+  centos7:  
+    libcontainers_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_7/devel:kubic:libcontainers:stable.repo
+    crio_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.19/CentOS_7/devel:kubic:libcontainers:stable:cri-o:1.19.repo
 
 containerd:
   containerd_repo: https://download.docker.com/linux/centos/docker-ce.repo

@@ -9,6 +9,7 @@ variable "rook_volume_size" { default = 10 }
 variable "iface" { default = "eth0" }
 variable "libvirt_network" { default = "k8s" }
 variable "libvirt_pool" { default= "k8s" }
+variable "os_image_name" { default= "CentOS-GenericCloud-worker.qcow2" }
 
 # instance the provider
 provider "libvirt" {
@@ -20,8 +21,7 @@ resource "libvirt_volume" "os_image" {
   count = var.vm_count
   name = "${var.hostname}-${count.index}-os_image"
   pool = var.libvirt_pool
-  source = "/tmp/CentOS-7-x86_64-GenericCloud-worker.qcow2"
-
+  source = "/tmp/${var.os_image_name}"
   format = "qcow2"
 }
 
@@ -120,20 +120,11 @@ terraform {
     }
   }
 }
-terraform {
- required_version = ">= 0.13"
-  required_providers {
-    libvirt = {
-      source  = "dmacvicar/libvirt"
-      version = "0.6.2"
-    }
-  }
-}
 
 output "ips" {
-  value = "${flatten(libvirt_domain.k8s-worker.*.network_interface.0.addresses)}"
+  value = flatten(libvirt_domain.k8s-worker.*.network_interface.0.addresses)
 }
 
 output "macs" {
-  value = "${flatten(libvirt_domain.k8s-worker.*.network_interface.0.mac)}"
+  value = flatten(libvirt_domain.k8s-worker.*.network_interface.0.mac)
 }

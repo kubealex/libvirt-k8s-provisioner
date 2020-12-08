@@ -98,9 +98,23 @@
             validate_certs: false
           loop: 
             - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable.repo"
-              url: "{{ crio.libcontainers_repo }}"
+              url: "{{ crio.centos7.libcontainers_repo }}"
             - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:{{ crio.crio_version }}.repo"
-              url: "{{ crio.crio_repo }}"
+              url: "{{ crio.centos7.crio_repo }}"
+          when: k8s.cluster_os == 'CentOS7'
+
+        - name: Add kubic CentOS8 repository
+          get_url:
+            url: "{{ item.url }}"
+            dest: "{{ item.file }}"
+            validate_certs: false
+          loop:
+            - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable.repo"
+              url: "{{ crio.centos8.libcontainers_repo }}"
+            - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:{{ crio.crio_version }}.repo"
+              url: "{{ crio.centos8.crio_repo }}"
+          when: k8s.cluster_os == 'CentOS8'
+
 
         - name: Ensure cri-o is installed
           yum:

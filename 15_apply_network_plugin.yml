@@ -9,9 +9,9 @@
         - name: Apply network addon - Calico
           command: kubectl apply -f {{ cni_plugins.calico.calico_repo }}
 
-        - name: Force Calico to ignore cni0 interface when installing
-          shell: 'kubectl set env ds/calico-node -n kube-system  --containers="calico-node" IP_AUTODETECTION_METHOD=can-reach=8.8.8.8'
-          when: k8s.container_runtime == 'crio'
+#        - name: Force Calico to ignore cni0 interface when installing
+#          shell: 'kubectl set env ds/calico-node -n kube-system  --containers="calico-node" IP_AUTODETECTION_METHOD=can-reach=8.8.8.8'
+#          when: k8s.container_runtime == 'crio'
 
         - name: Wait for Calico pods to be created
           shell: "kubectl get po --namespace=kube-system --selector k8s-app=calico-node --output=jsonpath='{.items[*].metadata.name}'"
@@ -63,7 +63,7 @@
           retries: 10
           delay: 30
           with_items:
-            - kube-flannel-ds-amd64
+            - kube-flannel-ds
 
         - name: Wait for core-dns pods become ready
           shell: "kubectl wait --namespace=kube-system --for=condition=Ready pods --selector app=flannel --timeout=600s"

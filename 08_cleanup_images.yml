@@ -6,6 +6,6 @@
         path: "{{ item }}"
         state: absent
       loop:
-        - /tmp/CentOS-7-x86_64-GenericCloud.qcow2
-        - /tmp/CentOS-7-x86_64-GenericCloud-master.qcow2
-        - /tmp/CentOS-7-x86_64-GenericCloud-worker.qcow2
+        - /tmp/{{ image_name }}.qcow2
+        - /tmp/{{ image_name }}-master.qcow2
+        - /tmp/{{ image_name }}-worker.qcow2

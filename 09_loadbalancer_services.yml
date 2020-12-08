@@ -2,11 +2,13 @@
 - name: Loadbalancer configuration play
   hosts: loadbalancer
   become: true
-  ignore_unreachable: true
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
     - block:
+        - name: Install python on CentOS8
+          raw: dnf -y install python36
+          when: k8s.cluster_os == 'CentOS8'
 
         - name: Upgrade all packages
           yum:
@@ -32,6 +34,11 @@
  
         - name: Set interface to internal zone 
           shell: nmcli connection modify System\ eth0 connection.zone internal
+          when: k8s.cluster_os == 'CentOS7'
+
+        - name: Set interface to internal zone
+          shell: nmcli connection modify eth0 connection.zone internal
+          when: k8s.cluster_os == 'CentOS8'
 
         - name: Stop NetworkManager
           service: 

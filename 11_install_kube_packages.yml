@@ -14,7 +14,15 @@
         repo_gpgcheck: true
         gpgkey: "{{ kubernetes.k8s_repo_key }}"
         exclude: kubelet kubeadm kubectl
-    
+
+    - name: Disable swap
+      shell: swapoff -a  
+
+    - name: Remove swap entry from fstab
+      lineinfile:
+        line: "/dev/mapper/cl-swap swap"  
+        path: /etc/fstab
+        state: absent
     - name: Disable SELinux
       selinux:
         state: disabled
