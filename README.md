@@ -126,15 +126,15 @@ VMS are created with these names by default (customizing them is work in progres
 
 It is possible to choose CentOS7/CentOS8 as **kubernetes hosts OS**
 
-##Rook
+##Rook 
 **Rook** setup actually creates a dedicated kind of worker, with an additional volume on **ALL** workers to be used. It will be improved to just select a number of nodes that can be coherent with the number of **ceph** replicas.
 Feel free to suggest modifications/improvements.
 
-##Rancher
+##Rancher 
 Basic setup is made starting from Rancher documentation, with **Helm** chart.
 
-##MetalLB
+##MetalLB 
 Basic setup taken from the documentation. At the moment, the parameter **l2** reports the IPs that can be used (defaults to some IPs in the same subnet of the hosts) as 'external' IPs for accessing the applications
 
-Suggestion and improvements are highly recommended!
+Suggestion and improvements are highly recommended! 
 Alex
