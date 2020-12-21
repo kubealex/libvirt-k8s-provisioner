@@ -18,6 +18,13 @@
         mode: 0777
       when: k8s.cluster_os == 'CentOS7'
 
+    - name: Download Ubuntu image
+      get_url:
+        url: "{{ ubuntu.cloud_image }}"
+        dest: /tmp/{{ image_name }}.qcow2
+        mode: 0777
+      when: k8s.cluster_os == 'Ubuntu'
+
     - name: Create a copy for master nodes
       copy: 
         src: /tmp/{{ image_name }}.qcow2
