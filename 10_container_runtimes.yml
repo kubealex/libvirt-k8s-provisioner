@@ -10,6 +10,13 @@
       yum:
         name: '*'
         state: latest
+      when: k8s.cluster_os == 'CentOS8' or k8s.cluster_os == 'CentOS7'
+
+    - name: Upgrade all packages
+      apt:
+        name: '*'
+        state: latest
+      when: k8s.cluster_os == 'Ubuntu'
 
     - name: Ensure prerequisites are met.
       block:
@@ -44,21 +51,27 @@
     - name: Install docker
       block: 
         - name: Ensure required packages are present
-          yum:
+          apt:
             name:
-              - yum-utils 
-              - device-mapper-persistent-data 
-              - lvm2
+              - apt-transport-https
+              - ca-certificates 
+              - gnupg2
+              - curl 
+              - software-properties-common 
             state: latest
 
-        - name: Add docker repository
-          get_url:
-            url: "{{ docker.docker_repo }}"
-            dest: "/etc/yum.repos.d/docker-ce.repo"
+        - name: Work out the distribution
+          command: lsb_release -sc
+          register: lsb_result
 
+        - name: Ensure the presence of apt-repo for docker
+          apt_repository:
+            repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ lsb_result }} stable
+            state: present
+            
         - name: Ensure docker is installed
-          yum:
-            name: "{{ docker.docker_packages }}"
+          apt:
+            name: "{{ docker.ubuntu.docker_packages }}"
             state: latest
 
         - name: Create /etc/docker
@@ -86,7 +99,54 @@
             state: restarted
             enabled: true
 
-      when: k8s.container_runtime == 'docker'
+      when: k8s.container_runtime == 'docker' and k8s.cluster_os == 'Ubuntu'
+
+    - name: Install docker
+      block: 
+        - name: Ensure required packages are present
+          yum:
+            name:
+              - yum-utils 
+              - device-mapper-persistent-data 
+              - lvm2
+            state: latest
+
+        - name: Add docker repository
+          get_url:
+            url: "{{ docker.centos.docker_repo }}"
+            dest: "/etc/yum.repos.d/docker-ce.repo"
+
+        - name: Ensure docker is installed
+          yum:
+            name: "{{ docker.centos.docker_packages }}"
+            state: latest
+
+        - name: Create /etc/docker
+          file:
+            state: directory
+            path: /etc/docker
+        
+        - name: Copy docker configuration in /etc/docker
+          copy:
+            src: files/daemon.json
+            dest: /etc/docker/
+
+        - name: Create systemd folder for Docker service
+          file:
+            path: /etc/systemd/system/docker.service.d
+            state: directory
+
+        - name: Force systemd to reread configs
+          systemd:
+            daemon_reload: yes
+
+        - name: Ensure docker is enabled and started
+          systemd: 
+            name: docker
+            state: restarted
+            enabled: true
+
+      when: k8s.container_runtime == 'docker' and ( k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8' )
 
     - name: Install cri-o
       block:

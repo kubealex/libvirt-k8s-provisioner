@@ -36,7 +36,7 @@
           - ansible_distribution == 'Fedora'
       when: ansible_distribution == 'Fedora' or ansible_distribution == 'CentOS'
 
-    - name: Manage packets when distro is 'CentOS'
+    - name: Manage packets when distro is 'Ubuntu'
       block:
       - name: Upgrade all packages
         apt:
@@ -45,29 +45,10 @@
 
       - name: Install required packages
         apt:
-          name: "{{ virtualization_packages.centos8 }}"
+          name: "{{ virtualization_packages.ubuntu }}"
           state: latest
         become: true
-        when:
-          - ansible_distribution == 'CentOS'
-          - ansible_distribution_major_version | int == 8
 
-      - name: Install required packages
-        apt:
-          name: "{{ virtualization_packages.centos7 }}"
-          state: latest
-        become: true
-        when:
-          - ansible_distribution == 'CentOS'
-          - ansible_distribution_major_version | int == 7
-
-      - name: Install required packages
-        apt:
-          name: "{{ virtualization_packages.fedora }}"
-          state: latest
-        become: true
-        when:
-          - ansible_distribution == 'Fedora'
       when: ansible_distribution == 'Ubuntu'
 
     - name: Download and provision Terraform
