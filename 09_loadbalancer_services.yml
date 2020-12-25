@@ -9,6 +9,7 @@
         - name: Install python on CentOS8
           raw: dnf -y install python36
           when: k8s.cluster_os == 'CentOS8'
+
         - name: Manage packages on CentOS8
           block:
           - name: Upgrade all packages
@@ -21,6 +22,19 @@
               name: "{{ packages }}"
               state: latest
           when: k8s.cluster_os == 'CentOS8' or k8s.cluster_os == 'CentOS7'
+
+        - name: Manage packages on CentOS8
+          block:
+          - name: Upgrade all packages
+            apt:
+              name: '*'
+              state: latest
+
+          - name: Install packages
+            apt:
+              name: "{{ packages }}"
+              state: latest
+          when: k8s.cluster_os == 'Ubuntu'
 
         - name: Ensure firewalld, haproxy and NM are enabled
           service:

@@ -9,11 +9,45 @@
       yum_repository:
         name: kubernetes
         description: Kubernetes repo
-        baseurl: "{{ kubernetes.k8s_repo }}"
+        baseurl: "{{ kubernetes.centos.k8s_repo }}"
         gpgcheck: true
         repo_gpgcheck: true
-        gpgkey: "{{ kubernetes.k8s_repo_key }}"
+        gpgkey: "{{ kubernetes.centos.k8s_repo_key }}"
         exclude: kubelet kubeadm kubectl
+      when: k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8'
+
+    - name: Ensure cri-o is installed
+      apt:
+        name: 
+          - apt-transport-https
+          - curl
+        state: latest
+      when: k8s.cluster_os == 'Ubuntu'
+
+    - name: Add an Apt signing key, uses whichever key is at the URL
+      apt_key:
+        url: "{{ kubernetes.ubuntu.k8s_repo_key }}"
+        state: present
+      when: k8s.cluster_os == 'Ubuntu'
+
+    - name: Ensure the presence of apt-repo for docker
+      apt_repository:
+        repo: "{{ kubernetes.ubuntu.k8s_repo }}"
+        filename: "{{ kubernetes.ubuntu.k8s_repo }}"
+        state: present
+      when: k8s.cluster_os == 'Ubuntu'
+    
+    - name: Ensure cri-o is installed
+      apt:
+        name: "{{ kubernetes.k8s_packages }}"
+        state: latest
+      when: k8s.cluster_os == 'Ubuntu'
+
+    - name: Hold kubepackages
+      dpkg_selections:
+        name: "{{ kubernetes.k8s_packages }}"
+        selection: hold
+      when: k8s.cluster_os == 'Ubuntu'
 
     - name: Disable swap
       shell: swapoff -a  
@@ -23,6 +57,7 @@
         line: "/dev/mapper/cl-swap swap"  
         path: /etc/fstab
         state: absent
+
     - name: Disable SELinux
       selinux:
         state: disabled
@@ -37,7 +72,12 @@
     - name: Install lvm2 for rook_ceph.support and git for installing rook
       yum:
         name: lvm2
-      when: rook_ceph.install_rook
+      when: rook_ceph.install_rook and ( k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8' )
+
+    - name: Install lvm2 for rook_ceph.support and git for installing rook
+      apt:
+        name: lvm2
+      when: rook_ceph.install_rook and ( k8s.cluster_os == 'Ubuntu' )
 
     - name: Enable kubelet
       systemd: 
