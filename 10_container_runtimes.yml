@@ -48,7 +48,7 @@
         - name: Reload sysctl
           shell: sysctl --system
 
-    - name: Install docker
+    - name: Configure docker on a Ubuntu machine
       block: 
         - name: Ensure required packages are present
           apt:
@@ -74,34 +74,9 @@
             name: "{{ docker.ubuntu.docker_packages }}"
             state: latest
 
-        - name: Create /etc/docker
-          file:
-            state: directory
-            path: /etc/docker
-        
-        - name: Copy docker configuration in /etc/docker
-          copy:
-            src: files/daemon.json
-            dest: /etc/docker/
-
-        - name: Create systemd folder for Docker service
-          file:
-            path: /etc/systemd/system/docker.service.d
-            state: directory
-
-        - name: Force systemd to reread configs
-          systemd:
-            daemon_reload: yes
-
-        - name: Ensure docker is enabled and started
-          systemd: 
-            name: docker
-            state: restarted
-            enabled: true
-
       when: k8s.container_runtime == 'docker' and k8s.cluster_os == 'Ubuntu'
 
-    - name: Install docker
+    - name: Configure docker on a CentOS machine
       block: 
         - name: Ensure required packages are present
           yum:
@@ -121,35 +96,58 @@
             name: "{{ docker.centos.docker_packages }}"
             state: latest
 
-        - name: Create /etc/docker
-          file:
-            state: directory
-            path: /etc/docker
-        
-        - name: Copy docker configuration in /etc/docker
-          copy:
-            src: files/daemon.json
-            dest: /etc/docker/
-
-        - name: Create systemd folder for Docker service
-          file:
-            path: /etc/systemd/system/docker.service.d
-            state: directory
-
-        - name: Force systemd to reread configs
-          systemd:
-            daemon_reload: yes
-
-        - name: Ensure docker is enabled and started
-          systemd: 
-            name: docker
-            state: restarted
-            enabled: true
-
       when: k8s.container_runtime == 'docker' and ( k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8' )
+
+    - name: Ensure docker service is configured
+      block:
+      - name: Create /etc/docker
+        file:
+          state: directory
+          path: /etc/docker
+      
+      - name: Copy docker configuration in /etc/docker
+        copy:
+          src: files/daemon.json
+          dest: /etc/docker/
+
+      - name: Create systemd folder for Docker service
+        file:
+          path: /etc/systemd/system/docker.service.d
+          state: directory
+
+      - name: Force systemd to reread configs
+        systemd:
+          daemon_reload: yes
+
+      - name: Ensure docker is enabled and started
+        systemd: 
+          name: docker
+          state: restarted
+          enabled: true
+      when: k8s.container_runtime == 'docker'
 
     - name: Install cri-o
       block:
+        - name: Ensure the presence of apt-repo for docker
+          apt_repository:
+            repo: {{ item }}
+            state: present
+          loop: 
+            - "{{ crio.ubuntu.libcontainers_repo }}"
+            - "{{ crio.ubuntu.crio_repo }}"
+          when: k8s.cluster_os == 'Ubuntu'
+
+        - name: Add an Apt signing key, uses whichever key is at the URL
+          apt_key:
+            url: "{{ item.key }}"
+            keyring: "{{ item.keyring }}"
+            state: present
+          loop: 
+            - key: "{{ crio.ubuntu.libcontainers_key }}"
+              keyring: "{{ crio.ubuntu.libcontainers_keyring }}"
+            - key: "{{ crio.ubuntu.crio_key }}"
+              keyring: "{{ crio.ubuntu.crio_keyring }}"
+          when: k8s.cluster_os == 'Ubuntu'
 
         - name: Add kubic CentOS7 repository
           get_url:
@@ -175,11 +173,19 @@
               url: "{{ crio.centos8.crio_repo }}"
           when: k8s.cluster_os == 'CentOS8'
 
-
         - name: Ensure cri-o is installed
           yum:
             name: cri-o
             state: latest
+          when: k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8'
+
+        - name: Ensure cri-o is installed
+          apt:
+            name: 
+              - cri-o
+              - cri-o-runc
+            state: latest
+          when: k8s.cluster_os == 'Ubuntu'
 
         - name: Ensure systemd as default cgroup_manager
           replace:
@@ -239,7 +245,7 @@
             enabled: true
       when: k8s.container_runtime == 'crio'
 
-    - name: Install containerd
+    - name: Ensure containerd is configured and installed on CentOS machine
       block:
         - name: Ensure required packages are present
           yum:
@@ -258,7 +264,16 @@
           yum:
             name: containerd.io
             state: latest
+      when: k8s.container_runtime == 'containerd' and ( k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8' )
 
+    - name: Ensure containerd is configured and installed on Ubuntu machine
+      apt:
+        name: containerd
+        state: latest
+      when: k8s.container_runtime == 'containerd' and k8s.cluster_os == 'Ubuntu'
+
+    - name: Ensure containerd service is configured
+      block:
         - name: Create /etc/containers
           file:
             state: directory

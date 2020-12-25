@@ -23,6 +23,14 @@ docker:
 
 crio:
   crio_version: 1.19
+  ubuntu:
+    libcontainers_repo: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/
+    libcontainers_key: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/Release.key
+    libcontainers_keyring: /etc/apt/trusted.gpg.d/libcontainers.gpg
+
+    crio_repo: deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.19/xUbuntu_20.04/    
+    crio_key: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:1.19/xUbuntu_20.04/Release.key
+    crio_keyring: /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg
   centos8:
     libcontainers_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_8/devel:kubic:libcontainers:stable.repo
     crio_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.19/CentOS_8/devel:kubic:libcontainers:stable:cri-o:1.19.repo
