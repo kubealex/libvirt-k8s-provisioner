@@ -130,7 +130,7 @@
       block:
         - name: Ensure the presence of apt-repo for docker
           apt_repository:
-            repo: {{ item }}
+            repo: "{{ item }}"
             state: present
           loop: 
             - "{{ crio.ubuntu.libcontainers_repo }}"
