@@ -1,6 +1,7 @@
 # variables that can be overriden
 variable "hostname" { default = "k8s-master" }
 variable "domain" { default = "k8s.lab" }
+variable "os" { default = "ubuntu" }
 variable "memory" { default = 6 }
 variable "cpu" { default = 3 }
 variable "vm_count" { default = 2 }
@@ -38,7 +39,7 @@ resource "libvirt_cloudinit_disk" "commoninit" {
   name = "${var.hostname}-${count.index}-commoninit.iso"
   pool = var.libvirt_pool 
   user_data = data.template_file.user_data[count.index].rendered
-  meta_data = data.template_file.meta_data[count.index].rendered
+  meta_data = var.os=='centos' ? data.template_file.meta_data[count.index].rendered : ""
 }
 
 
