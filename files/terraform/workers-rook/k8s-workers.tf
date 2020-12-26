@@ -1,6 +1,7 @@
 # variables that can be overriden
 variable "hostname" { default = "k8s-worker" }
 variable "domain" { default = "k8s.lab" }
+variable "os" { default = "ubuntu" }
 variable "memory" { default = 2 }
 variable "cpu" { default = 1 }
 variable "vm_count" { default = 2 }
@@ -25,14 +26,6 @@ resource "libvirt_volume" "os_image" {
   format = "qcow2"
 }
 
-#resource "libvirt_volume" "storage_image" {
-#  count = var.vm_count
-#  name = "${var.hostname}-${count.index}-storage_image"
-#  pool = var.libvirt_pool
-#  size = var.vm_volume_size*1073741824
-#  format = "qcow2"
-#}
-
 resource "libvirt_volume" "rook_image" {
   count = var.vm_count
   name = "${var.hostname}-${count.index}-rook_image"
@@ -47,12 +40,11 @@ resource "libvirt_cloudinit_disk" "commoninit" {
   name = "${var.hostname}-${count.index}-commoninit.iso"
   pool = var.libvirt_pool 
   user_data = data.template_file.user_data[count.index].rendered
-  meta_data = data.template_file.meta_data[count.index].rendered
+  meta_data = var.os=="centos" ? data.template_file.meta_data[count.index].rendered : ""
 }
 
-
 data "template_file" "user_data" {
-  template = file("${path.module}/cloud_init.cfg")
+  template = var.os=="centos" ? file("${path.module}/cloud_init.cfg") : file("${path.module}/cloud_init_ubuntu.cfg")
   count = var.vm_count
   vars = {
     hostname = "${var.hostname}-${count.index}.${var.domain}"
