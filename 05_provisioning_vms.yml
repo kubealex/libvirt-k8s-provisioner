@@ -141,7 +141,7 @@
   tasks:
     - name: Wait 600 seconds for target connection to become reachable/usable
       wait_for_connection:
-        timeout: 120
+        timeout: 600
         delay: 0
     - ping:
 

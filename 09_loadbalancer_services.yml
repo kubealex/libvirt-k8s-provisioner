@@ -5,6 +5,16 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
+    - name: Set ethernet adapter facts
+      set_fact:
+        interface: eth0
+      when: k8s.cluster_os == 'CentOS8' or k8s.cluster_os == 'CentOS7'
+
+    - name: Set ethernet adapter facts
+      set_fact:
+        interface: ens3
+      when: k8s.cluster_os == 'Ubuntu'
+
     - block:
         - name: Install python on CentOS8
           raw: dnf -y install python36
@@ -64,7 +74,7 @@
         - name: Adding interface to firewall internal zone  
           firewalld:
             zone: internal
-            interface: "eth0"
+            interface: "{{ interface }}"
             permanent: yes
             state: enabled
 
@@ -100,6 +110,7 @@
             name: haproxy_connect_any
             state: yes
             persistent: yes
+          when: k8s.cluster_os == 'CentOS8' or k8s.cluster_os == 'CentOS7'
 
         - name: Firing haproxy template
           template:
