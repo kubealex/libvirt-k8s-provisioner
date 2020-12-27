@@ -8,7 +8,7 @@
     - name: Check if distribution is supported
       fail: 
         msg: Your distribution is actually unsupported
-      when: ( ansible_distribution != 'CentOS' and ansible_distribution != 'Fedora' and sible_distribution != 'Ubuntu' ) or ( ansible_distribution != 'CentOS' and ansible_distribution_major_version | int < 7 ) 
+      when: ( ansible_distribution != 'CentOS' and ansible_distribution != 'Fedora' and ansible_distribution != 'Ubuntu' ) or ( ansible_distribution != 'CentOS' and ansible_distribution_major_version | int < 7 ) 
 
     - name: Check if distribution is supported
       fail:
