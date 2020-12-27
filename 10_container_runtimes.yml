@@ -128,25 +128,28 @@
 
     - name: Install cri-o
       block:
-        - name: Ensure the presence of apt-repo for docker
-          apt_repository:
-            repo: "{{ item }}"
-            state: present
-          loop: 
-            - "{{ crio.ubuntu.libcontainers_repo }}"
-            - "{{ crio.ubuntu.crio_repo }}"
-          when: k8s.cluster_os == 'Ubuntu'
-
         - name: Add an Apt signing key, uses whichever key is at the URL
           apt_key:
             url: "{{ item.key }}"
             keyring: "{{ item.keyring }}"
             state: present
-          loop: 
+          loop:
             - key: "{{ crio.ubuntu.libcontainers_key }}"
               keyring: "{{ crio.ubuntu.libcontainers_keyring }}"
             - key: "{{ crio.ubuntu.crio_key }}"
               keyring: "{{ crio.ubuntu.crio_keyring }}"
+          when: k8s.cluster_os == 'Ubuntu'
+
+        - name: Ensure the presence of apt-repo for cri-o
+          apt_repository:
+            repo: "{{ item.repo }}"
+            filename: "{{ item.file }}"
+            state: present
+          loop: 
+            - repo: "{{ crio.ubuntu.libcontainers_repo }}"
+              file: /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+            - repo: "{{ crio.ubuntu.crio_repo }}"
+              file: /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:1.19.list
           when: k8s.cluster_os == 'Ubuntu'
 
         - name: Add kubic CentOS7 repository

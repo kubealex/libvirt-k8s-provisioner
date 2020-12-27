@@ -16,7 +16,7 @@
         exclude: kubelet kubeadm kubectl
       when: k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8'
 
-    - name: Ensure cri-o is installed
+    - name: Ensure required packages for kubetools are installed
       apt:
         name: 
           - apt-transport-https
@@ -33,7 +33,7 @@
     - name: Ensure the presence of apt-repo for docker
       apt_repository:
         repo: "{{ kubernetes.ubuntu.k8s_repo }}"
-        filename: "{{ kubernetes.ubuntu.k8s_repo }}"
+        filename: "{{ kubernetes.ubuntu.k8s_repo_file }}"
         state: present
       when: k8s.cluster_os == 'Ubuntu'
     
@@ -45,8 +45,9 @@
 
     - name: Hold kubepackages
       dpkg_selections:
-        name: "{{ kubernetes.k8s_packages }}"
+        name: "{{ item }}"
         selection: hold
+      loop: "{{ kubernetes.k8s_packages }}"
       when: k8s.cluster_os == 'Ubuntu'
 
     - name: Disable swap
@@ -63,11 +64,13 @@
         state: disabled
       register: selinux_output
       notify: reboot
+      when: k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8'
 
     - name: Install kubepackages
       yum:
         name: "{{ kubernetes.k8s_packages }}"
         disable_excludes: kubernetes
+      when: k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8'
 
     - name: Install lvm2 for rook_ceph.support and git for installing rook
       yum:
