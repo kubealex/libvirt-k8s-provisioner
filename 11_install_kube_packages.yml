@@ -87,6 +87,7 @@
         name: kubelet
         state: started
         enabled: true
+      notify: reboot
 
   handlers:
     - name: reboot
