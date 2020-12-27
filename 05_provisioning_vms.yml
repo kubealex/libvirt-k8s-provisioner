@@ -74,7 +74,7 @@
           libvirt_pool: "{{ k8s.cluster_name }}"
           cpu: "{{ k8s.worker_nodes.vcpu }}"
           memory: "{{ k8s.worker_nodes.mem }}"
-          vm_count: "{{ (k8s.worker_nodes.vms - rook.rook_cluster_size) if rook_ceph.install_rook else k8s.worker_nodes.vms }}"
+          vm_count: "{{ (k8s.worker_nodes.vms - rook_ceph.rook_cluster_size) if rook_ceph.install_rook else k8s.worker_nodes.vms }}"
           vm_counter: "{{ rook.rook_cluster_size if rook_ceph.install_rook else 0 }}" 
           os_image_name: "{{ image_name }}-worker.qcow2"
         state: present

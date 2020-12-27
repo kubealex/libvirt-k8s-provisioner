@@ -12,6 +12,7 @@
             variables:
               hostname: "{{ k8s.cluster_name }}-loadbalancer"
               domain: "{{ k8s.network.domain }}"
+              os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}"
               libvirt_network: "{{ k8s.cluster_name }}"
               libvirt_pool: "{{ k8s.cluster_name }}"
               os_image_name: "{{ image_name }}.qcow2"

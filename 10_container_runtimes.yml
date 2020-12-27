@@ -60,19 +60,21 @@
               - software-properties-common 
             state: latest
 
-        - name: Work out the distribution
-          command: lsb_release -sc
-          register: lsb_result
+        - name: Add an Apt signing key, uses whichever key is at the URL
+          apt_key:
+            url: "{{ docker.ubuntu.docker_repo_key }}"
+            keyring: "{{ docker.ubuntu.docker_repo_key_file }}"
+            state: present
 
         - name: Ensure the presence of apt-repo for docker
           apt_repository:
-            repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ lsb_result }} stable
+            repo: "{{ docker.ubuntu.docker_repo }}"
             state: present
             
-        - name: Ensure docker is installed
+        - name: Ensure docker packages are installed
           apt:
             name: "{{ docker.ubuntu.docker_packages }}"
-            state: latest
+            state: present
 
       when: k8s.container_runtime == 'docker' and k8s.cluster_os == 'Ubuntu'
 

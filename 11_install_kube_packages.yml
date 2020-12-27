@@ -39,15 +39,18 @@
     
     - name: Ensure cri-o is installed
       apt:
-        name: "{{ kubernetes.k8s_packages }}"
-        state: latest
+        name: "{{ kubernetes.ubuntu.k8s_packages }}"
+        state: present
       when: k8s.cluster_os == 'Ubuntu'
 
     - name: Hold kubepackages
       dpkg_selections:
         name: "{{ item }}"
         selection: hold
-      loop: "{{ kubernetes.k8s_packages }}"
+      loop:
+        - kubectl
+        - kubeadm
+        - kubelet
       when: k8s.cluster_os == 'Ubuntu'
 
     - name: Disable swap
@@ -68,7 +71,8 @@
 
     - name: Install kubepackages
       yum:
-        name: "{{ kubernetes.k8s_packages }}"
+        name: "{{ kubernetes.centos.k8s_packages }}"
+        state: present
         disable_excludes: kubernetes
       when: k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8'
 
