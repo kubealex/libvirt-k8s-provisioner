@@ -5,7 +5,7 @@ Welcome to the home of the project!
 
 With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want.
 
-Kubernetes version that is installed is **1.19.x**
+Kubernetes version that is installed is **1.19.6**
 
 Terraform will take care of the provisioning of:
 - Loadbalancer machine with **haproxy** installed and configured for **HA** clusters
@@ -36,11 +36,12 @@ You can customize the setup choosing:
 
 - OS: 
   - Centos7 Generic Cloud base image [https://cloud.centos.org/centos/7/images/](https://cloud.centos.org/centos/7/images/)  
-  - Centos8 Generic Cloud base image [https://cloud.centos.org/centos/8/x86_64/images/](https://cloud.centos.org/centos/8/x86_64/images/)  
+  - Centos8 Generic Cloud base image [https://cloud.centos.org/centos/8/x86_64/images/](https://cloud.centos.org/centos/8/x86_64/images/) 
+  - Ubuntu 20.04 LTS Cloud base image [https://cloud-images.ubuntu.com/releases/focal/release/](https://cloud-images.ubuntu.com/releases/focal/release/) 
 
 - cloud-init: 
-  - user: kube
-  - pass: kuberocks  
+  - user: **kube**
+  - pass: **kuberocks**  
   - ssh-key: generated during vm-provisioning and stores in the project folder  
 
 The user is capable of logging via SSH too.  
@@ -78,7 +79,7 @@ Recommended sizings are:
 
 	  worker_nodes:
 	    vcpu: 1
-	    mem: 1
+	    mem: 2
 	    vms: 1
 	    disk: 30
 
@@ -113,7 +114,8 @@ Recommended sizings are:
 	metallb:
 	  install_metallb: false
 	  manifest_url: https://raw.githubusercontent.com/metallb/metallb/v0.9.5/manifests
-	  l2: 192.168.200.210-192.168.200.250
+  	  l2:
+        iprange: 192.168.200.210-192.168.200.250
 
 Size for **disk** and **mem** is in GB. 
 **disk** allows to provision space in the cloud image for pod's ephemeral storage. 
@@ -124,7 +126,7 @@ VMS are created with these names by default (customizing them is work in progres
 	- **cluster_name**-master-N.**domain**
 	- **cluster_name**-worker-N.**domain**
 
-It is possible to choose CentOS7/CentOS8 as **kubernetes hosts OS**
+It is possible to choose CentOS7/CentOS8/Ubunut as **kubernetes hosts OS**
 
 ## Rook 
 **Rook** setup actually creates a dedicated kind of worker, with an additional volume on **ALL** workers to be used. It will be improved to just select a number of nodes that can be coherent with the number of **ceph** replicas.

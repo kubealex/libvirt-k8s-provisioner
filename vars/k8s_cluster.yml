@@ -1,21 +1,21 @@
 k8s:
   cluster_name: k8s-test
-  cluster_os: CentOS7
+  cluster_os: Ubuntu
   container_runtime: crio
   master_schedulable: false
 
 # Nodes configuration
 
   control_plane:
-    vcpu: 2
+    vcpu: 1
     mem: 2
     vms: 3
     disk: 30
 
   worker_nodes:
     vcpu: 1
-    mem: 1
-    vms: 1
+    mem: 2
+    vms: 3
     disk: 30
 
 # Network configuration
@@ -42,11 +42,11 @@ ingress_controller:
 # Section for Rancher setup
 
 rancher:
-  install_rancher: true
+  install_rancher: false
 
 # Section for metalLB setup
 
 metallb:
   install_metallb: false
-  manifest_url: https://raw.githubusercontent.com/metallb/metallb/v0.9.5/manifests
-  l2: 192.168.200.210-192.168.200.250
+  l2:
+    iprange: 192.168.200.210-192.168.200.250
