@@ -18,6 +18,13 @@
         mode: 0777
       when: k8s.cluster_os == 'CentOS7'
 
+    - name: Download Ubuntu image
+      get_url:
+        url: "{{ ubuntu.cloud_image }}"
+        dest: /tmp/{{ image_name }}.qcow2
+        mode: 0777
+      when: k8s.cluster_os == 'Ubuntu'
+
     - name: Create a copy for master nodes
       copy: 
         src: /tmp/{{ image_name }}.qcow2
@@ -46,6 +53,7 @@
         variables:
           hostname: "{{ k8s.cluster_name }}-master"
           domain: "{{ k8s.network.domain }}"
+          os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}" 
           libvirt_network: "{{ k8s.cluster_name }}"
           libvirt_pool: "{{ k8s.cluster_name }}"
           cpu: "{{ k8s.control_plane.vcpu }}"
@@ -61,6 +69,7 @@
         variables:
           hostname: "{{ k8s.cluster_name }}-worker"
           domain: "{{ k8s.network.domain }}"
+          os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}" 
           libvirt_network: "{{ k8s.cluster_name }}"
           libvirt_pool: "{{ k8s.cluster_name }}"
           cpu: "{{ k8s.worker_nodes.vcpu }}"
@@ -77,6 +86,7 @@
         variables:
           hostname: "{{ k8s.cluster_name }}-worker"
           domain: "{{ k8s.network.domain }}"
+          os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}" 
           libvirt_network: "{{ k8s.cluster_name }}"
           libvirt_pool: "{{ k8s.cluster_name }}"
           cpu: "{{ k8s.worker_nodes.vcpu }}"
@@ -131,7 +141,7 @@
   tasks:
     - name: Wait 600 seconds for target connection to become reachable/usable
       wait_for_connection:
-        timeout: 120
+        timeout: 600
         delay: 0
     - ping:
 

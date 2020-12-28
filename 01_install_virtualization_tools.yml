@@ -2,37 +2,54 @@
 - name: This play installs needed tools to provision infrastructure VMs
   hosts: vm_host
   tasks:
+    - name: Manage packets when distro is 'CentOS'
+      block:
+      - name: Upgrade all packages
+        yum:
+          name: '*'
+          state: latest
 
-    - name: Upgrade all packages
-      yum:
-        name: '*'
-        state: latest
+      - name: Install required packages
+        yum:
+          name: "{{ virtualization_packages.centos8 }}"
+          state: latest
+        become: true
+        when:
+          - ansible_distribution == 'CentOS'
+          - ansible_distribution_major_version | int == 8
 
-    - name: Install required packages
-      yum:
-        name: "{{ virtualization_packages.centos8 }}"
-        state: latest
-      become: true
-      when:
-        - ansible_distribution == 'CentOS'
-        - ansible_distribution_major_version | int == 8
+      - name: Install required packages
+        yum:
+          name: "{{ virtualization_packages.centos7 }}"
+          state: latest
+        become: true
+        when:
+          - ansible_distribution == 'CentOS'
+          - ansible_distribution_major_version | int == 7
 
-    - name: Install required packages
-      yum:
-        name: "{{ virtualization_packages.centos7 }}"
-        state: latest
-      become: true
-      when:
-        - ansible_distribution == 'CentOS'
-        - ansible_distribution_major_version | int == 7
+      - name: Install required packages
+        yum:
+          name: "{{ virtualization_packages.fedora }}"
+          state: latest
+        become: true
+        when:
+          - ansible_distribution == 'Fedora'
+      when: ansible_distribution == 'Fedora' or ansible_distribution == 'CentOS'
 
-    - name: Install required packages
-      yum:
-        name: "{{ virtualization_packages.fedora }}"
-        state: latest
-      become: true
-      when:
-        - ansible_distribution == 'Fedora'
+    - name: Manage packets when distro is 'Ubuntu'
+      block:
+      - name: Upgrade all packages
+        apt:
+          name: '*'
+          state: latest
+
+      - name: Install required packages
+        apt:
+          name: "{{ virtualization_packages.ubuntu }}"
+          state: latest
+        become: true
+
+      when: ansible_distribution == 'Ubuntu'
 
     - name: Download and provision Terraform
       unarchive: 
@@ -62,7 +79,6 @@
 
     - name: Ensures terraform plugins directory exists
       file:
-        #path: ~/.terraform.d/plugins
         path: "{{ libvirt_plugin_dir }}"
         state: directory
         mode: 0744

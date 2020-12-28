@@ -29,6 +29,22 @@ virtualization_packages:
     - virt-install
     - virt-manager
 
+  ubuntu:
+    - unzip
+    - git
+    - golang
+    - gcc
+    - make
+    - python3-lxml
+    - python3-neta
+    - python3-libv
+    - libvirt-daemon-system
+    - libvirt-clients
+    - bridge-utils
+    - qemu-kvm
+    - virtinst
+    - virt-manager
+
   fedora:
     - unzip
     - git

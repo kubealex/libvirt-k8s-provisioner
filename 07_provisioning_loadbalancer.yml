@@ -12,6 +12,7 @@
             variables:
               hostname: "{{ k8s.cluster_name }}-loadbalancer"
               domain: "{{ k8s.network.domain }}"
+              os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}"
               libvirt_network: "{{ k8s.cluster_name }}"
               libvirt_pool: "{{ k8s.cluster_name }}"
               os_image_name: "{{ image_name }}.qcow2"
@@ -47,7 +48,7 @@
     - block:
         - name: Wait 600 seconds for target connection to become reachable/usable
           wait_for_connection:
-            timeout: 120
+            timeout: 600
             delay: 0
         - ping:
       when: k8s.control_plane.vms > 1

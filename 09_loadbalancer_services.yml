@@ -5,22 +5,48 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
+    - name: Set ethernet adapter facts
+      set_fact:
+        interface: eth0
+      when: k8s.cluster_os == 'CentOS8' or k8s.cluster_os == 'CentOS7'
+
+    - name: Set ethernet adapter facts
+      set_fact:
+        interface: ens3
+      when: k8s.cluster_os == 'Ubuntu'
+
     - block:
         - name: Install python on CentOS8
           raw: dnf -y install python36
           when: k8s.cluster_os == 'CentOS8'
 
-        - name: Upgrade all packages
-          yum:
-            name: '*'
-            state: latest
+        - name: Manage packages on CentOS8
+          block:
+          - name: Upgrade all packages
+            yum:
+              name: '*'
+              state: latest
 
-        - name: Install packages
-          yum:
-            name: "{{ packages }}"
-            state: latest
-              
-        - name: Enable firewalld
+          - name: Install packages
+            yum:
+              name: "{{ packages }}"
+              state: latest
+          when: k8s.cluster_os == 'CentOS8' or k8s.cluster_os == 'CentOS7'
+
+        - name: Manage packages on CentOS8
+          block:
+          - name: Upgrade all packages
+            apt:
+              name: '*'
+              state: latest
+
+          - name: Install packages
+            apt:
+              name: "{{ packages }}"
+              state: latest
+          when: k8s.cluster_os == 'Ubuntu'
+
+        - name: Ensure firewalld, haproxy and NM are enabled
           service:
             name: "{{ item }}"
             enabled: true
@@ -34,11 +60,11 @@
  
         - name: Set interface to internal zone 
           shell: nmcli connection modify System\ eth0 connection.zone internal
-          when: k8s.cluster_os == 'CentOS7'
+          when: k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8'
 
-        - name: Set interface to internal zone
-          shell: nmcli connection modify eth0 connection.zone internal
-          when: k8s.cluster_os == 'CentOS8'
+#        - name: Set interface to internal zone
+#          shell: nmcli connection modify eth0 connection.zone internal
+#          when: k8s.cluster_os == 'CentOS8'
 
         - name: Stop NetworkManager
           service: 
@@ -48,7 +74,7 @@
         - name: Adding interface to firewall internal zone  
           firewalld:
             zone: internal
-            interface: "eth0"
+            interface: "{{ interface }}"
             permanent: yes
             state: enabled
 
@@ -84,6 +110,7 @@
             name: haproxy_connect_any
             state: yes
             persistent: yes
+          when: k8s.cluster_os == 'CentOS8' or k8s.cluster_os == 'CentOS7'
 
         - name: Firing haproxy template
           template:
@@ -99,4 +126,3 @@
         - name: Reboot loadbalancer
           reboot: 
       when: k8s.control_plane.vms > 1
-

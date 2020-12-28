@@ -55,9 +55,6 @@
         src: templates/libvirt_dnsmasq.j2
         dest: /etc/NetworkManager/dnsmasq.d/libvirt_dnsmasq.conf
 
-#    - name: Configure DNS search domain
-#      command: nmcli connection modify "{{ ansible_default_ipv4.interface }}" ipv4.dns-search "{{ k8s.network.domain }}"
-
     - name: Restart NetworkManager
       service:
         name: NetworkManager

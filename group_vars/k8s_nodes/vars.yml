@@ -1,21 +1,45 @@
 kubernetes:
-  #k8s_repo: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
-  k8s_repo: https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
-  k8s_repo_key: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-  k8s_packages: 
-    - kubelet
-    - kubeadm
-    - kubectl
-
+  centos:
+    k8s_repo: https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
+    k8s_repo_key: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    k8s_packages:
+      - kubelet-1.19.6-0
+      - kubeadm-1.19.6-0
+      - kubectl-1.19.6-0
+  ubuntu:
+    k8s_repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    k8s_repo_file: /etc/apt/sources.list.d/kubernetes.list
+    k8s_repo_key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    k8s_packages:
+      - kubelet=1.19.6-00
+      - kubeadm=1.19.6-00
+      - kubectl=1.19.6-00
 docker:
-  docker_repo: https://download.docker.com/linux/centos/docker-ce.repo
-  docker_packages:
-    - containerd.io-1.2.13
-    - docker-ce-19.03.8
-    - docker-ce-cli-19.03.8
+  centos:
+    docker_repo: https://download.docker.com/linux/centos/docker-ce.repo
+    docker_packages:
+      - containerd.io-1.2.13
+      - docker-ce-19.03.8
+      - docker-ce-cli-19.03.8
+  ubuntu:
+    docker_repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+    docker_packages:
+      - containerd.io=1.2.13-2
+      - docker-ce=5:19.03.11~3-0~ubuntu-focal
+      - docker-ce-cli=5:19.03.11~3-0~ubuntu-focal
+    docker_repo_key: https://download.docker.com/linux/ubuntu/gpg
+    docker_repo_key_file: /etc/apt/trusted.gpg.d/docker.gpg
 
 crio:
   crio_version: 1.19
+  ubuntu:
+    libcontainers_repo: deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /
+    libcontainers_key: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/Release.key
+    libcontainers_keyring: /etc/apt/trusted.gpg.d/libcontainers.gpg
+
+    crio_repo: deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.19/xUbuntu_20.04/ /
+    crio_key: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:1.19/xUbuntu_20.04/Release.key
+    crio_keyring: /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg
   centos8:
     libcontainers_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_8/devel:kubic:libcontainers:stable.repo
     crio_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.19/CentOS_8/devel:kubic:libcontainers:stable:cri-o:1.19.repo
