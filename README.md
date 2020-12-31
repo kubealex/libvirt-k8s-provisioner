@@ -5,7 +5,9 @@ Welcome to the home of the project!
 
 With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want.
 
-Kubernetes version that is installed is **1.19.6**
+Kubernetes version that is installed can be choosen between:
+- **1.19.6** - Latest 1.19 release
+- **1.20.1** - Latest 1.20 release
 
 Terraform will take care of the provisioning of:
 - Loadbalancer machine with **haproxy** installed and configured for **HA** clusters
@@ -58,14 +60,15 @@ Recommended sizings are:
 | Role | vCPU | RAM |
 |--|--|--|
 | master | 2 | 2G | 
-| worker | 1 | 1G | 
+| worker | 2 | 2G | 
 
 **vars/k8s_cluster.yml**
 
 # General configuration
 	k8s:
 	  cluster_name: k8s-test
-	  cluster_os: CentOS7
+	  cluster_os: Ubuntu
+	  cluster_version: 1.20
 	  container_runtime: crio
 	  master_schedulable: false
 

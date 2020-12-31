@@ -162,7 +162,7 @@
           loop: 
             - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable.repo"
               url: "{{ crio.centos7.libcontainers_repo }}"
-            - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:{{ crio.crio_version }}.repo"
+            - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:{{ k8s.cluster_version }}.repo"
               url: "{{ crio.centos7.crio_repo }}"
           when: k8s.cluster_os == 'CentOS7'
 
@@ -174,7 +174,7 @@
           loop:
             - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable.repo"
               url: "{{ crio.centos8.libcontainers_repo }}"
-            - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:{{ crio.crio_version }}.repo"
+            - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:1.19.repo"
               url: "{{ crio.centos8.crio_repo }}"
           when: k8s.cluster_os == 'CentOS8'
 
