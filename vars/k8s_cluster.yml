@@ -1,3 +1,4 @@
+# General configuration
 k8s:
   cluster_name: k8s-test
   cluster_os: Ubuntu
@@ -38,7 +39,7 @@ rook_ceph:
 
 ingress_controller:
   install_ingress_controller: true
-  type: haproxy
+  type: nginx
 
 # Section for Rancher setup
 
