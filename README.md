@@ -5,7 +5,9 @@ Welcome to the home of the project!
 
 With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want.
 
-Kubernetes version that is installed is **1.20.1**
+Kubernetes version that is installed can be choosen between:
+- **1.19.6** - Latest 1.19 release
+- **1.20.1** - Latest 1.20 release
 
 Terraform will take care of the provisioning of:
 - Loadbalancer machine with **haproxy** installed and configured for **HA** clusters
