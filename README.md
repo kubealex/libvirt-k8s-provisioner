@@ -58,7 +58,7 @@ Recommended sizings are:
 | Role | vCPU | RAM |
 |--|--|--|
 | master | 2 | 2G | 
-| worker | 1 | 1G | 
+| worker | 2 | 2G | 
 
 **vars/k8s_cluster.yml**
 

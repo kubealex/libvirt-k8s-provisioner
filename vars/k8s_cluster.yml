@@ -7,15 +7,15 @@ k8s:
 # Nodes configuration
 
   control_plane:
-    vcpu: 1
+    vcpu: 2
     mem: 2
     vms: 3
     disk: 30
 
   worker_nodes:
-    vcpu: 1
+    vcpu: 2
     mem: 2
-    vms: 3
+    vms: 1
     disk: 30
 
 # Network configuration
@@ -48,5 +48,5 @@ rancher:
 
 metallb:
   install_metallb: false
-  l2:
+  l2: 
     iprange: 192.168.200.210-192.168.200.250
