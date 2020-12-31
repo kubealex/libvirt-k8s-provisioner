@@ -65,7 +65,8 @@ Recommended sizings are:
 # General configuration
 	k8s:
 	  cluster_name: k8s-test
-	  cluster_os: CentOS7
+	  cluster_os: Ubuntu
+	  cluster_version: 1.20
 	  container_runtime: crio
 	  master_schedulable: false
 
