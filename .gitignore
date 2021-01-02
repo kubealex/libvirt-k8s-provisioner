@@ -3,7 +3,7 @@ debug.yml
 terraform.tfstate*
 vars/vars.yml
 test.yml
-.terraform
+.terraform*
 roles
 utils.yml
 vars/k8s_cluster.yml.bak
