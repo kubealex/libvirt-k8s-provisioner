@@ -36,8 +36,8 @@ virtualization_packages:
     - gcc
     - make
     - python3-lxml
-    - python3-neta
-    - python3-libv
+    - python3-netaddr
+    - python3-libvirt
     - libvirt-daemon-system
     - libvirt-clients
     - bridge-utils
