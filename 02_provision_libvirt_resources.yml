@@ -49,13 +49,16 @@
       copy:
         src: files/localdns.conf
         dest: /etc/NetworkManager/conf.d/localdns.conf
+      become: true
 
     - name: Configure NetworkManager for libvirt network
       template:
         src: templates/libvirt_dnsmasq.j2
         dest: /etc/NetworkManager/dnsmasq.d/libvirt_dnsmasq.conf
+      become: true
 
     - name: Restart NetworkManager
       service:
         name: NetworkManager
         state: restarted
+      become: true
