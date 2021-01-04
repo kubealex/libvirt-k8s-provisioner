@@ -62,3 +62,8 @@
         name: NetworkManager
         state: restarted
       become: true
+
+    - name: Wait for local DNS resolver to be up
+      wait_for:
+        port: 53
+        delay: 10
