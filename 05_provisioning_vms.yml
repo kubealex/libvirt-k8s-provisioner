@@ -61,6 +61,7 @@
           vm_count: "{{ k8s.control_plane.vms }}"
           os_image_name: "{{ image_name }}-master.qcow2"
         state: present
+      become: true
       register: output_masters
 
     - terraform:
@@ -78,6 +79,7 @@
           vm_counter: "{{ rook.rook_cluster_size if rook_ceph.install_rook else 0 }}" 
           os_image_name: "{{ image_name }}-worker.qcow2"
         state: present
+      become: true
       register: output_workers
 
     - terraform:
@@ -96,6 +98,7 @@
           vm_count: "{{ rook.rook_cluster_size }}"
           os_image_name: "{{ image_name }}-worker.qcow2"
         state: present
+      become: true
       register: output_workers_rook
       when: rook_ceph.install_rook
 

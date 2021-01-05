@@ -1,6 +1,7 @@
 ---
 - name: This play installs needed tools to provision infrastructure VMs
   hosts: vm_host
+  become: true
   tasks:
     - name: Manage packets when distro is 'CentOS'
       block:
@@ -8,13 +9,11 @@
         yum:
           name: '*'
           state: latest
-        become: true
 
       - name: Install required packages
         yum:
           name: "{{ virtualization_packages.centos8 }}"
           state: latest
-        become: true
         when:
           - ansible_distribution == 'CentOS'
           - ansible_distribution_major_version | int == 8
@@ -23,7 +22,6 @@
         yum:
           name: "{{ virtualization_packages.centos7 }}"
           state: latest
-        become: true
         when:
           - ansible_distribution == 'CentOS'
           - ansible_distribution_major_version | int == 7
@@ -32,7 +30,6 @@
         yum:
           name: "{{ virtualization_packages.fedora }}"
           state: latest
-        become: true
         when:
           - ansible_distribution == 'Fedora'
       when: ansible_distribution == 'Fedora' or ansible_distribution == 'CentOS'
@@ -43,13 +40,11 @@
         apt:
           name: '*'
           state: latest
-        become: true
 
       - name: Install required packages
         apt:
           name: "{{ virtualization_packages.ubuntu }}"
           state: latest
-        become: true
 
       when: ansible_distribution == 'Ubuntu'
 
@@ -59,14 +54,12 @@
         dest: /usr/bin/
         mode: 755
         remote_src: yes
-      become: true
 
     - name: Virtualization services are enabled
       service:
         name: libvirtd
         state: started
         enabled: true
-      become: true
 
     - name: Clone libvirt-provider for terraform 
       git:

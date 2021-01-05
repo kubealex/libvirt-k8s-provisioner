@@ -17,6 +17,7 @@
               libvirt_pool: "{{ k8s.cluster_name }}"
               os_image_name: "{{ image_name }}.qcow2"
             state: present
+          become: true
           register: output_loadbalancer
 
         - name: Add loadbalancer to inventory
@@ -37,6 +38,7 @@
             path: ~/.ssh/known_hosts
             state: absent
           loop: "{{ groups['loadbalancer'] }}"
+          become: true
       when: k8s.control_plane.vms > 1
 
 - name: Check connection to loadbalancer

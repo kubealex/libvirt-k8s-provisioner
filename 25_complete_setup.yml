@@ -32,11 +32,11 @@
   run_once: true
   tasks:
     - name: Label worker nodes
-      shell: kubectl label nodes {{ hostvars[item].node_fqdn }} node-role.kubernetes.io/worker=
+      shell: kubectl label nodes {{ hostvars[item].node_fqdn }} node-role.kubernetes.io/worker=
       loop: groups['workers']
 
     - name: Remove taint from master nodes
-      shell: kubectl taint node {{ hostvars[item].node_fqdn }}  node-role.kubernetes.io/master-
+      shell: kubectl taint node {{ hostvars[item].node_fqdn }}  node-role.kubernetes.io/master-
       loop: groups['masters']
       when: k8s.master_schedulable
 
