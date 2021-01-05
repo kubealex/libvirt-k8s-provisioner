@@ -17,14 +17,15 @@
             owner: kube
             group: kube
           become: true
-
-        - name: here we are using Ansible fetch module with some flat parameter
-          fetch:
-            src: /etc/kubernetes/admin.conf
-            dest: admin.kubeconfig
-            flat: yes
       when: inventory_hostname != groups['masters'][0]
 
+    - name: Fetch kubeconfig file
+      fetch:
+        src: /etc/kubernetes/admin.conf
+        dest: admin.kubeconfig
+        flat: yes
+      become: true
+      when: inventory_hostname == groups['masters'][0]
 
 - name: Label worker nodes, remove taints from master nodes if selected
   hosts: master
