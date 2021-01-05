@@ -20,15 +20,23 @@
       copy:
         src: files/localdns.conf
         dest: /etc/NetworkManager/conf.d/localdns.conf
+      become: true
       notify: Restart NetworkManager
 
     - name: Configure NetworkManager for libvirt network
       template:
         src: templates/libvirt_dnsmasq.j2
         dest: /etc/NetworkManager/dnsmasq.d/libvirt_dnsmasq.conf
+      become: true
 
   handlers:
     - name: Restart NetworkManager
       service:
         name: NetworkManager
         state: restarted
+      become: true
+
+    - name: Wait for local DNS resolver to be up
+      wait_for:
+        port: 53
+        delay: 10
