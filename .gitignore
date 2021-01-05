@@ -1,4 +1,5 @@
 id_rsa*
+*.bak
 debug.yml
 terraform.tfstate*
 vars/vars.yml

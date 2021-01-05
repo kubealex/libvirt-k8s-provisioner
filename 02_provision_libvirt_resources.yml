@@ -1,60 +1,33 @@
----
-- name: This play installs needed tools to provision infrastructure VMs
+- name: This play provisions libvirt resources with terraform
   hosts: vm_host
+  become: true
   vars_files:
-    - vars/k8s_cluster.yml    
+    - vars/k8s_cluster.yml
+    
   tasks:
-
-    - name: Ensure pool path exists
-      file:
-        path: "{{ libvirt.storage.pool_path }}/{{ k8s.cluster_name }}"
-        state: directory
-      become: true
-
-    - name: Define libvirt network
-      virt_net:
-        command: define
-        name: "{{ k8s.cluster_name }}"
-        xml: '{{ lookup("template", "templates/libvirt_network.xml.j2") }}'
-
-    - name: Make libvirt network autostart
-      virt_net:
-        name: "{{ k8s.cluster_name }}"
-        autostart: true
-
-    - name: Start libvirt network
-      virt_net:
-        command: start
-        name: "{{ k8s.cluster_name }}"
-        state: active
-
-    - name: Define libvirt pool
-      virt_pool:
-        command: define
-        name: "{{ k8s.cluster_name }}"
-        xml: '{{ lookup("template", "templates/libvirt_pool.xml.j2") }}'
-
-    - name: Make libvirt pool autostart
-      virt_pool:
-        name: "{{ k8s.cluster_name }}"
-        autostart: true
-
-    - name: Start libvirt pool
-      virt_pool:
-        command: start
-        name: "{{ k8s.cluster_name }}"
-        state: active
+    - name: Use TF project to ensure pool and network are defined
+      terraform:
+        project_path: "files/terraform/libvirt-resources"
+        variables:
+          domain: "{{ k8s.network.domain }}"
+          network_cidr: ' ["{{ k8s.network.network_cidr }}"]'
+          cluster_name: "{{ k8s.cluster_name }}"
+        force_init: true
+        state: present
+      register: output_masters
 
     - name: Configure NetworkManager for local DNS
       copy:
         src: files/localdns.conf
         dest: /etc/NetworkManager/conf.d/localdns.conf
+      notify: Restart NetworkManager
 
     - name: Configure NetworkManager for libvirt network
       template:
         src: templates/libvirt_dnsmasq.j2
         dest: /etc/NetworkManager/dnsmasq.d/libvirt_dnsmasq.conf
 
+  handlers:
     - name: Restart NetworkManager
       service:
         name: NetworkManager

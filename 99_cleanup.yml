@@ -3,6 +3,7 @@
   hosts: vm_host
   vars_files:
     - vars/k8s_cluster.yml
+  become: true
   tasks:
 
     - name: Destroy cluster VM
@@ -12,7 +13,6 @@
         state: absent
       loop:
         - workers
-        - workers-rook
         - masters
         - loadbalancer
       when: not rook_ceph.install_rook
@@ -29,14 +29,10 @@
         - loadbalancer
       when: rook_ceph.install_rook
 
-    - name: Remove libvirt network
-      virt_net:
-        name: "{{ k8s.cluster_name }}"
-        state: absent
-
-    - name: Remove libvirt pool
-      virt_pool:
-        name: "{{ k8s.cluster_name }}"
+    - name: Destroy libvirt pool and network 
+      terraform:
+        force_init: true
+        project_path: "files/terraform/libvirt-resources"
         state: absent
 
     - name: Delete all created paths
@@ -46,8 +42,7 @@
       loop: 
         - ~/libvirt-provider
         - ~/.terraform.d
-        - ~/go
-        - "{{ libvirt.storage.pool_path }}/{{ k8s.cluster_name }}"
+        - ~/go/bin/terraform-provider-libvirt
 
     - name: Delete all created paths - root 
       become: true
