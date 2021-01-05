@@ -18,6 +18,11 @@
             group: kube
           become: true
 
+        - name: here we are using Ansible fetch module with some flat parameter
+          fetch:
+            src: /etc/kubernetes/admin.conf
+            dest: admin.kubeconfig
+            flat: yes
       when: inventory_hostname != groups['masters'][0]
 
 
