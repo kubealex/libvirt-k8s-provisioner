@@ -4,16 +4,12 @@
   vars_files: 
     - vars/k8s_cluster.yml
   tasks:
-    - name: Join cluster
+    - name: Join worker nodes in cluster
       shell: kubeadm join --token {{ hostvars[groups['masters'][0]].kubetoken }}  {{ hostvars[groups['loadbalancer'][0]].node_fqdn  }}:6443 --discovery-token-ca-cert-hash sha256:{{ hostvars[groups['masters'][0]].kubehash }}
       become: true
       when: k8s.control_plane.vms > 1      
 
-    - name: Join cluster
+    - name: Join worker nodes in cluster
       shell: kubeadm join --token {{ hostvars[groups['masters'][0]].kubetoken }}  {{ hostvars[groups['masters'][0]].node_fqdn }}:6443 --discovery-token-ca-cert-hash sha256:{{ hostvars[groups['masters'][0]].kubehash }}
       become: true
       when: k8s.control_plane.vms == 1
-
-    - name: WHYUNOJOIN
-      debug: 
-        msg: "LOOOOL"
