@@ -43,6 +43,7 @@
         apt:
           name: '*'
           state: latest
+        become: true
 
       - name: Install required packages
         apt:
