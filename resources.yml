@@ -1,3 +1,0 @@
-#- import_playbook: 01_install_virtualization_tools.yml
-- import_playbook: XX_test-resources.yml
-- import_playbook: 05_provisioning_vms.yml
