@@ -18,7 +18,7 @@
             group: kube
           become: true
 
-        - name: here we are using Ansible fetch module with some flat parameter
+        - name: Fetch kube-admin kubeconfig in current path
           fetch:
             src: /etc/kubernetes/admin.conf
             dest: admin.kubeconfig
