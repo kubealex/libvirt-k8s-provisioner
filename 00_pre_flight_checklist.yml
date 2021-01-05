@@ -21,6 +21,13 @@
       when: 
         - k8s.control_plane.vms is not defined or k8s.control_plane.vms <= 0
 
+    - name: Check if master is schedulable in case of clusters composed by control plane VMs
+      fail:
+        msg: When provisioning a cluster without workers, you need to set k8s.master_schedulable to true in vars.
+      when:
+        - k8s.worker_nodes.vms is not defined or k8s.worker_nodes.vms <= 0
+        - not k8s.master_schedulable 
+
     - name: Fail fast if rook and less than 3 worker nodes
       fail: 
         msg: In order to use rook, at least three worker nodes must be present
