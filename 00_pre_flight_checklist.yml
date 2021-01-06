@@ -49,6 +49,7 @@
       when:
         - k8s.network.cni_plugin != 'calico'
         - k8s.network.cni_plugin != 'flannel'
+        - k8s.network.cni_plugin != 'cilium'
 
     - name: Check if an ingress controller is selected before installing rancher
       fail:
