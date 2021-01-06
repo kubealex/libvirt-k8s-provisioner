@@ -28,7 +28,7 @@
       when: inventory_hostname == groups['masters'][0]
 
 - name: Label worker nodes, remove taints from master nodes if selected
-  hosts: master
+  hosts: masters
   run_once: true
   tasks:
     - name: Label worker nodes
