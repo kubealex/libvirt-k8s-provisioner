@@ -3,6 +3,8 @@ cni_plugins:
     calico_repo: https://docs.projectcalico.org/manifests/calico.yaml
   flannel:
     flannel_repo: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+  cilium: 
+    cilium_repo: https://raw.githubusercontent.com/cilium/cilium/v1.9/install/kubernetes/quick-install.yaml
 
 ingresses:
   nginx_repo: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.41.2/deploy/static/provider/baremetal/deploy.yaml
