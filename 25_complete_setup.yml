@@ -17,25 +17,29 @@
             owner: kube
             group: kube
           become: true
-
-        - name: Fetch kube-admin kubeconfig in current path
-          fetch:
-            src: /etc/kubernetes/admin.conf
-            dest: admin.kubeconfig
-            flat: yes
       when: inventory_hostname != groups['masters'][0]
 
+    - name: Fetch kubeconfig file
+      fetch:
+        src: /etc/kubernetes/admin.conf
+        dest: admin.kubeconfig
+        flat: yes
+      become: true
+      when: inventory_hostname == groups['masters'][0]
 
 - name: Label worker nodes, remove taints from master nodes if selected
-  hosts: master
+  hosts: masters
   run_once: true
+  vars_files:
+    - vars/k8s_cluster.yml
   tasks:
-    - name: Label worker nodes
-      shell: kubectl label nodes {{ hostvars[item].node_fqdn }} node-role.kubernetes.io/worker=
-      loop: groups['workers']
+    - block: 
+      - name: Label worker nodes
+        shell: kubectl label nodes {{ hostvars[item].node_fqdn }} node-role.kubernetes.io/worker=
+        loop: "{{ groups['workers'] }}"
 
-    - name: Remove taint from master nodes
-      shell: kubectl taint node {{ hostvars[item].node_fqdn }}  node-role.kubernetes.io/master-
-      loop: groups['masters']
-      when: k8s.master_schedulable
-
+      - name: Remove taint from master nodes
+        shell: kubectl taint node {{ hostvars[item].node_fqdn }}  node-role.kubernetes.io/master-
+        loop: "{{ groups['masters'] }}"
+        when: k8s.master_schedulable
+      when: inventory_hostname == groups['masters'][0]

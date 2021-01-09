@@ -21,7 +21,9 @@
         src: files/localdns.conf
         dest: /etc/NetworkManager/conf.d/localdns.conf
       become: true
-      notify: Restart NetworkManager
+      notify: 
+        - Restart NetworkManager
+        - Wait for local DNS resolver to be up
 
     - name: Configure NetworkManager for libvirt network
       template:

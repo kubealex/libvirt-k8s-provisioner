@@ -9,10 +9,6 @@
         - name: Apply network addon - Calico
           command: kubectl apply -f {{ cni_plugins.calico.calico_repo }}
 
-#        - name: Force Calico to ignore cni0 interface when installing
-#          shell: 'kubectl set env ds/calico-node -n kube-system  --containers="calico-node" IP_AUTODETECTION_METHOD=can-reach=8.8.8.8'
-#          when: k8s.container_runtime == 'crio'
-
         - name: Wait for Calico pods to be created
           shell: "kubectl get po --namespace=kube-system --selector k8s-app=calico-node --output=jsonpath='{.items[*].metadata.name}'"
           register: calico_dns_pods_created
@@ -40,6 +36,39 @@
           register: kube_dns_pods_ready
 
       when: k8s.network.cni_plugin == 'calico'
+
+    - block:
+        - name: Apply network addon - Cilium
+          command: kubectl apply -f {{ cni_plugins.cilium.cilium_repo }}
+
+        - name: Wait for Cilium pods to be created
+          shell: "kubectl get po --namespace=kube-system --output=jsonpath='{.items[*].metadata.name}'"
+          register: cilium_dns_pods_created
+          until: item in cilium_dns_pods_created.stdout
+          retries: 10
+          delay: 30
+          with_items:
+            - cilium
+            - cilium-operator
+
+        - name: Wait for cilium pods become ready
+          shell: "kubectl wait --namespace=kube-system --for=condition=Ready pods --selector name=cilium-operator --timeout=600s && kubectl wait --namespace=kube-system --for=condition=Ready pods --selector k8s-app=cilium --timeout=600s"
+          register: cilium_dns_pods_ready
+
+        - name: Wait for kube-dns pods become created
+          shell: "kubectl get po --namespace=kube-system --selector k8s-app=kube-dns --output=jsonpath='{.items[*].metadata.name}'"
+          register: kube_dns_pods_created
+          until: item in kube_dns_pods_created.stdout
+          retries: 10
+          delay: 30
+          with_items:
+            - coredns
+
+        - name: Wait for core-dns pods become ready
+          shell: "kubectl wait --namespace=kube-system --for=condition=Ready pods --selector k8s-app=kube-dns --timeout=600s"
+          register: kube_dns_pods_ready
+
+      when: k8s.network.cni_plugin == 'cilium'
 
     - block:
         - name: Download flannel manifest
