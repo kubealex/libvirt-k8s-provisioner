@@ -28,8 +28,8 @@ You can customize the setup choosing:
 - **schedulable master** if you want to schedule on your master nodes or leave the taint.
 - **service CIDR** to be used during installation. 
 - **pod CIDR** to be used during installation. 
-- **network plugin** to be used, based on the documentation. **[Project Calico](https://www.projectcalico.org/calico-networking-for-kubernetes/)** **[Flannel](https://github.com/coreos/flannel)**
-- **[nginx-ingress-controller](https://kubernetes.github.io/ingress-nginx/)** or **[haproxy-ingress-controller](https://github.com/haproxytech/kubernetes-ingress)** if you want to enable ingress management.  
+- **network plugin** to be used, based on the documentation. **[Project Calico](https://www.projectcalico.org/calico-networking-for-kubernetes/)** **[Flannel](https://github.com/coreos/flannel)** **[Project Cilium](https://cilium.io/)**
+- **[nginx-ingress-controller](https://kubernetes.github.io/ingress-nginx/)**, **[haproxy-ingress-controller](https://github.com/haproxytech/kubernetes-ingress)** or **[Project Contour](https://projectcontour.io/)**  if you want to enable ingress management.  
 - **[Rancher](https://rancher.com/)** installation to manage your cluster. 
 - **[metalLB](https://metallb.universe.tf/)** to manage bare-metal LoadBalancer services - **WIP** - Only L2 configuration can be set-up via playbook.
 - **[Rook-Ceph](https://rook.io/docs/rook/v1.4/ceph-storage.html)** - **WIP - To be improved, current rook-ceph cluster size is 3 nodes**

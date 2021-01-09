@@ -9,6 +9,7 @@ cni_plugins:
 ingresses:
   nginx_repo: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.41.2/deploy/static/provider/baremetal/deploy.yaml
   haproxy_repo: https://raw.githubusercontent.com/haproxytech/kubernetes-ingress/v1.4/deploy/haproxy-ingress.yaml
+  contour_repo: https://projectcontour.io/quickstart/contour.yaml
 
 helm:
   helm_installer: https://get.helm.sh/helm-v3.4.1-linux-amd64.tar.gz
