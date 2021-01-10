@@ -12,9 +12,7 @@
 - import_playbook: 20_join_control_plane.yml
 - import_playbook: 21_join_nodes.yml
 - import_playbook: 25_complete_setup.yml
-- import_playbook: 30_install_nginx_ingress_controller.yml
-- import_playbook: 30_install_contour_ingress_controller.yml
-- import_playbook: 30_install_haproxy_ingress_controller.yml
+- import_playbook: 30_install_ingress_controller.yml
 - import_playbook: 31_install_rancher.yml
 - import_playbook: 32_install_rook.yml
 - import_playbook: 33_install_metalLB.yml
