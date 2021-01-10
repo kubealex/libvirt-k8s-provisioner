@@ -43,6 +43,13 @@
         - k8s.container_runtime != 'docker'
         - k8s.container_runtime != 'containerd'
 
+    - name: Fail fast if no ingress controller is selected
+      fail:
+        msg: If you want to install an ingress controller, select one among 'nginx', 'haproxy' or 'contour'
+      when:
+        - ingress_controller.install_ingress_controller == true
+        - ingress_controller.type != 'nginx' and ingress_controller.type != 'haproxy' and ingress_controller.type != 'contour'
+
     - name: Fail fast if no container plugin selected
       fail:
         msg: Select at least a CNI plugin 'calico' or 'flannel'

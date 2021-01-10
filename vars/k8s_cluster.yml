@@ -27,6 +27,7 @@ k8s:
     domain: k8s.test
     pod_cidr: 10.20.0.0/16
     service_cidr: 10.110.0.0/16
+# Choose between [calico/flannel/cilium]
     cni_plugin: calico
 
 # Rook configuration
@@ -35,7 +36,7 @@ rook_ceph:
   install_rook: false
   volume_size: 50
 
-# Ingress controller configuration [nginx/haproxy]
+# Ingress controller configuration [nginx/haproxy/contour]
 
 ingress_controller:
   install_ingress_controller: true
