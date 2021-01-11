@@ -64,3 +64,11 @@
       when:
         - rancher.install_rancher
         - ingress_controller.install_ingress_controller == false
+
+    - name: Ensure that k8s version is 1.19 before installing rancher
+      fail:
+        msg: To install Rancher, cluster version should be < 1.20
+      when:
+        - rancher.install_rancher
+        - k8s.cluster_version == "1.20"
+
