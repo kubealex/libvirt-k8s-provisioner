@@ -7,13 +7,8 @@
 
     - name: Check if distribution is supported
       fail: 
-        msg: Your distribution is actually unsupported
+        msg: Your distribution is actually unsupported. Supported values are: 'Fedora', 'CentOS', 'Ubuntu'
       when: ( ansible_distribution != 'CentOS' and ansible_distribution != 'Fedora' and ansible_distribution != 'Ubuntu' ) 
-
-#    - name: Check if distribution is compatible with container runtime
-#      fail:
-#        msg: Using docker or containerd on your target distribution (CentOS) is actually unsupported
-#      when: (k8s.container_runtime == 'docker' or k8s.container_runtime == 'containerd') and ( k8s.cluster_os == 'CentOS' )
 
     - name: Check at least one vm for control plane is defined
       fail:
