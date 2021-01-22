@@ -1,20 +1,5 @@
 virtualization_packages:
-  centos7:
-    - unzip
-    - git
-    - golang
-    - gcc
-    - make
-    - python-lxml
-    - python-netaddr
-    - python-libvirt
-    - libvirt-devel
-    - libvirt
-    - qemu-kvm
-    - virt-install
-    - virt-manager
-  
-  centos8:
+  centos:
     - unzip
     - git
     - golang

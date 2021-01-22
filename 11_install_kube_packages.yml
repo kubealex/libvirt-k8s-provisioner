@@ -14,7 +14,7 @@
         repo_gpgcheck: true
         gpgkey: "{{ kubernetes.centos.k8s_repo_key }}"
         exclude: kubelet kubeadm kubectl
-      when: k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8'
+      when: k8s.cluster_os == 'CentOS'
 
     - name: Ensure required packages for kubetools are installed
       apt:
@@ -67,24 +67,28 @@
         state: disabled
       register: selinux_output
       notify: reboot
-      when: k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8'
+      when: k8s.cluster_os == 'CentOS'
 
     - name: Install kubepackages
       yum:
         name: "{{ kubernetes.centos.k8s_packages }}"
         state: present
         disable_excludes: kubernetes
-      when: k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8'
+      when: k8s.cluster_os == 'CentOS'
 
     - name: Install lvm2 for rook_ceph.support and git for installing rook
       yum:
         name: lvm2
-      when: rook_ceph.install_rook and ( k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8' )
+      when: 
+        - rook_ceph.install_rook 
+        - k8s.cluster_os == 'CentOS'
 
     - name: Install lvm2 for rook_ceph.support and git for installing rook
       apt:
         name: lvm2
-      when: rook_ceph.install_rook and ( k8s.cluster_os == 'Ubuntu' )
+      when: 
+        - rook_ceph.install_rook
+        - k8s.cluster_os == 'Ubuntu'
 
     - name: Enable kubelet
       systemd: 

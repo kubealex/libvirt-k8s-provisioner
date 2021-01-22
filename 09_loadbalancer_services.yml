@@ -8,7 +8,7 @@
     - name: Set ethernet adapter facts
       set_fact:
         interface: eth0
-      when: k8s.cluster_os == 'CentOS8' or k8s.cluster_os == 'CentOS7'
+      when: k8s.cluster_os == 'CentOS'
 
     - name: Set ethernet adapter facts
       set_fact:
@@ -16,11 +16,11 @@
       when: k8s.cluster_os == 'Ubuntu'
 
     - block:
-        - name: Install python on CentOS8
+        - name: Install python on CentOS
           raw: dnf -y install python36
-          when: k8s.cluster_os == 'CentOS8'
+          when: k8s.cluster_os == 'CentOS'
 
-        - name: Manage packages on CentOS8
+        - name: Manage packages on CentOS
           block:
           - name: Upgrade all packages
             yum:
@@ -31,9 +31,9 @@
             yum:
               name: "{{ packages }}"
               state: latest
-          when: k8s.cluster_os == 'CentOS8' or k8s.cluster_os == 'CentOS7'
+            when: k8s.cluster_os == 'CentOS'
 
-        - name: Manage packages on CentOS8
+        - name: Manage packages on CentOS
           block:
           - name: Upgrade all packages
             apt:
@@ -60,11 +60,11 @@
  
         - name: Set interface to internal zone 
           shell: nmcli connection modify System\ eth0 connection.zone internal
-          when: k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8'
+          when: k8s.cluster_os == 'CentOS'
 
 #        - name: Set interface to internal zone
 #          shell: nmcli connection modify eth0 connection.zone internal
-#          when: k8s.cluster_os == 'CentOS8'
+#          when: k8s.cluster_os == 'CentOS'
 
         - name: Stop NetworkManager
           service: 
@@ -110,7 +110,7 @@
             name: haproxy_connect_any
             state: yes
             persistent: yes
-          when: k8s.cluster_os == 'CentOS8' or k8s.cluster_os == 'CentOS7'
+          when: k8s.cluster_os == 'CentOS'
 
         - name: Firing haproxy template
           template:

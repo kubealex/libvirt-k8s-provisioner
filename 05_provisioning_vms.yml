@@ -4,19 +4,12 @@
     - vars/k8s_cluster.yml
     
   tasks:
-    - name: Download CentOS8 image
+    - name: Download CentOS image
       get_url:
-        url: "{{ centos8.cloud_image }}"
+        url: "{{ centos.cloud_image }}"
         dest: /tmp/{{ image_name }}.qcow2
         mode: 0777
-      when: k8s.cluster_os == 'CentOS8'
-
-    - name: Download CentOS7 image
-      get_url:
-        url: "{{ centos7.cloud_image }}"
-        dest: /tmp/{{ image_name }}.qcow2
-        mode: 0777
-      when: k8s.cluster_os == 'CentOS7'
+      when: k8s.cluster_os == 'CentOS'
 
     - name: Download Ubuntu image
       get_url:

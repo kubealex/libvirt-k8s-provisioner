@@ -12,19 +12,10 @@
 
       - name: Install required packages
         yum:
-          name: "{{ virtualization_packages.centos8 }}"
+          name: "{{ virtualization_packages.centos }}"
           state: latest
         when:
           - ansible_distribution == 'CentOS'
-          - ansible_distribution_major_version | int == 8
-
-      - name: Install required packages
-        yum:
-          name: "{{ virtualization_packages.centos7 }}"
-          state: latest
-        when:
-          - ansible_distribution == 'CentOS'
-          - ansible_distribution_major_version | int == 7
 
       - name: Install required packages
         yum:
@@ -32,6 +23,7 @@
           state: latest
         when:
           - ansible_distribution == 'Fedora'
+
       when: ansible_distribution == 'Fedora' or ansible_distribution == 'CentOS'
 
     - name: Manage packets when distro is 'Ubuntu'

@@ -10,7 +10,7 @@
       yum:
         name: '*'
         state: latest
-      when: k8s.cluster_os == 'CentOS8' or k8s.cluster_os == 'CentOS7'
+      when: k8s.cluster_os == 'CentOS'
 
     - name: Upgrade all packages
       apt:
@@ -76,7 +76,9 @@
             name: "{{ docker.ubuntu.docker_packages }}"
             state: present
 
-      when: k8s.container_runtime == 'docker' and k8s.cluster_os == 'Ubuntu'
+      when: 
+        - k8s.container_runtime == 'docker'
+        - k8s.cluster_os == 'Ubuntu'
 
     - name: Configure docker on a CentOS machine
       block: 
@@ -98,7 +100,9 @@
             name: "{{ docker.centos.docker_packages }}"
             state: latest
 
-      when: k8s.container_runtime == 'docker' and ( k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8' )
+      when: 
+        - k8s.container_runtime == 'docker' 
+        - k8s.cluster_os == 'CentOS'
 
     - name: Ensure docker service is configured
       block:
@@ -154,35 +158,23 @@
               file: /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:1.19.list
           when: k8s.cluster_os == 'Ubuntu'
 
-        - name: Add kubic CentOS7 repository
-          get_url:
-            url: "{{ item.url }}"
-            dest: "{{ item.file }}"
-            validate_certs: false
-          loop: 
-            - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable.repo"
-              url: "{{ crio.centos7.libcontainers_repo }}"
-            - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:{{ k8s.cluster_version }}.repo"
-              url: "{{ crio.centos7.crio_repo }}"
-          when: k8s.cluster_os == 'CentOS7'
-
-        - name: Add kubic CentOS8 repository
+        - name: Add kubic CentOS repository
           get_url:
             url: "{{ item.url }}"
             dest: "{{ item.file }}"
             validate_certs: false
           loop:
             - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable.repo"
-              url: "{{ crio.centos8.libcontainers_repo }}"
-            - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:1.19.repo"
-              url: "{{ crio.centos8.crio_repo }}"
-          when: k8s.cluster_os == 'CentOS8'
+              url: "{{ crio.centos.libcontainers_repo }}"
+            - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o.repo"
+              url: "{{ crio.centos.crio_repo }}"
+          when: k8s.cluster_os == 'CentOS'
 
         - name: Ensure cri-o is installed
           yum:
             name: cri-o
             state: latest
-          when: k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8'
+          when: k8s.cluster_os == 'CentOS'
 
         - name: Ensure cri-o is installed
           apt:
@@ -203,12 +195,6 @@
             path: /etc/crio/crio.conf
             regexp: '^conmon_cgroup.*'
             replace: 'conmon_cgroup = "pod"'
-
-#        - name: Ensure NET_RAW is enabled to support DNS resolution from coredns while PR is accepted
-#          lineinfile:
-#            path: /etc/crio/crio.conf
-#            line: '"NET_RAW",'
-#            insertafter: 'default_capabilities'
 
         - name: Add capabilities due to particular capabilities required by Rancher
           block: 
@@ -239,9 +225,9 @@
             - 100-crio-bridge.conf
             - 200-loopback.conf
 
-#        - name: Force systemd to reread configs
-#          systemd:
-#            daemon_reload: yes
+        - name: Force systemd to reread configs
+          systemd:
+            daemon_reload: yes
 
         - name: Ensure cri-o is enabled and started
           systemd:
@@ -269,13 +255,17 @@
           yum:
             name: containerd.io
             state: latest
-      when: k8s.container_runtime == 'containerd' and ( k8s.cluster_os == 'CentOS7' or k8s.cluster_os == 'CentOS8' )
+      when: 
+        - k8s.container_runtime == 'containerd'
+        - k8s.cluster_os == 'CentOS'
 
     - name: Ensure containerd is configured and installed on Ubuntu machine
       apt:
         name: containerd
         state: latest
-      when: k8s.container_runtime == 'containerd' and k8s.cluster_os == 'Ubuntu'
+      when: 
+        - k8s.container_runtime == 'containerd'
+        - k8s.cluster_os == 'Ubuntu'
 
     - name: Ensure containerd service is configured
       block:
