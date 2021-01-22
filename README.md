@@ -32,15 +32,16 @@ You can customize the setup choosing:
 - **[nginx-ingress-controller](https://kubernetes.github.io/ingress-nginx/)**, **[haproxy-ingress-controller](https://github.com/haproxytech/kubernetes-ingress)** or **[Project Contour](https://projectcontour.io/)**  if you want to enable ingress management.  
 - **[Rancher](https://rancher.com/)** installation to manage your cluster. 
 - **[metalLB](https://metallb.universe.tf/)** to manage bare-metal LoadBalancer services - **WIP** - Only L2 configuration can be set-up via playbook.
-- **[Rook-Ceph](https://rook.io/docs/rook/v1.4/ceph-storage.html)** - **WIP - To be improved, current rook-ceph cluster size is 3 nodes**
+- **[Rook-Ceph](https://rook.io/docs/rook/v1.4/ceph-storage.html)** - **WIP - To be improved, current rook-ceph cluster size is fixed to 3 nodes**
 
 ## All VMs are specular,prepared with:
 
 - OS: 
-  - Centos7 Generic Cloud base image [https://cloud.centos.org/centos/7/images/](https://cloud.centos.org/centos/7/images/)  
-  - Centos8 Generic Cloud base image [https://cloud.centos.org/centos/8/x86_64/images/](https://cloud.centos.org/centos/8/x86_64/images/) 
   - Ubuntu 20.04 LTS Cloud base image [https://cloud-images.ubuntu.com/releases/focal/release/](https://cloud-images.ubuntu.com/releases/focal/release/) 
+  - Centos Stream Generic Cloud base image [https://cloud.centos.org/centos/8-stream/x86_64/images/](https://cloud.centos.org/centos/8-stream/x86_64/images/) 
 
+  - ~~Centos7 Generic Cloud base image [https://cloud.centos.org/centos/7/images/](https://cloud.centos.org/centos/7/images/)~~ - DEPRECATED! 
+  - ~~Centos8 Generic Cloud base image [https://cloud.centos.org/centos/8/x86_64/images/](https://cloud.centos.org/centos/8/x86_64/images/)~~ - DEPRECATED! 
 - cloud-init: 
   - user: **kube**
   - pass: **kuberocks**  
@@ -131,7 +132,7 @@ VMS are created with these names by default (customizing them is work in progres
 	- **cluster_name**-master-N.**domain**
 	- **cluster_name**-worker-N.**domain**
 
-It is possible to choose CentOS7/CentOS8/Ubunut as **kubernetes hosts OS**
+It is possible to choose CentOS/Ubuntu as **kubernetes hosts OS**
 
 ## Rook 
 **Rook** setup actually creates a dedicated kind of worker, with an additional volume on **ALL** workers to be used. It will be improved to just select a number of nodes that can be coherent with the number of **ceph** replicas.
