@@ -39,12 +39,9 @@ crio:
     crio_repo: deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ vars["k8s"]["cluster_version"] }}/xUbuntu_20.04/ /
     crio_key: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:/{{ vars["k8s"]["cluster_version"] }}/xUbuntu_20.04/Release.key
     crio_keyring: /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg
-  centos8:
-    libcontainers_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_8/devel:kubic:libcontainers:stable.repo
-    crio_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.19/CentOS_8/devel:kubic:libcontainers:stable:cri-o:1.19.repo
-  centos7:  
-    libcontainers_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_7/devel:kubic:libcontainers:stable.repo
-    crio_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ vars["k8s"]["cluster_version"] }}/CentOS_7/devel:kubic:libcontainers:stable:cri-o:{{ vars["k8s"]["cluster_version"] }}.repo
+  centos:
+    libcontainers_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_8_Stream/devel:kubic:libcontainers:stable.repo
+    crio_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ vars["k8s"]["cluster_version"] }}/CentOS_8_Stream/devel:kubic:libcontainers:stable:cri-o:{{ vars["k8s"]["cluster_version"] }}.repo
 
 containerd:
   containerd_repo: https://download.docker.com/linux/centos/docker-ce.repo
