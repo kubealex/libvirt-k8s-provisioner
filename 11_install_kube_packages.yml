@@ -76,16 +76,20 @@
         disable_excludes: kubernetes
       when: k8s.cluster_os == 'CentOS'
 
-    - name: Install lvm2 for rook_ceph.support and git for installing rook
+    - name: Install lvm2 for rook support and git for installing rook
       yum:
-        name: lvm2
+        name: 
+          - lvm2
+          - git
       when: 
         - rook_ceph.install_rook 
         - k8s.cluster_os == 'CentOS'
 
-    - name: Install lvm2 for rook_ceph.support and git for installing rook
+    - name: Install lvm2 for rook support and git for installing rook
       apt:
-        name: lvm2
+        name: 
+          - lvm2
+          - git
       when: 
         - rook_ceph.install_rook
         - k8s.cluster_os == 'Ubuntu'
