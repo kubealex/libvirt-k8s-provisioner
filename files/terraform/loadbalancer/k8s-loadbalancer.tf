@@ -32,7 +32,6 @@ resource "libvirt_cloudinit_disk" "commoninit" {
 
 
 data "template_file" "user_data" {
-  count = var.vm_count
 #  template = var.os=="centos" ? file("${path.module}/cloud_init.cfg") : file("${path.module}/cloud_init_ubuntu.cfg")
   template = file("${path.module}/cloud_init.cfg")
   vars = {
