@@ -5,7 +5,6 @@ variable "os" { default = "ubuntu" }
 variable "memory" { default = 2 }
 variable "cpu" { default = 1 }
 variable "vm_count" { default = 2 }
-#variable "vm_volume_size" { default = 10 }
 variable "rook_volume_size" { default = 10 }
 variable "iface" { default = "ens3" }
 variable "libvirt_network" { default = "k8s" }
@@ -45,26 +44,13 @@ resource "libvirt_cloudinit_disk" "commoninit" {
 
 data "template_file" "user_data" {
   count = var.vm_count
-#  template = var.os=="centos" ? file("${path.module}/cloud_init.cfg") : file("${path.module}/cloud_init_ubuntu.cfg")
   template = file("${path.module}/cloud_init.cfg")
   vars = {
     network_manager = var.os == "centos" ? "NetworkManager" : "network-manager"
     hostname = "${var.hostname}-${count.index}.${var.domain}"
     fqdn = "${var.hostname}-${count.index}.${var.domain}"
-    iface = var.iface
    }
 }
-
-#Fix for centOS
-data "template_file" "meta_data" {
-  template = file("${path.module}/network_config.cfg")
-  count = var.vm_count
-  vars = {
-    hostname = "${var.hostname}-${count.index}.${var.domain}"
-    iface = var.iface
-  }
-}
-
 
 # Create the machine
 resource "libvirt_domain" "k8s-worker" {
@@ -77,21 +63,17 @@ resource "libvirt_domain" "k8s-worker" {
   disk {
      volume_id = libvirt_volume.os_image[count.index].id
   }
-#  disk {
-#     volume_id = libvirt_volume.storage_image[count.index].id
-#  }
+
   disk {
      volume_id = libvirt_volume.rook_image[count.index].id
   }
+
   network_interface {
        network_name = var.libvirt_network
   }
 
   cloudinit = libvirt_cloudinit_disk.commoninit[count.index].id
 
-  # IMPORTANT
-  # Ubuntu can hang is a isa-serial is not present at boot time.
-  # If you find your CPU 100% and never is available this is why
   console {
     type        = "pty"
     target_port = "0"

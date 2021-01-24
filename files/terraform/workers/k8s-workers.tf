@@ -6,7 +6,6 @@ variable "memory" { default = 2 }
 variable "cpu" { default = 1 }
 variable "vm_count" { default = 2 }
 variable "vm_counter" { default = 2 }
-#variable "vm_volume_size" { default = 10 }
 variable "iface" { default = "ens3" }
 variable "libvirt_network" { default = "k8s" }
 variable "libvirt_pool" { default= "k8s" }
@@ -38,26 +37,13 @@ resource "libvirt_cloudinit_disk" "commoninit" {
 
 data "template_file" "user_data" {
   count = var.vm_count
-#  template = var.os=="centos" ? file("${path.module}/cloud_init.cfg") : file("${path.module}/cloud_init_ubuntu.cfg")
   template = file("${path.module}/cloud_init.cfg")
   vars = {
     network_manager = var.os == "centos" ? "NetworkManager" : "network-manager"
     hostname = "${var.hostname}-${count.index}.${var.domain}"
     fqdn = "${var.hostname}-${count.index}.${var.domain}"
-    iface = var.iface
    }
 }
-
-#Fix for centOS
-data "template_file" "meta_data" {
-  template = file("${path.module}/network_config.cfg")
-  count = var.vm_count
-  vars = {
-    hostname = "${var.hostname}-${count.index + var.vm_counter}.${var.domain}"
-    iface = var.iface
-  }
-}
-
 
 # Create the machine
 resource "libvirt_domain" "k8s-worker" {

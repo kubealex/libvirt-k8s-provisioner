@@ -27,29 +27,16 @@ resource "libvirt_cloudinit_disk" "commoninit" {
   name = "${var.hostname}-commoninit.iso"
   pool = var.libvirt_pool 
   user_data = data.template_file.user_data.rendered
-#  meta_data = var.os=="centos" ? data.template_file.meta_data.rendered : ""
 }
 
-
 data "template_file" "user_data" {
-#  template = var.os=="centos" ? file("${path.module}/cloud_init.cfg") : file("${path.module}/cloud_init_ubuntu.cfg")
   template = file("${path.module}/cloud_init.cfg")
   vars = {
     network_manager = var.os == "centos" ? "NetworkManager" : "network-manager"
     hostname = "${var.hostname}.${var.domain}"
     fqdn = "${var.hostname}.${var.domain}"
-    iface = var.iface
    }
 }
-
-#Fix for centOS
-#data "template_file" "meta_data" {
-#  template = file("${path.module}/network_config.cfg")
-#  vars = {
-#    iface = var.iface
-#  }
-#}
-
 
 # Create the machine
 resource "libvirt_domain" "k8s-loadbalancer" {
@@ -68,9 +55,6 @@ resource "libvirt_domain" "k8s-loadbalancer" {
 
   cloudinit = libvirt_cloudinit_disk.commoninit.id
 
-  # IMPORTANT
-  # Ubuntu can hang is a isa-serial is not present at boot time.
-  # If you find your CPU 100% and never is available this is why
   console {
     type        = "pty"
     target_port = "0"
