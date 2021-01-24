@@ -48,7 +48,7 @@ data "template_file" "user_data" {
 #  template = var.os=="centos" ? file("${path.module}/cloud_init.cfg") : file("${path.module}/cloud_init_ubuntu.cfg")
   template = file("${path.module}/cloud_init.cfg")
   vars = {
-    network_manager =="centos" ? "NetworkManager" : "network-manager"
+    network_manager = var.os == "centos" ? "NetworkManager" : "network-manager"
     hostname = "${var.hostname}-${count.index}.${var.domain}"
     fqdn = "${var.hostname}-${count.index}.${var.domain}"
     iface = var.iface
