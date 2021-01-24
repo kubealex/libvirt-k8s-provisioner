@@ -39,7 +39,6 @@ resource "libvirt_cloudinit_disk" "commoninit" {
   name = "${var.hostname}-${count.index}-commoninit.iso"
   pool = var.libvirt_pool 
   user_data = data.template_file.user_data[count.index].rendered
-  meta_data = var.os=="centos" ? data.template_file.meta_data[count.index].rendered : ""
 }
 
 data "template_file" "user_data" {
