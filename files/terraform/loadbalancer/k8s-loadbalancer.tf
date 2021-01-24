@@ -27,7 +27,7 @@ resource "libvirt_cloudinit_disk" "commoninit" {
   name = "${var.hostname}-commoninit.iso"
   pool = var.libvirt_pool 
   user_data = data.template_file.user_data.rendered
-  meta_data = var.os=="centos" ? data.template_file.meta_data.rendered : ""
+#  meta_data = var.os=="centos" ? data.template_file.meta_data.rendered : ""
 }
 
 
@@ -43,12 +43,12 @@ data "template_file" "user_data" {
 }
 
 #Fix for centOS
-data "template_file" "meta_data" {
-  template = file("${path.module}/network_config.cfg")
-  vars = {
-    iface = var.iface
-  }
-}
+#data "template_file" "meta_data" {
+#  template = file("${path.module}/network_config.cfg")
+#  vars = {
+#    iface = var.iface
+#  }
+#}
 
 
 # Create the machine
