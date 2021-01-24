@@ -10,7 +10,7 @@
       when: 
         - ansible_distribution != 'CentOS'
         - ansible_distribution != 'Fedora'
-        - ansible_distribution != 'Ubuntu' ) 
+        - ansible_distribution != 'Ubuntu'
 
     - name: Check at least one vm for control plane is defined
       fail:
