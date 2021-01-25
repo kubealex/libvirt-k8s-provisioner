@@ -1,4 +1,3 @@
-# variables that can be overriden
 variable "hostname" { default = "k8s-worker" }
 variable "domain" { default = "k8s.lab" }
 variable "os" { default = "ubuntu" }
@@ -11,12 +10,10 @@ variable "libvirt_network" { default = "k8s" }
 variable "libvirt_pool" { default= "k8s" }
 variable "os_image_name" { default= "CentOS-GenericCloud-worker.qcow2" }
 
-# instance the provider
 provider "libvirt" {
   uri = "qemu:///system"
 }
 
-# fetch the latest ubuntu release image from their mirrors
 resource "libvirt_volume" "os_image" {
   count = var.vm_count
   name = "${var.hostname}-${count.index}-os_image"
@@ -33,7 +30,6 @@ resource "libvirt_volume" "rook_image" {
   format = "qcow2"
 }
 
-# Use CloudInit ISO to add ssh-key to the instance
 resource "libvirt_cloudinit_disk" "commoninit" {
   count = var.vm_count
   name = "${var.hostname}-${count.index}-commoninit.iso"
@@ -51,9 +47,7 @@ data "template_file" "user_data" {
    }
 }
 
-# Create the machine
 resource "libvirt_domain" "k8s-worker" {
-  # domain name in libvirt, not hostname
   count= var.vm_count
   name = "${var.hostname}-${count.index}"
   memory = var.memory*1024
