@@ -37,7 +37,6 @@ resource "libvirt_cloudinit_disk" "commoninit" {
   user_data = data.template_file.user_data[count.index].rendered
 }
 
-
 data "template_file" "user_data" {
   count = var.vm_count
   template = file("${path.module}/cloud_init.cfg")
