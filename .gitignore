@@ -1,7 +1,7 @@
+*.default
+*.good
 id_rsa*
 terraform.tfstate*
 .terraform*
-files/terraform/images/
-*.good
 admin.kubeconfig
 test.yml

@@ -24,7 +24,7 @@
         state: latest
       when: k8s.cluster_os == 'Ubuntu'
 
-    - name: Add an Apt signing key, uses whichever key is at the URL
+    - name: Add kube-repo key
       apt_key:
         url: "{{ kubernetes.ubuntu.k8s_repo_key }}"
         state: present
@@ -35,6 +35,7 @@
         repo: "{{ kubernetes.ubuntu.k8s_repo }}"
         filename: "{{ kubernetes.ubuntu.k8s_repo_file }}"
         state: present
+#        update_cache_retries: 25
       when: k8s.cluster_os == 'Ubuntu'
     
     - name: Ensure cri-o is installed
@@ -76,16 +77,20 @@
         disable_excludes: kubernetes
       when: k8s.cluster_os == 'CentOS'
 
-    - name: Install lvm2 for rook_ceph.support and git for installing rook
+    - name: Install lvm2 for rook support and git for installing rook
       yum:
-        name: lvm2
+        name: 
+          - lvm2
+          - git
       when: 
         - rook_ceph.install_rook 
         - k8s.cluster_os == 'CentOS'
 
-    - name: Install lvm2 for rook_ceph.support and git for installing rook
+    - name: Install lvm2 for rook support and git for installing rook
       apt:
-        name: lvm2
+        name: 
+          - lvm2
+          - git
       when: 
         - rook_ceph.install_rook
         - k8s.cluster_os == 'Ubuntu'

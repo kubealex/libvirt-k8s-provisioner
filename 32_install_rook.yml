@@ -6,12 +6,6 @@
     - vars/k8s_cluster.yml
   tasks:
     - block:
-      - name: Install git
-        yum:
-          name: git
-          state: latest
-        become: true
-
       - name: Clone rook repository
         git:
           repo: "{{ rook.rook_repo }}"
