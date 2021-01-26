@@ -24,7 +24,7 @@
         state: latest
       when: k8s.cluster_os == 'Ubuntu'
 
-    - name: Add an Apt signing key, uses whichever key is at the URL
+    - name: Add kube-repo key
       apt_key:
         url: "{{ kubernetes.ubuntu.k8s_repo_key }}"
         state: present
@@ -35,6 +35,7 @@
         repo: "{{ kubernetes.ubuntu.k8s_repo }}"
         filename: "{{ kubernetes.ubuntu.k8s_repo_file }}"
         state: present
+#        update_cache_retries: 25
       when: k8s.cluster_os == 'Ubuntu'
     
     - name: Ensure cri-o is installed

@@ -60,15 +60,17 @@
               - software-properties-common 
             state: latest
 
-        - name: Add an Apt signing key, uses whichever key is at the URL
+        - name: Add docker repo key
           apt_key:
             url: "{{ docker.ubuntu.docker_repo_key }}"
             keyring: "{{ docker.ubuntu.docker_repo_key_file }}"
+
             state: present
 
         - name: Ensure the presence of apt-repo for docker
           apt_repository:
             repo: "{{ docker.ubuntu.docker_repo }}"
+#            update_cache_retries: 25
             state: present
             
         - name: Ensure docker packages are installed
@@ -134,7 +136,7 @@
 
     - name: Install cri-o
       block:
-        - name: Add an Apt signing key, uses whichever key is at the URL
+        - name: Add crio repo key
           apt_key:
             url: "{{ item.key }}"
             keyring: "{{ item.keyring }}"
@@ -150,6 +152,7 @@
           apt_repository:
             repo: "{{ item.repo }}"
             filename: "{{ item.file }}"
+#            update_cache_retries: 25
             state: present
           loop: 
             - repo: "{{ crio.ubuntu.libcontainers_repo }}"
