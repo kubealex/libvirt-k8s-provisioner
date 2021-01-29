@@ -23,3 +23,6 @@ check:
 ifneq (,$(wildcard /etc/os-release))
 	echo "HI"
 endif 
+ifneq (,$(wildcard /etc/centos-release))
+	echo "HI"
+endif 
