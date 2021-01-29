@@ -20,9 +20,8 @@ destroy:
 
 .PHONY: check
 check:
-ifneq (,$(wildcard /etc/os-release))
+ifneq (,$(shell lsb_release -si))
 	echo "HI"
+else echo "HIHO"
 endif 
-ifneq (,$(wildcard /etc/centos-release))
-	echo "HIHO"
-endif 
+
