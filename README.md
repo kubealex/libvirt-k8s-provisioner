@@ -56,6 +56,8 @@ The playbook is meant to be ran against a/many local or remote host/s, defined u
 
 You can quickly make it work by configuring the needed vars, but you can go straight with the defaults!
 
+You can also install your cluster using the **Makefile** with:
+    make create
 Recommended sizings are:
 
 | Role | vCPU | RAM |
