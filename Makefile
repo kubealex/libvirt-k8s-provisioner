@@ -6,10 +6,10 @@ help:
 	@echo "    destroy                  to destroy the cluster"
 .PHONY: install
 create:
-	ansible-playbook main.yml
+	@ansible-playbook main.yml
 .PHONY: debug
 debug:       
-	ansible-playbook main.yml -vv
+	@ansible-playbook main.yml -vv
 .PHONY: debug
 destroy:
-	ansible-playbook 99_cleanup.yml -v
+	@ansible-playbook 99_cleanup.yml

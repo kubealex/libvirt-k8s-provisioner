@@ -60,6 +60,7 @@
         state: absent
       loop:
         - /usr/bin/terraform
+        - admin.kubeconfig
 
     - name: Cleanup local DNS config
       file:
