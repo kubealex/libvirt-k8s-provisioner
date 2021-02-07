@@ -4,7 +4,6 @@ variable "os" { default = "ubuntu" }
 variable "memory" { default = 6 }
 variable "cpu" { default = 3 }
 variable "vm_count" { default = 2 }
-variable "vm_volume_size" { default = 10 }
 variable "iface" { default = "ens3" }
 variable "libvirt_network" { default = "k8s" }
 variable "libvirt_pool" { default= "k8s" }
@@ -19,14 +18,6 @@ resource "libvirt_volume" "os_image" {
   name = "${var.hostname}-os_image-${count.index}"
   pool = var.libvirt_pool
   source = "/tmp/${var.os_image_name}"
-  format = "qcow2"
-}
-
-resource "libvirt_volume" "storage_image" {
-  count = var.vm_count
-  name = "${var.hostname}-${count.index}-storage_image"
-  pool = var.libvirt_pool
-  size = var.vm_volume_size*1073741824
   format = "qcow2"
 }
 
@@ -55,10 +46,6 @@ resource "libvirt_domain" "k8s-master" {
 
   disk {
      volume_id = libvirt_volume.os_image[count.index].id
-  }
-
-  disk {
-     volume_id = libvirt_volume.storage_image[count.index].id
   }
 
   network_interface {

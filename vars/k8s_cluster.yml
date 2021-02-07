@@ -32,6 +32,12 @@ k8s:
 
 # Rook configuration
 
+storage:
+  nfs:
+    nfs_enabled: true
+    nfs_fsSize: 50GB
+    nfs_export: /srv/k8s
+
 rook_ceph:
   install_rook: false
   volume_size: 50

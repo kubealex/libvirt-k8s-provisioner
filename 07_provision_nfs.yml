@@ -12,6 +12,7 @@
             variables:
               hostname: "{{ k8s.cluster_name }}-nfs"
               domain: "{{ k8s.network.domain }}"
+              nfs_fsSize: "{{ storage.nfs.nfs_fsSize }}"
               os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}"
               libvirt_network: "{{ k8s.cluster_name }}"
               libvirt_pool: "{{ k8s.cluster_name }}"
@@ -62,6 +63,16 @@
   tasks:
     - name: Handle setup of NFS server
       block:
+      - name: Set ethernet adapter facts
+        set_fact:
+          interface: eth0
+        when: k8s.cluster_os == 'CentOS'
+
+      - name: Set ethernet adapter facts
+        set_fact:
+          interface: ens3
+        when: k8s.cluster_os == 'Ubuntu'
+
       - name: Manage packages on CentOS
         block:
         - name: Upgrade all packages
@@ -73,6 +84,7 @@
             name: "{{ packages_server.centos }}"
             state: latest
         when: k8s.cluster_os == 'CentOS'
+
       - name: Manage packages on Ubuntu
         block:
         - name: Upgrade all packages
@@ -84,5 +96,96 @@
             name: "{{ packages_server.ubuntu }}"
             state: latest
         when: k8s.cluster_os == 'Ubuntu'
+
+      - name: Ensure NFS Service is enabled
+        service:
+          name: "{{ item }}"
+          enabled: true
+          state: started
+        loop:
+          - nfs-server
+        when: k8s.cluster_os == 'CentOS'
+
+      - name: Ensure NFS Service is enabled
+        service:
+          name: "{{ item }}"
+          enabled: true
+          state: started
+        loop:
+          - nfs-kernel-server
+        when: k8s.cluster_os == 'Ubuntu'
+
+      - name: Set interface to internal zone 
+        shell: nmcli connection modify System\ eth0 connection.zone internal
+        when: k8s.cluster_os == 'CentOS'
+
+      - name: Stop NetworkManager
+        service: 
+          name: NetworkManager
+          state: stopped
+
+      - name: Adding interface to firewall internal zone  
+        firewalld:
+          zone: internal
+          interface: "{{ interface }}"
+          permanent: yes
+          state: enabled
+
+      - name: Start NetworkManager
+        service:
+          name: NetworkManager
+          state: started
+          enabled: true
+
+      - name: Allow service for internal zone
+        firewalld:
+          zone: internal
+          state: enabled
+          permanent: yes
+          service: "{{ item }}"
+        loop: "{{ services }}"
+
+      - name: Allow ports for internal zone
+        firewalld:
+          zone: internal
+          state: enabled
+          permanent: yes
+          port: "{{ item }}"
+        loop: "{{ ports }}"
+
+      - name: Reload firewalld service
+        service:
+          name: firewalld
+          state: restarted 
+
+      - name: Ensure partition is present for NFS
+        parted:
+          device: /dev/vdb
+          label: msdos
+          number: 1
+          part_start: 0%
+          part_end: 100%
+          state: present
+
+      - name: Create filesystem on partitions
+        filesystem:
+          fstype: ext4
+          dev: /dev/vdb1
+
+      - name: Create mountpoints
+        file: 
+          path: "{{ storage.nfs.path }}"
+          state: directory
+          owner: nobody
+          group: nogroup
+          mode: 0777
+          recurse: yes
+          
+      - name: Mount the filesystems
+        mount:
+          fstype: ext4
+          src: /dev/vdb1
+          path: "{{ storage.nfs.path }}"
+          state: mounted
 
       when: k8s.storage.nfs_enabled
