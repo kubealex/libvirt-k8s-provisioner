@@ -180,12 +180,33 @@
           group: nogroup
           mode: 0777
           recurse: yes
-          
+
       - name: Mount the filesystems
         mount:
           fstype: ext4
           src: /dev/vdb1
           path: "{{ storage.nfs.path }}"
           state: mounted
+      
+      - name: Populate exports with created path
+        copy:
+          content: 
+          dest: /etc/exports.d/nfs.exports
 
+      - name: Reload NFS Service
+        service:
+          name: "{{ item }}"
+          state: restarted
+        loop:
+          - nfs-server
+        when: k8s.cluster_os == 'CentOS'
+
+      - name: Reload NFS Service
+        service:
+          name: "{{ item }}"
+          state: restarted
+        loop:
+          - nfs-kernel-server
+        when: k8s.cluster_os == 'Ubuntu'
+        
       when: k8s.storage.nfs_enabled
