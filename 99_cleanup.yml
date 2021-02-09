@@ -15,7 +15,23 @@
         - workers
         - masters
         - loadbalancer
-      when: not rook_ceph.install_rook
+        - nfs
+      when: 
+        - not rook_ceph.install_rook
+        - k8s.control_plane.vms > 1
+
+    - name: Destroy cluster VM
+      terraform:
+        force_init: true
+        project_path: "files/terraform/{{ item }}"
+        state: absent
+      loop:
+        - workers
+        - masters
+        - nfs
+      when:
+        - not rook_ceph.install_rook
+        - k8s.control_plane.vms == 1
 
     - name: Destroy cluster VM
       terraform:

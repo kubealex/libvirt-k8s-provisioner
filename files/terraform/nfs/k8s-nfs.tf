@@ -85,9 +85,9 @@ terraform {
 }
 
 output "ips" {
-  value = flatten(libvirt_domain.k8s-loadbalancer.*.network_interface.0.addresses)
+  value = flatten(libvirt_domain.k8s-nfs.*.network_interface.0.addresses)
 }
 
 output "macs" {
-  value = flatten(libvirt_domain.k8s-loadbalancer.*.network_interface.0.mac)
+  value = flatten(libvirt_domain.k8s-nfs.*.network_interface.0.mac)
 }

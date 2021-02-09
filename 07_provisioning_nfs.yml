@@ -1,5 +1,6 @@
 - name: This play provisions NFS Server VM for the cluster
   hosts: vm_host
+  become: true
   vars_files:
     - vars/k8s_cluster.yml
     
@@ -12,13 +13,12 @@
             variables:
               hostname: "{{ k8s.cluster_name }}-nfs"
               domain: "{{ k8s.network.domain }}"
-              nfs_fsSize: "{{ storage.nfs.nfs_fsSize }}"
+              nfs_fsSize: "{{ k8s.storage.nfs_fsSize }}"
               os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}"
               libvirt_network: "{{ k8s.cluster_name }}"
               libvirt_pool: "{{ k8s.cluster_name }}"
               os_image_name: "{{ image_name }}.qcow2"
             state: present
-          become: true
           register: output_nfs
 
         - name: Add loadbalancer to inventory
@@ -39,7 +39,6 @@
             path: ~/.ssh/known_hosts
             state: absent
           loop: "{{ groups['nfs'] }}"
-          become: true
       when: k8s.storage.nfs_enabled
 
 - name: Check connection to NFS server
@@ -58,6 +57,7 @@
 
 - name: Setup NFS server
   hosts: nfs
+  become: true
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
@@ -174,7 +174,7 @@
 
       - name: Create mountpoints
         file: 
-          path: "{{ storage.nfs.path }}"
+          path: "{{ k8s.storage.nfs_export }}"
           state: directory
           owner: nobody
           group: nogroup
@@ -185,12 +185,17 @@
         mount:
           fstype: ext4
           src: /dev/vdb1
-          path: "{{ storage.nfs.path }}"
+          path: "{{ k8s.storage.nfs_export }}"
           state: mounted
+
+      - name: Create mountpoints
+        file:
+          path: /etc/exports.d
+          state: directory
       
       - name: Populate exports with created path
         copy:
-          content: 
+          content: "{{ k8s.storage.nfs_export }}    *(rw,sync,no_subtree_check,no_root_squash,no_all_squash,insecure)"
           dest: /etc/exports.d/nfs.exports
 
       - name: Reload NFS Service
