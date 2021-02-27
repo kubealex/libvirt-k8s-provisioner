@@ -19,13 +19,13 @@
     - name: Disable systemd-resolve
       service:
         name: systemd-resolved
-        state: stop
+        state: stopped
         enabled: false
       when: ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33'
 
     - name: Remove the resolve.conf file
       file:
-        path: /etc/resolve.conf
+        path: /etc/resolv.conf
         state: absent
       when: ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33'
 
