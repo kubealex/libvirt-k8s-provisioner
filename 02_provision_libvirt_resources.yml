@@ -16,6 +16,19 @@
         state: present
       register: output_masters
 
+    - name: Disable systemd-resolve
+      service:
+        name: systemd-resolved
+        state: stop
+        enabled: false
+      when: ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33'
+
+    - name: Remove the resolve.conf file
+      file:
+        path: /etc/resolve.conf
+        state: absent
+      when: ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33'
+
     - name: Configure NetworkManager for local DNS
       copy:
         src: files/localdns.conf
