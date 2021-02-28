@@ -16,18 +16,25 @@
         state: present
       register: output_masters
 
-    - name: Disable systemd-resolve
-      service:
-        name: systemd-resolved
-        state: stopped
-        enabled: false
+    - name: Take care of systemd-resolved on F33 and Ubuntu hosts
+      block:
+      - name: Remove the resolve.conf file
+        file:
+          path: /etc/systemd/resolved.conf.d/
+          state: directory
+
+      - name: Enable localdns if systemd-resolved is present
+        template:
+          src: systemd-resolved.j2
+          dest: /etc/systemd/resolved.conf.d/local-kube.conf
+
+      - name: Disable systemd-resolve
+        service:
+          name: systemd-resolved
+          state: restarted
+          enabled: true
       when: ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33'
 
-    - name: Remove the resolve.conf file
-      file:
-        path: /etc/resolv.conf
-        state: absent
-      when: ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33'
 
     - name: Configure NetworkManager for local DNS
       copy:
