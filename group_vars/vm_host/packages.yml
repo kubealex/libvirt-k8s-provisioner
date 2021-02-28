@@ -20,11 +20,13 @@ virtualization_packages:
     - golang
     - gcc
     - make
+    - network-manager
     - python3-lxml
     - python3-netaddr
     - python3-libvirt
     - libvirt-daemon-system
     - libvirt-clients
+    - libvirt-dev
     - bridge-utils
     - qemu-kvm
     - virtinst
