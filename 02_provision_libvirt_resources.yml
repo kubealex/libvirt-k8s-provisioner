@@ -16,6 +16,8 @@
         state: present
       register: output_masters
 
+#TODO add qemu permissions for apparmour
+#
     - name: Take care of systemd-resolved on F33 and Ubuntu hosts
       block:
       - name: Remove the resolve.conf file
@@ -51,13 +53,13 @@
         dest: /etc/NetworkManager/conf.d/localdns.conf
       notify: 
         - Restart NetworkManager
-        - Wait for local DNS resolver to be up
 
     - name: Configure NetworkManager for libvirt network
       template:
         src: templates/libvirt_dnsmasq.j2
         dest: /etc/NetworkManager/dnsmasq.d/libvirt_dnsmasq.conf
 
+#TODO restart resolved
   handlers:
     - name: Restart NetworkManager
       service:
@@ -68,3 +70,4 @@
       wait_for:
         port: 53
         delay: 10
+      when: not (ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33') or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version >= '18')
