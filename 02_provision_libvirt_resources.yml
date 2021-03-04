@@ -16,8 +16,21 @@
         state: present
       register: output_masters
 
-#TODO add qemu permissions for apparmour
-#
+    - name: qemu SELinux fix for running images in different folders
+      block:
+        - name: Ensure security_driver is disabled
+          lineinfile:
+            line: 'security_driver = "none"'
+            path: /etc/libvirt/qemu.conf
+            state: present
+
+        - name: Restart libvirtd service
+          service: 
+            name: libvirtd
+            state: restarted
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_major_version >= '18'
+
+
     - name: Take care of systemd-resolved on F33 and Ubuntu hosts
       block:
       - name: Remove the resolve.conf file
@@ -29,12 +42,9 @@
         template:
           src: systemd-resolved.j2
           dest: /etc/systemd/resolved.conf.d/local-kube.conf
+        notify:
+          - Restart systemd-resolved
 
-      - name: Restart systemd-resolve
-        service:
-          name: systemd-resolved
-          state: restarted
-          enabled: true
       when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33') or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version >= '18')
 
     - name: Ensure NM configuration directory exists
@@ -59,8 +69,13 @@
         src: templates/libvirt_dnsmasq.j2
         dest: /etc/NetworkManager/dnsmasq.d/libvirt_dnsmasq.conf
 
-#TODO restart resolved
   handlers:
+    - name: Restart systemd-resolved
+      service:
+        name: systemd-resolved
+        state: restarted
+        enabled: true
+
     - name: Restart NetworkManager
       service:
         name: NetworkManager
