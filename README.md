@@ -29,6 +29,7 @@ You can customize the setup choosing:
 - **service CIDR** to be used during installation. 
 - **pod CIDR** to be used during installation. 
 - **network plugin** to be used, based on the documentation. **[Project Calico](https://www.projectcalico.org/calico-networking-for-kubernetes/)** **[Flannel](https://github.com/coreos/flannel)** **[Project Cilium](https://cilium.io/)**
+- **NFS Server creation for exporting shares to be used as PVs**
 - **[nginx-ingress-controller](https://kubernetes.github.io/ingress-nginx/)**, **[haproxy-ingress-controller](https://github.com/haproxytech/kubernetes-ingress)** or **[Project Contour](https://projectcontour.io/)**  if you want to enable ingress management.  
 - **[Rancher](https://rancher.com/)** installation to manage your cluster. 
 - **[metalLB](https://metallb.universe.tf/)** to manage bare-metal LoadBalancer services - **WIP** - Only L2 configuration can be set-up via playbook.
@@ -102,6 +103,12 @@ Recommended sizings are:
 	    cni_plugin: calico
 
 	# Rook configuration
+	storage:
+	  nfs:
+   	    nfs_enabled: true
+   	    nfs_fsSize: 50GB
+    	    nfs_export: /srv/k8s
+
 
 	rook_ceph:
 	  install_rook: false
