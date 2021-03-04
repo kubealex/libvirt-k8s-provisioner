@@ -10,15 +10,15 @@ k8s:
 
   control_plane:
     vcpu: 2
-    mem: 6
-    vms: 1
-    disk: 20
+    mem: 2
+    vms: 3
+    disk: 30
 
   worker_nodes:
-    vcpu: 1
-    mem: 4
+    vcpu: 2
+    mem: 2
     vms: 1
-    disk: 10
+    disk: 30
 
 # Network configuration
 
@@ -31,6 +31,12 @@ k8s:
     cni_plugin: calico
 
 # Rook configuration
+
+storage:
+  nfs:
+    nfs_enabled: true
+    nfs_fsSize: 50GB
+    nfs_export: /srv/k8s
 
 rook_ceph:
   install_rook: false
