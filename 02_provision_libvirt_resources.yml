@@ -33,7 +33,7 @@
 
     - name: Take care of systemd-resolved on F33 and Ubuntu hosts
       block:
-      - name: Remove the resolve.conf file
+      - name: Ensure systemd-resolved config dir is present
         file:
           path: /etc/systemd/resolved.conf.d/
           state: directory
@@ -68,6 +68,8 @@
       template:
         src: templates/libvirt_dnsmasq.j2
         dest: /etc/NetworkManager/dnsmasq.d/libvirt_dnsmasq.conf
+      notify:
+        - Wait for local DNS resolver to be up
 
   handlers:
     - name: Restart systemd-resolved
