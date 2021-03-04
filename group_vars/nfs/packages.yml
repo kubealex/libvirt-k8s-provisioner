@@ -1,0 +1,12 @@
+packages_server:
+  ubuntu:
+    - nfs-kernel-server
+  centos:
+    - nfs-utils
+packages_client:
+  ubuntu:
+    - nfs-common
+    - nfs4-acl-tools
+  centos:
+    - nfs-utils
+    - nfs4-acl-tools

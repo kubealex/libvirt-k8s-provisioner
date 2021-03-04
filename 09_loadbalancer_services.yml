@@ -5,124 +5,117 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - name: Set ethernet adapter facts
-      set_fact:
-        interface: eth0
-      when: k8s.cluster_os == 'CentOS'
-
-    - name: Set ethernet adapter facts
-      set_fact:
-        interface: ens3
-      when: k8s.cluster_os == 'Ubuntu'
 
     - block:
-        - name: Install python on CentOS
-          raw: dnf -y install python36
-          when: k8s.cluster_os == 'CentOS'
+      - name: Set ethernet adapter facts
+        set_fact:
+          interface: eth0
+        when: k8s.cluster_os == 'CentOS'
 
-        - name: Manage packages on CentOS
-          block:
-          - name: Upgrade all packages
-            yum:
-              name: '*'
-              state: latest
+      - name: Set ethernet adapter facts
+        set_fact:
+          interface: ens3
+        when: k8s.cluster_os == 'Ubuntu'
 
-          - name: Install packages
-            yum:
-              name: "{{ packages }}"
-              state: latest
-            when: k8s.cluster_os == 'CentOS'
+      - name: Manage packages on CentOS
+        block:
+        - name: Upgrade all packages
+          yum:
+            name: '*'
+            state: latest
 
-        - name: Manage packages on CentOS
-          block:
-          - name: Upgrade all packages
-            apt:
-              name: '*'
-              state: latest
+        - name: Install packages
+          yum:
+            name: "{{ packages }}"
+            state: latest
+        when: k8s.cluster_os == 'CentOS'
 
-          - name: Install packages
-            apt:
-              name: "{{ packages }}"
-              state: latest
-          when: k8s.cluster_os == 'Ubuntu'
+      - name: Manage packages on Ubuntu
+        block:
+        - name: Upgrade all packages
+          apt:
+            name: '*'
+            state: latest
 
-        - name: Ensure firewalld, haproxy and NM are enabled
-          service:
-            name: "{{ item }}"
-            enabled: true
-            state: started
-          loop:
-            - firewalld
-            - haproxy
-            - NetworkManager
+        - name: Install packages
+          apt:
+            name: "{{ packages }}"
+            state: latest
+        when: k8s.cluster_os == 'Ubuntu'
+
+      - name: Ensure firewalld, haproxy and NM are enabled
+        service:
+          name: "{{ item }}"
+          enabled: true
+          state: started
+        loop:
+          - firewalld
+          - haproxy
+          - NetworkManager
 
         # Workaround to fix firewalld zone not persisting after reboot: https://github.com/firewalld/firewalld/issues/195
  
-        - name: Set interface to internal zone 
-          shell: nmcli connection modify System\ eth0 connection.zone internal
-          when: k8s.cluster_os == 'CentOS'
+      - name: Set interface to internal zone 
+        shell: nmcli connection modify System\ eth0 connection.zone internal
+        when: k8s.cluster_os == 'CentOS'
 
-#        - name: Set interface to internal zone
-#          shell: nmcli connection modify eth0 connection.zone internal
-#          when: k8s.cluster_os == 'CentOS'
+      - name: Stop NetworkManager
+        service: 
+          name: NetworkManager
+          state: stopped
 
-        - name: Stop NetworkManager
-          service: 
-            name: NetworkManager
-            state: stopped
+      - name: Adding interface to firewall internal zone  
+        firewalld:
+          zone: internal
+          interface: "{{ interface }}"
+          permanent: yes
+          state: enabled
 
-        - name: Adding interface to firewall internal zone  
-          firewalld:
-            zone: internal
-            interface: "{{ interface }}"
-            permanent: yes
-            state: enabled
+      - name: Start NetworkManager
+        service:
+          name: NetworkManager
+          state: started
+          enabled: true
 
-        - name: Start NetworkManager
-          service:
-            name: NetworkManager
-            state: started
-            enabled: true
+      - name: Allow service for internal zone
+        firewalld:
+          zone: internal
+          state: enabled
+          permanent: yes
+          service: "{{ item }}"
+        loop: "{{ services }}"
 
-        - name: Allow service for internal zone
-          firewalld:
-            zone: internal
-            state: enabled
-            permanent: yes
-            service: "{{ item }}"
-          loop: "{{ services }}"
+      - name: Allow ports for internal zone
+        firewalld:
+          zone: internal
+          state: enabled
+          permanent: yes
+          port: "{{ item }}"
+        loop: "{{ internal_zone_port }}"
 
-        - name: Allow ports for internal zone
-          firewalld:
-            zone: internal
-            state: enabled
-            permanent: yes
-            port: "{{ item }}"
-          loop: "{{ internal_zone_port }}"
+      - name: Reload firewalld service
+        service:
+          name: firewalld
+          state: restarted 
 
-        - name: Reload firewalld service
-          service:
-            name: firewalld
-            state: restarted 
+      - name: Enabling selinux boolean for haproxy
+        seboolean:
+          name: haproxy_connect_any
+          state: yes
+          persistent: yes
+        when: k8s.cluster_os == 'CentOS'
 
-        - name: Enabling selinux boolean for haproxy
-          seboolean:
-            name: haproxy_connect_any
-            state: yes
-            persistent: yes
-          when: k8s.cluster_os == 'CentOS'
+      - name: Firing haproxy template
+        template:
+          src: templates/haproxy.j2
+          dest: /etc/haproxy/haproxy.cfg
 
-        - name: Firing haproxy template
-          template:
-            src: templates/haproxy.j2
-            dest: /etc/haproxy/haproxy.cfg
-
-        - name: Reload haproxy service
-          service:
-            name: haproxy
-            state: restarted
-            enabled: true
-        
-        - name: Reboot loadbalancer
-          reboot: 
+      - name: Reload haproxy service
+        service:
+          name: haproxy
+          state: restarted
+          enabled: true
+      
+      - name: Reboot loadbalancer
+        reboot: 
       when: k8s.control_plane.vms > 1

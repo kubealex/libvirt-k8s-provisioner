@@ -126,4 +126,22 @@
           systemd:
             name: haproxy
             state: restarted
-      when: ingress_controller.install_ingress_controller
+      when:
+        - ingress_controller.install_ingress_controller
+        - k8s.control_plane.vms > 1
+
+- name: Save new haproxy configuration
+  hosts: vm_host
+  become: true
+  vars_files:
+    - vars/k8s_cluster.yml
+  tasks:
+    - block:
+        - name: Fire up new haproxy template
+          template:
+            src: templates/haproxy.j2
+            dest: haproxy.cfg
+      when: 
+        - ingress_controller.install_ingress_controller
+        - k8s.control_plane.vms == 1
+
