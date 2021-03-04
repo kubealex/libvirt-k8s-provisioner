@@ -59,7 +59,7 @@
         dest: ~/libvirt-provider
         force: true
 
-    - name: Run 'install' target on libivrt-provider
+    - name: Run 'install' target on libvirt-provider
       make:
         chdir: ~/libvirt-provider
         target: install
