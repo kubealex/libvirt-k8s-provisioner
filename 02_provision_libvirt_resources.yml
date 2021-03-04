@@ -16,18 +16,46 @@
         state: present
       register: output_masters
 
-    - name: Disable systemd-resolve
-      service:
-        name: systemd-resolved
-        state: stopped
-        enabled: false
-      when: ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33'
+    - name: qemu SELinux fix for running images in different folders
+      block:
+        - name: Ensure security_driver is disabled
+          lineinfile:
+            line: 'security_driver = "none"'
+            path: /etc/libvirt/qemu.conf
+            state: present
 
-    - name: Remove the resolve.conf file
+        - name: Restart libvirtd service
+          service: 
+            name: libvirtd
+            state: restarted
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_major_version >= '18'
+
+
+    - name: Take care of systemd-resolved on F33 and Ubuntu hosts
+      block:
+      - name: Ensure systemd-resolved config dir is present
+        file:
+          path: /etc/systemd/resolved.conf.d/
+          state: directory
+
+      - name: Enable localdns if systemd-resolved is present
+        template:
+          src: systemd-resolved.j2
+          dest: /etc/systemd/resolved.conf.d/local-kube.conf
+        notify:
+          - Restart systemd-resolved
+
+      when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33') or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version >= '18')
+
+    - name: Ensure NM configuration directory exists
       file:
-        path: /etc/resolv.conf
-        state: absent
-      when: ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33'
+        path: /etc/NetworkManager/conf.d
+        state: directory
+
+    - name: Ensure NM dnsmasq directory exists
+      file:
+        path: /etc/NetworkManager/dnsmasq.d
+        state: directory        
 
     - name: Configure NetworkManager for local DNS
       copy:
@@ -35,14 +63,21 @@
         dest: /etc/NetworkManager/conf.d/localdns.conf
       notify: 
         - Restart NetworkManager
-        - Wait for local DNS resolver to be up
 
     - name: Configure NetworkManager for libvirt network
       template:
         src: templates/libvirt_dnsmasq.j2
         dest: /etc/NetworkManager/dnsmasq.d/libvirt_dnsmasq.conf
+      notify:
+        - Wait for local DNS resolver to be up
 
   handlers:
+    - name: Restart systemd-resolved
+      service:
+        name: systemd-resolved
+        state: restarted
+        enabled: true
+
     - name: Restart NetworkManager
       service:
         name: NetworkManager
@@ -52,3 +87,4 @@
       wait_for:
         port: 53
         delay: 10
+      when: not (ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33') or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version >= '18')
