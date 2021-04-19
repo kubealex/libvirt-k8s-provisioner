@@ -4,15 +4,15 @@ cni_plugins:
   flannel:
     flannel_repo: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
   cilium: 
-    cilium_repo: https://raw.githubusercontent.com/cilium/cilium/v1.9/install/kubernetes/quick-install.yaml
+    cilium_repo: https://raw.githubusercontent.com/cilium/cilium/1.9.5/install/kubernetes/quick-install.yaml
 
 ingresses:
-  nginx_repo: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.41.2/deploy/static/provider/baremetal/deploy.yaml
+  nginx_repo: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.45.0/deploy/static/provider/baremetal/deploy.yaml
   haproxy_repo: https://raw.githubusercontent.com/haproxytech/kubernetes-ingress/v1.5/deploy/haproxy-ingress.yaml
   contour_repo: https://projectcontour.io/quickstart/contour.yaml
 
 helm:
-  helm_installer: https://get.helm.sh/helm-v3.4.1-linux-amd64.tar.gz
+  helm_installer: https://get.helm.sh/helm-v3.5.4-linux-amd64.tar.gz
 
 rancher_helm:
   rancher_chart: https://releases.rancher.com/server-charts/latest
@@ -21,7 +21,7 @@ rancher_helm:
 
 rook:
   rook_repo: https://github.com/rook/rook.git
-  rook_version: v1.5.5
+  rook_version: v1.6.0
 
 metallb_setup:
-  manifest_url: https://raw.githubusercontent.com/metallb/metallb/v0.9.5/manifests
+  manifest_url: https://raw.githubusercontent.com/metallb/metallb/v0.9.6/manifests
