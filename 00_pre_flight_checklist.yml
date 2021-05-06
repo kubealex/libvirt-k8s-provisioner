@@ -67,5 +67,5 @@
         msg: To install Rancher, cluster version should be < 1.20
       when:
         - rancher.install_rancher
-        - k8s.cluster_version == "1.20"
+        - k8s.cluster_version == "1.20" or k8s.cluster_version == "1.21"
 

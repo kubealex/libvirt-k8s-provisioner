@@ -191,7 +191,7 @@
           replace:
             path: /etc/crio/crio.conf
             regexp: '^cgroup_manager.*'
-            replace: 'cgroup_manager = "cgroupfs"'
+            replace: 'cgroup_manager = "systemd"'
 
         - name: Ensure systemd as default cgroup_manager
           replace:
