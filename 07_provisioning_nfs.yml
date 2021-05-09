@@ -21,7 +21,7 @@
             state: present
           register: output_nfs
 
-        - name: Add loadbalancer to inventory
+        - name: Add NFS server to inventory
           add_host:
             hostname: '{{ k8s.cluster_name }}-nfs.{{ k8s.network.domain }}'
             node_hostname: '{{ k8s.cluster_name }}-nfs.{{ k8s.network.domain }}'
@@ -120,7 +120,7 @@
           name: firewalld
           enabled: true
           state: started
-          
+
       - name: Set interface to internal zone 
         shell: nmcli connection modify System\ eth0 connection.zone internal
         when: k8s.cluster_os == 'CentOS'

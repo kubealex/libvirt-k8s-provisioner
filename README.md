@@ -6,8 +6,9 @@ Welcome to the home of the project!
 With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want.
 
 Kubernetes version that is installed can be choosen between:
+- **1.21.0** - Latest 1.21 release
+- **1.20.5** - Latest 1.20 release
 - **1.19.6** - Latest 1.19 release
-- **1.20.1** - Latest 1.20 release
 
 Terraform will take care of the provisioning of:
 - Loadbalancer machine with **haproxy** installed and configured for **HA** clusters
@@ -29,6 +30,7 @@ You can customize the setup choosing:
 - **service CIDR** to be used during installation. 
 - **pod CIDR** to be used during installation. 
 - **network plugin** to be used, based on the documentation. **[Project Calico](https://www.projectcalico.org/calico-networking-for-kubernetes/)** **[Flannel](https://github.com/coreos/flannel)** **[Project Cilium](https://cilium.io/)**
+- **additional SANS** to be added to api-server
 - **NFS Server creation for exporting shares to be used as PVs**
 - **[nginx-ingress-controller](https://kubernetes.github.io/ingress-nginx/)**, **[haproxy-ingress-controller](https://github.com/haproxytech/kubernetes-ingress)** or **[Project Contour](https://projectcontour.io/)**  if you want to enable ingress management.  
 - **[Rancher](https://rancher.com/)** installation to manage your cluster. 
@@ -75,7 +77,7 @@ Recommended sizings are:
 	k8s:
 	  cluster_name: k8s-test
 	  cluster_os: Ubuntu
-	  cluster_version: 1.20
+	  cluster_version: 1.21
 	  container_runtime: crio
 	  master_schedulable: false
 
@@ -98,6 +100,7 @@ Recommended sizings are:
 	  network:
 	    network_cidr: 192.168.200.0/24
 	    domain: k8s.test
+            additional_san: ""
 	    pod_cidr: 10.20.0.0/16
 	    service_cidr: 10.110.0.0/16
 	    cni_plugin: calico
@@ -136,7 +139,7 @@ Recommended sizings are:
 Size for **disk** and **mem** is in GB. 
 **disk** allows to provision space in the cloud image for pod's ephemeral storage. 
 
-**cluster_version** can be 1.19 or 1.20 to install the corresponding latest version for the release
+**cluster_version** can be 1.19, 1.20 or 1.21 to install the corresponding latest version for the release
 
 VMS are created with these names by default (customizing them is work in progress):
 
