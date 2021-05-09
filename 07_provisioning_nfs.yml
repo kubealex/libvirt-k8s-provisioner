@@ -115,7 +115,7 @@
           - nfs-kernel-server
         when: k8s.cluster_os == 'Ubuntu'
 
-      - name: Ensure firewalld is enabled
+      - name: Ensure firewalld Service is enabled
         service:
           name: firewalld
           enabled: true
