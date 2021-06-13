@@ -127,7 +127,7 @@ Recommended sizings are:
 
 	rancher:
 	  install_rancher: true
-          ingress_hostname: "rancher.k8s.test"
+	  ingress_hostname: "rancher.k8s.test"
 
 	# Section for metalLB setup
 
