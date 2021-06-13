@@ -5,3 +5,4 @@ terraform.tfstate*
 .terraform*
 admin.kubeconfig
 test.yml
+haproxy.cfg

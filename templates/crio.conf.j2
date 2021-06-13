@@ -1,0 +1,31 @@
+[crio]
+[crio.runtime]
+selinux = false
+cgroup_manager="systemd"
+default_capabilities = [
+ "CHOWN",
+ "DAC_OVERRIDE",
+ "FSETID",
+ "FOWNER",
+ "SETGID",
+ "SETUID",
+ "SETPCAP",
+ "NET_BIND_SERVICE",
+ "KILL",
+ "MKNOD"
+ ]
+
+[crio.network]
+plugin_dirs = [
+        "/opt/cni/bin",
+        "/usr/libexec/cni",
+]
+
+# A necessary configuration for Prometheus based metrics retrieval
+[crio.metrics]
+
+# Globally enable or disable metrics support.
+enable_metrics = true
+
+# The port on which the metrics server will listen.
+metrics_port = 9537

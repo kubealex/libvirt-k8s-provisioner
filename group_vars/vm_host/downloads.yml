@@ -1,9 +1,9 @@
-terraform_url: https://releases.hashicorp.com/terraform/0.14.3/terraform_0.14.3_linux_amd64.zip
+terraform_url: https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_amd64.zip
 
 libvirt_provider_repo: https://github.com/dmacvicar/terraform-provider-libvirt.git
 libvirt_plugin_dir: ~/.local/share/terraform/plugins/registry.terraform.io/dmacvicar/libvirt/0.6.3/linux_amd64
 image_name: OS-GenericCloud
 centos:
-  cloud_image: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20201217.0.x86_64.qcow2
+  cloud_image: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20210603.0.x86_64.qcow2
 ubuntu:
   cloud_image: https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img

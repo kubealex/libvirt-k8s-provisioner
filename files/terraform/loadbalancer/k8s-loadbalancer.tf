@@ -63,7 +63,7 @@ resource "libvirt_domain" "k8s-loadbalancer" {
 }
 
 terraform {
- required_version = ">= 0.13"
+ required_version = ">= 1.0"
   required_providers {
     libvirt = {
       source  = "dmacvicar/libvirt"

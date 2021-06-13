@@ -1,0 +1,52 @@
+---
+- name: Install cluster with kubeadm
+  vars_files:
+    - vars/k8s_cluster.yml
+  hosts: masters
+  run_once: true
+  tasks:
+    - name: Start kubeadm install
+      shell: kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs
+      become: true
+    
+    - name: Get information on generated certificate
+      openssl_certificate_info:
+        path: /etc/kubernetes/pki/ca.crt
+      register: cert
+
+    - name: Set fact for certificate hash
+      set_fact:
+        kubehash: "sha256:{{ cert.public_key_fingerprints.sha256 | replace(':', '') }}"
+
+    - name: Create kube directory
+      file:
+        path: /home/kube/.kube
+        state: directory
+ 
+    - name: Copy kubeconfig
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/kube/.kube/config
+        remote_src: true
+        owner: kube
+        group: kube
+      become: true
+
+    - name: Wait for all control-plane pods become created
+      shell: "kubectl get po --namespace=kube-system --selector tier=control-plane --output=jsonpath='{.items[*].metadata.name}'"
+      register: control_plane_pods_created
+      until: item in control_plane_pods_created.stdout
+      retries: 10
+      delay: 30
+      with_items:
+        - etcd
+        - kube-apiserver
+        - kube-controller-manager
+        - kube-scheduler
+
+    - name: Wait for control-plane pods become ready
+      shell: "kubectl wait --namespace=kube-system --for=condition=Ready pods --selector tier=control-plane --timeout=600s"
+      register: control_plane_pods_ready
+
+    - set_fact:
+        k8s_installed: true               
