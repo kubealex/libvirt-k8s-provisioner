@@ -4,12 +4,12 @@
   vars_files: 
     - vars/k8s_cluster.yml
   tasks:
-    - name: Join worker nodes in cluster
-      shell: kubeadm join --token {{ hostvars[groups['masters'][0]].kubetoken }}  {{ hostvars[groups['loadbalancer'][0]].node_fqdn  }}:6443 --discovery-token-ca-cert-hash sha256:{{ hostvars[groups['masters'][0]].kubehash }}
-      become: true
-      when: k8s.control_plane.vms > 1      
-
-    - name: Join worker nodes in cluster
-      shell: kubeadm join --token {{ hostvars[groups['masters'][0]].kubetoken }}  {{ hostvars[groups['masters'][0]].node_fqdn }}:6443 --discovery-token-ca-cert-hash sha256:{{ hostvars[groups['masters'][0]].kubehash }}
-      become: true
-      when: k8s.control_plane.vms == 1
+    - name: Joining control plane nodes
+      block:
+      - name: Fire joinConfiguration template for worker nodes
+        template:
+          src: templates/kubeadm-join-config.yaml.j2
+          dest: /tmp/kubeadm-join.yaml
+      - name: Join worker nodes in cluster
+        command: kubeadm join --config /tmp/kubeadm-join.yaml
+        become: true

@@ -6,9 +6,9 @@ Welcome to the home of the project!
 With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want.
 
 Kubernetes version that is installed can be choosen between:
-- **1.21.0** - Latest 1.21 release
-- **1.20.5** - Latest 1.20 release
-- **1.19.6** - Latest 1.19 release
+- **1.21** - Latest 1.21 release (1.21.1)
+- **1.20** - Latest 1.20 release (1.20.7)
+- **1.19** - Latest 1.19 release (1-19.11)
 
 Terraform will take care of the provisioning of:
 - Loadbalancer machine with **haproxy** installed and configured for **HA** clusters
@@ -20,12 +20,12 @@ It also takes care of preparing the host machine with needed packages, configuri
 - dedicated libvirt dnsmasq configuration
 - dedicated libvirt network (fully customizable)
 - dedicated libvirt storage pool (fully customizable) 
-- terraform 
+- terraform 1.0
 - libvirt-terraform-provider ( compiled and initialized based on [https://github.com/dmacvicar/terraform-provider-libvirt](https://github.com/dmacvicar/terraform-provider-libvirt))
 
 You can customize the setup choosing:
 
-- **container runtime** that you want to use (**docker, cri-o, containerd** actually available).
+- **container runtime** that you want to use (**docker, cri-o, containerd**).
 - **schedulable master** if you want to schedule on your master nodes or leave the taint.
 - **service CIDR** to be used during installation. 
 - **pod CIDR** to be used during installation. 
@@ -33,7 +33,7 @@ You can customize the setup choosing:
 - **additional SANS** to be added to api-server
 - **NFS Server creation for exporting shares to be used as PVs**
 - **[nginx-ingress-controller](https://kubernetes.github.io/ingress-nginx/)**, **[haproxy-ingress-controller](https://github.com/haproxytech/kubernetes-ingress)** or **[Project Contour](https://projectcontour.io/)**  if you want to enable ingress management.  
-- **[Rancher](https://rancher.com/)** installation to manage your cluster. 
+- **[Rancher](https://rancher.com/)** installation to manage your cluster. **Working up to 1.21**
 - **[metalLB](https://metallb.universe.tf/)** to manage bare-metal LoadBalancer services - **WIP** - Only L2 configuration can be set-up via playbook.
 - **[Rook-Ceph](https://rook.io/docs/rook/v1.4/ceph-storage.html)** - **WIP - To be improved, current rook-ceph cluster size is fixed to 3 nodes**
 
@@ -127,6 +127,7 @@ Recommended sizings are:
 
 	rancher:
 	  install_rancher: true
+          ingress_hostname: "rancher.k8s.test"
 
 	# Section for metalLB setup
 

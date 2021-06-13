@@ -62,7 +62,7 @@
           register: cert_manager_pods_ready
 
         - name: Install rancher
-          shell: helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname={{ hostvars[groups['loadbalancer'][0]].node_fqdn }}
+          shell: helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname={{ hostvars[groups['loadbalancer'][0]].node_fqdn if (k8s.control_plane.vms > 1) else rancher.ingress_hostname }}
 
         - name: Wait for rancher deploy to end
           shell: "kubectl -n cattle-system rollout status deploy/rancher"

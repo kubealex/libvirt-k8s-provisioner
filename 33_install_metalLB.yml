@@ -8,8 +8,8 @@
     - block:
 
       - name: Prepare setup script
-        template:
-          src: templates/metallb-setup.j2
+        copy:
+          src: files/metallb-setup.sh
           dest: /tmp/metallb-setup.sh
           mode: +x
 

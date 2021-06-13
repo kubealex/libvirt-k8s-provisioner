@@ -2,23 +2,6 @@
 - name: Prepare files for cluster management
   hosts: masters
   tasks:
-    - name: Complete setup installing kube-config on all master nodes
-      block:
-        - name: Create kube directory
-          file:
-            path: /home/kube/.kube
-            state: directory
-
-        - name: Copy kubeconfig
-          copy:
-            src: /etc/kubernetes/admin.conf
-            dest: /home/kube/.kube/config
-            remote_src: true
-            owner: kube
-            group: kube
-          become: true
-      when: inventory_hostname != groups['masters'][0]
-
     - name: Fetch kubeconfig file
       fetch:
         src: /etc/kubernetes/admin.conf

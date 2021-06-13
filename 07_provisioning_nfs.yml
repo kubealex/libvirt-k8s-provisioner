@@ -131,7 +131,7 @@
           state: stopped
 
       - name: Adding interface to firewall internal zone  
-        firewalld:
+        ansible.posix.firewalld:
           zone: internal
           interface: "{{ interface }}"
           permanent: yes
@@ -144,7 +144,7 @@
           enabled: true
 
       - name: Allow service for internal zone
-        firewalld:
+        ansible.posix.firewalld:
           zone: internal
           state: enabled
           permanent: yes
@@ -152,7 +152,7 @@
         loop: "{{ services }}"
 
       - name: Allow ports for internal zone
-        firewalld:
+        ansible.posix.firewalld:
           zone: internal
           state: enabled
           permanent: yes
@@ -183,10 +183,20 @@
           path: "{{ k8s.storage.nfs_export }}"
           state: directory
           owner: nobody
+          group: nobody
+          mode: 0777
+          recurse: yes
+        when: k8s.cluster_os == 'CentOS'
+        
+      - name: Create mountpoints
+        file:
+          path: "{{ k8s.storage.nfs_export }}"
+          state: directory
+          owner: nobody
           group: nogroup
           mode: 0777
           recurse: yes
-
+        when: k8s.cluster_os == 'Ubuntu'
       - name: Mount the filesystems
         mount:
           fstype: ext4

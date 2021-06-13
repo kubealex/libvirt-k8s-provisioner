@@ -12,6 +12,13 @@
         - ansible_distribution != 'Fedora'
         - ansible_distribution != 'Ubuntu'
 
+    - name: Check if target distribution is correct
+      fail:
+        msg: Target distribution is not supported. Supported values are 'Ubuntu', 'CentOS'
+      when:
+        - k8s.cluster_os != 'CentOS'
+        - k8s.cluster_os != 'Ubuntu'
+
     - name: Check at least one vm for control plane is defined
       fail:
         msg: At least one control plane should be selected
@@ -62,10 +69,11 @@
         - rancher.install_rancher
         - ingress_controller.install_ingress_controller == false
 
-    - name: Ensure that k8s version is 1.19 before installing rancher
+    
+    - name: Temporarily fail if trying to install 1.21 on CentOS with cri-o
       fail:
-        msg: To install Rancher, cluster version should be < 1.20
-      when:
-        - rancher.install_rancher
-        - k8s.cluster_version == "1.20" or k8s.cluster_version == "1.21"
-
+        msg: Due to a known issue (https://github.com/cri-o/cri-o/issues/4658) it's not actually possible to setup k8s 1.21 with bundled cri-o version on CentOS
+      when: 
+        - k8s.container_runtime == 'crio'
+        - k8s.cluster_os == 'CentOS'
+        - k8s.cluster_version == '1.21'

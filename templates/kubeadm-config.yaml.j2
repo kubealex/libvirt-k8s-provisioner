@@ -1,0 +1,26 @@
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
+certificateKey: "{{ hostvars[groups['masters'][0]].kubecertkey }}"
+bootstrapTokens:
+  - token: "{{ hostvars[groups['masters'][0]].kubetoken }}"
+---
+kind: ClusterConfiguration
+apiVersion: kubeadm.k8s.io/v1beta2
+networking:
+  serviceSubnet: "{{ k8s.network.service_cidr }}"
+  podSubnet: "{{ ('10.244.0.0/16' if (k8s.network.cni_plugin == 'flannel') else k8s.network.pod_cidr) }}"
+{% if k8s.network.additional_san is defined and k8s.network.additional_san != '' %}
+apiServer:
+  certSANs:
+    - "{{ k8s.network.additional_san | default('localhost') }}"
+{% endif %}
+{% if k8s.control_plane.vms > 1  %}
+controlPlaneEndpoint: {{ hostvars[groups['loadbalancer'][0]].node_fqdn }}
+{% endif %}
+
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+{% if k8s.container_runtime == 'crio' %}
+cgroupDriver: systemd
+{% endif %}

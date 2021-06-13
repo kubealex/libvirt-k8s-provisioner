@@ -52,6 +52,7 @@ ingress_controller:
 
 rancher:
   install_rancher: false
+  ingress_hostname: "rancher.k8s.test"
 
 # Section for metalLB setup
 

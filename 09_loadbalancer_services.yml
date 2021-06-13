@@ -65,7 +65,7 @@
           state: stopped
 
       - name: Adding interface to firewall internal zone  
-        firewalld:
+        ansible.posix.firewalld:
           zone: internal
           interface: "{{ interface }}"
           permanent: yes
@@ -78,7 +78,7 @@
           enabled: true
 
       - name: Allow service for internal zone
-        firewalld:
+        ansible.posix.firewalld:
           zone: internal
           state: enabled
           permanent: yes
@@ -86,7 +86,7 @@
         loop: "{{ services }}"
 
       - name: Allow ports for internal zone
-        firewalld:
+        ansible.posix.firewalld:
           zone: internal
           state: enabled
           permanent: yes
