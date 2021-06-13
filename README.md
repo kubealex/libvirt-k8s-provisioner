@@ -110,7 +110,7 @@ Recommended sizings are:
 	  nfs:
    	    nfs_enabled: true
    	    nfs_fsSize: 50GB
-    	    nfs_export: /srv/k8s
+	    nfs_export: /srv/k8s
 
 
 	rook_ceph:
