@@ -68,12 +68,3 @@
       when:
         - rancher.install_rancher
         - ingress_controller.install_ingress_controller == false
-
-    
-    - name: Temporarily fail if trying to install 1.21 on CentOS with cri-o
-      fail:
-        msg: Due to a known issue (https://github.com/cri-o/cri-o/issues/4658) it's not actually possible to setup k8s 1.21 with bundled cri-o version on CentOS
-      when: 
-        - k8s.container_runtime == 'crio'
-        - k8s.cluster_os == 'CentOS'
-        - k8s.cluster_version == '1.21'
