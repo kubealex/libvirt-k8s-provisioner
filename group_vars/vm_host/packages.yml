@@ -2,7 +2,6 @@ virtualization_packages:
   centos:
     - unzip
     - git
-#    - golang
     - gcc
     - make
     - python3-lxml
@@ -17,7 +16,6 @@ virtualization_packages:
   ubuntu:
     - unzip
     - git
-    - golang
     - gcc
     - make
     - network-manager
@@ -35,7 +33,6 @@ virtualization_packages:
   fedora:
     - unzip
     - git
-    - golang
     - gcc
     - make
     - python3-lxml
