@@ -51,16 +51,6 @@
         project_path: "files/terraform/libvirt-resources"
         state: absent
 
-    - name: Delete all created paths
-      file:
-        path: "{{ item }}"
-        state: absent
-      loop: 
-        - ~/libvirt-provider
-        - ~/.terraform.d
-        - ~/go/bin/terraform-provider-libvirt 
-        - /usr/local/go
-
     - name: Ensure images are deleted
       file:
         path: "{{ item }}"
