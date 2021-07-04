@@ -58,7 +58,8 @@
       loop: 
         - ~/libvirt-provider
         - ~/.terraform.d
-        - ~/go/bin/terraform-provider-libvirt
+        - ~/go/bin/terraform-provider-libvirt 
+        - /usr/local/go
 
     - name: Ensure images are deleted
       file:

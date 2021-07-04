@@ -2,7 +2,7 @@ virtualization_packages:
   centos:
     - unzip
     - git
-    - golang
+#    - golang
     - gcc
     - make
     - python3-lxml

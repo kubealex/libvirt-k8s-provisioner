@@ -44,7 +44,7 @@
       unarchive: 
         src: "{{ terraform_url }}"
         dest: /usr/bin/
-        mode: 755
+        mode: 0755
         remote_src: yes
 
     - name: Virtualization services are enabled
@@ -52,27 +52,3 @@
         name: libvirtd
         state: started
         enabled: true
-
-    - name: Clone libvirt-provider for terraform 
-      git:
-        repo: "{{ libvirt_provider_repo }}"
-        dest: ~/libvirt-provider
-        force: true
-
-    - name: Run 'install' target on libvirt-provider
-      make:
-        chdir: ~/libvirt-provider
-        target: install
-
-    - name: Ensures terraform plugins directory exists
-      file:
-        path: "{{ libvirt_plugin_dir }}"
-        state: directory
-        mode: 0744
-
-    - name: Copy libvirt provider to plugins directory
-      copy:
-        src: "~/go/bin/terraform-provider-libvirt"
-        dest: "{{ libvirt_plugin_dir }}"
-        remote_src: true
-        mode: 0755

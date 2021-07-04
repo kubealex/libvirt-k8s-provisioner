@@ -1,4 +1,5 @@
-terraform_url: https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_amd64.zip
+terraform_url: https://releases.hashicorp.com/terraform/1.0.1/terraform_1.0.1_linux_amd64.zip
+golang_url: https://golang.org/dl/go1.16.5.linux-amd64.tar.gz
 
 libvirt_provider_repo: https://github.com/dmacvicar/terraform-provider-libvirt.git
 libvirt_plugin_dir: ~/.local/share/terraform/plugins/registry.terraform.io/dmacvicar/libvirt/0.6.3/linux_amd64
