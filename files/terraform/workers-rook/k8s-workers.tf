@@ -7,8 +7,9 @@ variable "vm_count" { default = 2 }
 variable "rook_volume_size" { default = 10 }
 variable "iface" { default = "ens3" }
 variable "libvirt_network" { default = "k8s" }
-variable "libvirt_pool" { default= "k8s" }
-variable "os_image_name" { default= "CentOS-GenericCloud-worker.qcow2" }
+variable "libvirt_pool" { default = "k8s" }
+variable "disk_size" { default = 20 }
+variable "os_image_name" { default = "CentOS-GenericCloud-worker.qcow2" }
 
 provider "libvirt" {
   uri = "qemu:///system"
@@ -20,6 +21,14 @@ resource "libvirt_volume" "os_image" {
   pool = var.libvirt_pool
   source = "/tmp/${var.os_image_name}"
   format = "qcow2"
+}
+
+resource "libvirt_volume" "os_image_resized" {
+  count = var.vm_count
+  name = "${var.hostname}-os_image_resized-${count.index}"
+  pool = var.libvirt_pool
+  base_volume_id = libvirt_volume.os_image[count.index].id
+  size           = var.disk_size*1073741824
 }
 
 resource "libvirt_volume" "rook_image" {
@@ -49,13 +58,14 @@ data "template_file" "user_data" {
 }
 
 resource "libvirt_domain" "k8s-worker" {
+  autostart = true
   count= var.vm_count
   name = "${var.hostname}-${count.index}"
   memory = var.memory*1024
   vcpu = var.cpu
 
   disk {
-     volume_id = libvirt_volume.os_image[count.index].id
+     volume_id = libvirt_volume.os_image_resized[count.index].id
   }
 
   disk {

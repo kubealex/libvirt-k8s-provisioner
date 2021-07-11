@@ -8,7 +8,7 @@
       block: 
       - name: Fire joinConfiguration template for control plane nodes
         template:
-          src: templates/kubeadm-join-config.yaml.j2
+          src: templates/kubeadm-join-cp-config.yaml.j2
           dest: /tmp/kubeadm-join.yaml
       - name: Join control-plane nodes in cluster
         command: kubeadm join --config /tmp/kubeadm-join.yaml

@@ -6,7 +6,5 @@ discovery:
     token: "{{ hostvars[groups['masters'][0]].kubetoken }}"
     caCertHashes:
     - "{{ hostvars[groups['masters'][0]].kubehash }}"
-{% if k8s.control_plane.vms > 1 %}
 controlPlane:
   certificateKey: "{{ hostvars[groups['masters'][0]].kubecertkey }}"
-{% end if %}

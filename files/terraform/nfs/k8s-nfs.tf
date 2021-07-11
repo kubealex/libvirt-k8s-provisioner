@@ -43,6 +43,7 @@ data "template_file" "user_data" {
 }
 
 resource "libvirt_domain" "k8s-nfs" {
+  autostart = true
   name = var.hostname
   memory = var.memory*1024
   vcpu = var.cpu

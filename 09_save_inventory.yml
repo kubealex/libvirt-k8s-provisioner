@@ -1,0 +1,18 @@
+- name: Save inventory to disk
+  hosts: vm_host
+  vars_files:
+    vars/k8s_cluster.yml
+  tasks:
+    - name: Gather facts from all servers
+      setup:
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      loop: "{{ groups['all'] }}"
+
+    - name: Fire up inventory template
+      template:
+        src: templates/inventory.j2
+        dest: inventory-k8s
+
+    - debug:
+        msg: Inventory is now saved as inventory-k8s, you can resume next steps by referencing it.
