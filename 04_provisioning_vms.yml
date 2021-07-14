@@ -18,24 +18,6 @@
         mode: 0777
       when: k8s.cluster_os == 'Ubuntu'
 
-    - name: Create a copy for master nodes
-      copy: 
-        src: /tmp/{{ image_name }}.qcow2
-        dest: /tmp/{{ image_name }}-master.qcow2
-        remote_src: true
-
-    - name: Create a copy for worker nodes
-      copy:
-        src: /tmp/{{ image_name }}.qcow2
-        dest: /tmp/{{ image_name }}-worker.qcow2
-        remote_src: true
-
-    - name: Grow cloud partition to avoid disk pressure
-      shell: qemu-img resize /tmp/{{ image_name }}-master.qcow2 {{ k8s.control_plane.disk }}G
-
-    - name: Grow cloud partition to avoid disk pressure
-      shell: qemu-img resize /tmp/{{ image_name }}-worker.qcow2 {{ k8s.worker_nodes.disk }}G
-
     - name: Create ssh keypair
       openssh_keypair:
         path: "id_rsa"
@@ -49,10 +31,11 @@
           os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}" 
           libvirt_network: "{{ k8s.cluster_name }}"
           libvirt_pool: "{{ k8s.cluster_name }}"
+          disk_size: "{{ k8s.control_plane.disk }}"
           cpu: "{{ k8s.control_plane.vcpu }}"
           memory: "{{ k8s.control_plane.mem }}"
           vm_count: "{{ k8s.control_plane.vms }}"
-          os_image_name: "{{ image_name }}-master.qcow2"
+          os_image_name: "{{ image_name }}.qcow2"
         state: present
       become: true
       register: output_masters
@@ -66,11 +49,12 @@
           os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}" 
           libvirt_network: "{{ k8s.cluster_name }}"
           libvirt_pool: "{{ k8s.cluster_name }}"
+          disk_size: "{{ k8s.worker_nodes.disk }}"
           cpu: "{{ k8s.worker_nodes.vcpu }}"
           memory: "{{ k8s.worker_nodes.mem }}"
           vm_count: "{{ (k8s.worker_nodes.vms - rook.rook_cluster_size) if rook_ceph.install_rook else k8s.worker_nodes.vms }}"
           vm_counter: "{{ rook.rook_cluster_size if rook_ceph.install_rook else 0 }}" 
-          os_image_name: "{{ image_name }}-worker.qcow2"
+          os_image_name: "{{ image_name }}.qcow2"
         state: present
       become: true
       register: output_workers
@@ -84,12 +68,12 @@
           os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}" 
           libvirt_network: "{{ k8s.cluster_name }}"
           libvirt_pool: "{{ k8s.cluster_name }}"
+          disk_size: "{{ k8s.worker_nodes.disk }}"
           cpu: "{{ k8s.worker_nodes.vcpu }}"
           memory: "{{ k8s.worker_nodes.mem }}"
           rook_volume_size: "{{ rook_ceph.volume_size }}"
-          #vm_count: "{{ k8s.worker_nodes.vms }}"
           vm_count: "{{ rook.rook_cluster_size }}"
-          os_image_name: "{{ image_name }}-worker.qcow2"
+          os_image_name: "{{ image_name }}.qcow2"
         state: present
       become: true
       register: output_workers_rook

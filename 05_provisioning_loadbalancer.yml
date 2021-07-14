@@ -48,10 +48,21 @@
     - vars/k8s_cluster.yml
   tasks:
     - block:
-        - name: Wait 600 seconds for target connection to become reachable/usable
-          wait_for_connection:
-            timeout: 600
-            delay: 0
-        - ping:
+      - name: Wait 600 seconds for target connection to become reachable/usable
+        wait_for_connection:
+          timeout: 600
+          delay: 0
+      - ping:
+
+      - name: Extract some facts from setup
+        setup:
+        register: lb_facts
+ 
+      - set_fact:
+          host_ip: "{{ lb_facts.ansible_facts.ansible_default_ipv4.address }}"
+          host_interface: "{{ lb_facts.ansible_facts.ansible_default_ipv4.interface }}"
+          host_mac: "{{ lb_facts.ansible_facts.ansible_default_ipv4.macaddress }}"
+          host_fqdn: "{{ lb_facts.ansible_facts.ansible_fqdn }}"
+
       when: k8s.control_plane.vms > 1
  

@@ -17,6 +17,7 @@ resource "libvirt_pool" "cluster" {
 }
 
 resource "libvirt_network" "kube_network" {
+  autostart = true
   name = var.cluster_name
   mode = "nat"
   domain = var.domain

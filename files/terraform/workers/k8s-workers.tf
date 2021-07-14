@@ -7,8 +7,9 @@ variable "vm_count" { default = 2 }
 variable "vm_counter" { default = 2 }
 variable "iface" { default = "ens3" }
 variable "libvirt_network" { default = "k8s" }
-variable "libvirt_pool" { default= "k8s" }
-variable "os_image_name" { default= "CentOS-GenericCloud-worker.qcow2" }
+variable "libvirt_pool" { default = "k8s" }
+variable "disk_size" { default = 20 }
+variable "os_image_name" { default = "CentOS-GenericCloud.qcow2" }
 
 provider "libvirt" {
   uri = "qemu:///system"
@@ -20,6 +21,14 @@ resource "libvirt_volume" "os_image" {
   pool = var.libvirt_pool
   source = "/tmp/${var.os_image_name}"
   format = "qcow2"
+}
+
+resource "libvirt_volume" "os_image_resized" {
+  count = var.vm_count
+  name = "${var.hostname}-os_image_resized-${count.index + var.vm_counter}"
+  pool = var.libvirt_pool
+  base_volume_id = libvirt_volume.os_image[count.index].id
+  size           = var.disk_size*1073741824
 }
 
 resource "libvirt_cloudinit_disk" "commoninit" {
@@ -35,19 +44,20 @@ data "template_file" "user_data" {
   vars = {
     network_manager = var.os == "centos" ? "NetworkManager" : "network-manager"
     nfs = var.os == "centos" ? "nfs-utils" : "nfs-common"
-    hostname = "${var.hostname}-${count.index}.${var.domain}"
-    fqdn = "${var.hostname}-${count.index}.${var.domain}"
+    hostname = "${var.hostname}-${count.index + var.vm_counter}.${var.domain}"
+    fqdn = "${var.hostname}-${count.index + var.vm_counter}.${var.domain}"
    }
 }
 
 resource "libvirt_domain" "k8s-worker" {
+  autostart = true
   count= var.vm_count
   name = "${var.hostname}-${count.index + var.vm_counter}"
   memory = var.memory*1024
   vcpu = var.cpu
 
   disk {
-     volume_id = libvirt_volume.os_image[count.index].id
+     volume_id = libvirt_volume.os_image_resized[count.index].id
   }
 
   network_interface {

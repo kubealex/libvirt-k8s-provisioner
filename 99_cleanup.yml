@@ -45,11 +45,11 @@
         - loadbalancer
       when: rook_ceph.install_rook
 
-    - name: Destroy libvirt pool and network 
-      terraform:
-        force_init: true
-        project_path: "files/terraform/libvirt-resources"
-        state: absent
+#    - name: Destroy libvirt pool and network 
+#      terraform:
+#        force_init: true
+#        project_path: "files/terraform/libvirt-resources"
+#        state: absent
 
     - name: Ensure images are deleted
       file:

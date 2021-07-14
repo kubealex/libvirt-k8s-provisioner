@@ -5,17 +5,7 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-
     - block:
-      - name: Set ethernet adapter facts
-        set_fact:
-          interface: eth0
-        when: k8s.cluster_os == 'CentOS'
-
-      - name: Set ethernet adapter facts
-        set_fact:
-          interface: ens3
-        when: k8s.cluster_os == 'Ubuntu'
 
       - name: Manage packages on CentOS
         block:
@@ -67,7 +57,7 @@
       - name: Adding interface to firewall internal zone  
         ansible.posix.firewalld:
           zone: internal
-          interface: "{{ interface }}"
+          interface: "{{ 'eth0' if k8s.cluster_os == 'CentOS' else 'ens3' }}"
           permanent: yes
           state: enabled
 
