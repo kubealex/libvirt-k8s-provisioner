@@ -6,7 +6,7 @@
   tasks:
     - name: Provision loadbalancer vm
       block:
-        - terraform:
+        - community.general.terraform:
             project_path: "files/terraform/loadbalancer"
             force_init: true
             variables:

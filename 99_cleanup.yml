@@ -7,7 +7,7 @@
   tasks:
 
     - name: Destroy cluster VM
-      terraform:
+      community.general.terraform:
         force_init: true
         project_path: "files/terraform/{{ item }}"
         state: absent
@@ -21,7 +21,7 @@
         - k8s.control_plane.vms > 1
 
     - name: Destroy cluster VM
-      terraform:
+      community.general.terraform:
         force_init: true
         project_path: "files/terraform/{{ item }}"
         state: absent
@@ -34,7 +34,7 @@
         - k8s.control_plane.vms == 1
 
     - name: Destroy cluster VM
-      terraform:
+      community.general.terraform:
         force_init: true
         project_path: "files/terraform/{{ item }}"
         state: absent
@@ -46,7 +46,7 @@
       when: rook_ceph.install_rook
 
 #    - name: Destroy libvirt pool and network 
-#      terraform:
+#      community.general.terraform:
 #        force_init: true
 #        project_path: "files/terraform/libvirt-resources"
 #        state: absent

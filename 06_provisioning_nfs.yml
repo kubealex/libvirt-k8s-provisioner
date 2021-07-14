@@ -7,7 +7,7 @@
   tasks:
     - name: Provision NFS Server VM
       block:
-        - terraform:
+        - community.general.terraform:
             project_path: "files/terraform/nfs"
             force_init: true
             variables:
