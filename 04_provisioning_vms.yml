@@ -22,7 +22,7 @@
       openssh_keypair:
         path: "id_rsa"
 
-    - terraform:
+    - community.general.terraform:
         project_path: "files/terraform/masters"
         force_init: true
         variables:
@@ -40,7 +40,7 @@
       become: true
       register: output_masters
 
-    - terraform:
+    - community.general.terraform:
         project_path: "files/terraform/workers"
         force_init: true
         variables:
@@ -59,7 +59,7 @@
       become: true
       register: output_workers
 
-    - terraform:
+    - community.general.terraform:
         project_path: "files/terraform/workers-rook"
         force_init: true
         variables:
