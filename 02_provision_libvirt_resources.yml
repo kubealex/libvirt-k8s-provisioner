@@ -45,7 +45,7 @@
         notify:
           - Restart systemd-resolved
 
-      when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33') or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version >= '18')
+      when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version >= '33') or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version >= '18')
 
     - name: Ensure NM configuration directory exists
       file:
@@ -70,7 +70,7 @@
         dest: /etc/NetworkManager/dnsmasq.d/libvirt_dnsmasq.conf
       notify:
         - Wait for local DNS resolver to be up
-
+  
   handlers:
     - name: Restart systemd-resolved
       service:
