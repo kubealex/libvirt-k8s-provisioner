@@ -2,8 +2,8 @@
 k8s:
   cluster_name: k8s-test
   cluster_os: Ubuntu
-  cluster_version: "1.21"
-  container_runtime: crio
+  cluster_version: "1.22"
+  container_runtime: docker
   master_schedulable: false
 
 # Nodes configuration
@@ -46,7 +46,7 @@ rook_ceph:
 
 ingress_controller:
   install_ingress_controller: true
-  type: nginx
+  type: haproxy
 
 # Section for Rancher setup
 
