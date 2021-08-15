@@ -45,19 +45,17 @@
         - loadbalancer
       when: rook_ceph.install_rook
 
-#    - name: Destroy libvirt pool and network 
-#      community.general.terraform:
-#        force_init: true
-#        project_path: "files/terraform/libvirt-resources"
-#        state: absent
+    - name: Destroy libvirt pool and network 
+      community.general.terraform:
+        force_init: true
+        project_path: "files/terraform/libvirt-resources"
+        state: absent
 
     - name: Ensure images are deleted
       file:
         path: "{{ item }}"
         state: absent
       loop:
-        - /tmp/OS-GenericCloud-worker.qcow2
-        - /tmp/OS-GenericCloud-master.qcow2
         - /tmp/OS-GenericCloud.qcow2
 
     - name: Delete all created paths - root 
@@ -68,6 +66,8 @@
       loop:
         - /usr/bin/terraform
         - admin.kubeconfig
+        - haproxy.cfg
+        - inventory-k8s
 
     - name: Cleanup local DNS config
       file:
