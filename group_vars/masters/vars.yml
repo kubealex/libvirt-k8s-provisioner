@@ -11,7 +11,7 @@ cni_plugins:
 
 ingresses:
   nginx_repo: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.48.1/deploy/static/provider/baremetal/deploy.yaml
-  nginx_122_repo: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.0-beta.1/deploy/static/provider/baremetal/deploy.yaml
+  nginx_122_repo: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.0-beta.3/deploy/static/provider/baremetal/deploy.yaml
   haproxy_repo: https://raw.githubusercontent.com/haproxytech/kubernetes-ingress/v1.6/deploy/haproxy-ingress.yaml
   contour_repo: https://projectcontour.io/quickstart/contour.yaml
 
