@@ -4,6 +4,11 @@
     - vars/k8s_cluster.yml
     
   tasks:
+
+    - name: Create ssh keypair
+      openssh_keypair:
+        path: "files/terraform/id_rsa"
+
     - name: Download CentOS image
       get_url:
         url: "{{ centos.cloud_image }}"
@@ -18,13 +23,8 @@
         mode: 0777
       when: k8s.cluster_os == 'Ubuntu'
 
-    - name: Create ssh keypair
-      openssh_keypair:
-        path: "id_rsa"
-
     - community.general.terraform:
-        #project_path: "files/terraform/masters"
-        project_path: "~/terraform/masters"
+        project_path: "files/terraform/masters"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-master"
@@ -42,8 +42,7 @@
       register: output_masters
 
     - community.general.terraform:
-        #project_path: "files/terraform/workers"
-        project_path: "~/terraform/workers"
+        project_path: "files/terraform/workers"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-worker"
@@ -62,8 +61,7 @@
       register: output_workers
 
     - community.general.terraform:
-        #project_path: "files/terraform/workers-rook"
-        project_path: "~/terraform/workers-rook"
+        project_path: "files/terraform/workers-rook"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-worker"
@@ -126,13 +124,15 @@
       wait_for_connection:
         timeout: 600
         delay: 0
+
     - ping:
 
     - name: add hosts to children groups
       group_by:
         key: "{{ group_children }}"
 
-    - setup:
+    - name: Extract facts from setup
+      setup:
       register: machine_facts
 
     - set_fact:

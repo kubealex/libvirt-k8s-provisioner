@@ -5,15 +5,9 @@
     - vars/k8s_cluster.yml
     
   tasks:
-    - name: Ensure terraform directory is copied to remote host
-      copy: 
-        src: files/terraform
-        dest: ~/
-
     - name: Use TF project to ensure pool and network are defined
       community.general.terraform:
-        #project_path: "files/terraform/libvirt-resources"
-        project_path: "~/terraform/libvirt-resources"
+        project_path: "files/terraform/libvirt-resources"
         variables:
           domain: "{{ k8s.network.domain }}"
           network_cidr: ' ["{{ k8s.network.network_cidr }}"]'
@@ -93,4 +87,4 @@
       wait_for:
         port: 53
         delay: 10
-      when: not (ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33') or not (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version >= '18')
+      when: not (ansible_distribution == 'Fedora' and ansible_distribution_major_version == 33) or not (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version >= 18)

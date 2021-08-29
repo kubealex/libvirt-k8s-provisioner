@@ -7,8 +7,7 @@
     - name: Provision loadbalancer vm
       block:
         - community.general.terraform:
-            #project_path: "files/terraform/loadbalancer"
-            project_path: "~/terraform/loadbalancer"
+            project_path: "files/terraform/loadbalancer"
             force_init: true
             variables:
               hostname: "{{ k8s.cluster_name }}-loadbalancer"
@@ -53,9 +52,10 @@
         wait_for_connection:
           timeout: 600
           delay: 0
+
       - ping:
 
-      - name: Extract some facts from setup
+      - name: Extract facts from setup
         setup:
         register: lb_facts
  
