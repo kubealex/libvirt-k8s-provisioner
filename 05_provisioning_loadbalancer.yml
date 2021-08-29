@@ -26,7 +26,7 @@
             node_hostname: '{{ k8s.cluster_name }}-loadbalancer.{{ k8s.network.domain }}'
             node_mac: "{{ output_loadbalancer.outputs.macs.value[0]|lower }}"
             node_fqdn: "{{ k8s.cluster_name }}-loadbalancer.{{ k8s.network.domain }}"
-            ansible_ssh_private_key_file: "id_rsa"
+            ansible_ssh_private_key_file: "files/terraform/id_rsa"
             ansible_user: kube
             ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
             groups:

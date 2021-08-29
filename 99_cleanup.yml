@@ -68,6 +68,8 @@
         - admin.kubeconfig
         - haproxy.cfg
         - inventory-k8s
+        - files/terraform/id_rsa
+        - files/terraform/id_rsa.pub
 
     - name: Cleanup local DNS config
       file:
