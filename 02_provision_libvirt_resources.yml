@@ -5,6 +5,7 @@
     - vars/k8s_cluster.yml
     
   tasks:
+
     - name: Use TF project to ensure pool and network are defined
       community.general.terraform:
         project_path: "files/terraform/libvirt-resources"
@@ -28,24 +29,23 @@
           service: 
             name: libvirtd
             state: restarted
-      when: ansible_distribution == 'Ubuntu' and ansible_distribution_major_version >= '18'
+      when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int  >= 18)
 
 
     - name: Take care of systemd-resolved on F33 and Ubuntu hosts
       block:
-      - name: Ensure systemd-resolved config dir is present
-        file:
-          path: /etc/systemd/resolved.conf.d/
-          state: directory
+        - name: Ensure systemd-resolved config dir is present
+          file:
+            path: /etc/systemd/resolved.conf.d/
+            state: directory
 
-      - name: Enable localdns if systemd-resolved is present
-        template:
-          src: systemd-resolved.j2
-          dest: /etc/systemd/resolved.conf.d/local-kube.conf
-        notify:
-          - Restart systemd-resolved
-
-      when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version >= '33') or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version >= '18')
+        - name: Enable localdns if systemd-resolved is present
+          template:
+            src: systemd-resolved.j2
+            dest: /etc/systemd/resolved.conf.d/local-kube.conf
+          notify:
+            - Restart systemd-resolved
+      when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int >= 33) or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int >= 18)
 
     - name: Ensure NM configuration directory exists
       file:
@@ -87,4 +87,4 @@
       wait_for:
         port: 53
         delay: 10
-      when: not (ansible_distribution == 'Fedora' and ansible_distribution_major_version == '33') or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version >= '18')
+      when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int < 33) or  (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int < 18)

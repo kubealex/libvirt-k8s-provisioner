@@ -21,10 +21,9 @@
 
     - name: Version preserver check - 1.22
       fail:
-        msg: Using {{ k8s.container_runtime }} for version {{ k8s.cluster_version }} is not yet supported.
+        msg: Using Rancher for version {{ k8s.cluster_version }} is not yet supported.
       when:
-        - k8s.container_runtime == 'crio' or rancher.install_rancher
-        #- k8s.container_runtime == 'crio' or ingress_controller.type == 'nginx' or rancher.install_rancher
+        - rancher.install_rancher
         - k8s.cluster_version == '1.22'
 
     - name: Check at least one vm for control plane is defined
