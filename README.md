@@ -141,7 +141,7 @@ Recommended sizings are:
 Size for **disk** and **mem** is in GB. 
 **disk** allows to provision space in the cloud image for pod's ephemeral storage. 
 
-**cluster_version** can be 1.19, 1.20 or 1.21 to install the corresponding latest version for the release
+**cluster_version** can be 1.19, 1.20, 1.21 or 1.22 to install the corresponding latest version for the release
 
 VMS are created with these names by default (customizing them is work in progress):
 
