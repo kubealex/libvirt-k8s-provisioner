@@ -5,9 +5,15 @@
     - vars/k8s_cluster.yml
     
   tasks:
+    - name: Ensure terraform directory is copied to remote host
+      copy: 
+        src: files/terraform
+        dest: ~/
+
     - name: Use TF project to ensure pool and network are defined
       community.general.terraform:
-        project_path: "files/terraform/libvirt-resources"
+        #project_path: "files/terraform/libvirt-resources"
+        project_path: "~/terraform/libvirt-resources"
         variables:
           domain: "{{ k8s.network.domain }}"
           network_cidr: ' ["{{ k8s.network.network_cidr }}"]'

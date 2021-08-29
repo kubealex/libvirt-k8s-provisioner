@@ -23,7 +23,8 @@
         path: "id_rsa"
 
     - community.general.terraform:
-        project_path: "files/terraform/masters"
+        #project_path: "files/terraform/masters"
+        project_path: "~/terraform/masters"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-master"
@@ -41,7 +42,8 @@
       register: output_masters
 
     - community.general.terraform:
-        project_path: "files/terraform/workers"
+        #project_path: "files/terraform/workers"
+        project_path: "~/terraform/workers"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-worker"
@@ -60,7 +62,8 @@
       register: output_workers
 
     - community.general.terraform:
-        project_path: "files/terraform/workers-rook"
+        #project_path: "files/terraform/workers-rook"
+        project_path: "~/terraform/workers-rook"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-worker"
