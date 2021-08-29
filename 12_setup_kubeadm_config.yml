@@ -15,7 +15,7 @@
         kubetoken: "{{ kubetoken_generated.stdout }}"
 
     - name: Generate certificate key
-      command: kubeadm {{ 'alpha' if (k8s.cluster_version == '1.19') | default('') }} certs certificate-key
+      command: kubeadm {{ 'alpha' if (k8s.cluster_version == '1.19') else '' }} certs certificate-key
       register: kubecert_generated
 
     - name: Set generated token as fact
