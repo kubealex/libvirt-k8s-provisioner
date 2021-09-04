@@ -140,7 +140,7 @@
         - name: Fire up new haproxy template
           template:
             src: templates/haproxy.j2
-            dest: haproxy.cfg
+            dest: clusters/{{ k8s.cluster_name }}/haproxy.cfg
       when: 
         - ingress_controller.install_ingress_controller
         - k8s.control_plane.vms == 1

@@ -1,0 +1,83 @@
+---
+- name: Cleanup playbook
+  hosts: vm_host
+  vars_files:
+    - vars/k8s_cluster.yml
+  become: true
+  tasks:
+    - name: Destroy cluster VM
+      community.general.terraform:
+        force_init: true
+        project_path: "clusters/{{ k8s.cluster_name }}/{{ item }}"
+        state: absent
+      loop:
+        - workers
+        - masters
+        - loadbalancer
+        - nfs
+      when: 
+        - not rook_ceph.install_rook
+        - k8s.control_plane.vms > 1
+
+    - name: Destroy cluster VM
+      community.general.terraform:
+        force_init: true
+        project_path: "clusters/{{ k8s.cluster_name }}/{{ item }}"
+        state: absent
+      loop:
+        - workers
+        - masters
+        - nfs
+      when:
+        - not rook_ceph.install_rook
+        - k8s.control_plane.vms == 1
+
+    - name: Destroy cluster VM
+      community.general.terraform:
+        force_init: true
+        project_path: "clusters/{{ k8s.cluster_name }}/{{ item }}"
+        state: absent
+      loop:
+        - workers-rook
+        - workers
+        - masters
+        - loadbalancer
+      when: rook_ceph.install_rook
+
+    - name: Destroy libvirt pool and network 
+      community.general.terraform:
+        force_init: true
+        project_path: "clusters/{{ k8s.cluster_name }}/libvirt-resources"
+        state: absent
+
+    - name: Ensure images are deleted
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/OS-GenericCloud.qcow2
+
+    - name: Delete all created paths - root
+      become: true
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - clusters/{{ k8s.cluster_name }}
+        - "{{ k8s.cluster_name }}-inventory-k8s"
+
+    - name: Cleanup local DNS config
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/NetworkManager/dnsmasq.d/{{ k8s.cluster_name }}-libvirt_dnsmasq.conf
+        - /etc/NetworkManager/conf.d/localdns.conf
+
+    - name: Restart NetworkManager and libvirtd
+      service:
+        name: "{{ item }}"
+        state: restarted
+      loop:
+        - libvirtd
+        - NetworkManager
