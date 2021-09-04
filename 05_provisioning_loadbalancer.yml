@@ -7,7 +7,7 @@
     - name: Provision loadbalancer vm
       block:
         - community.general.terraform:
-            project_path: "files/terraform/loadbalancer"
+            project_path: "clusters/{{ k8s.cluster_name }}/loadbalancer"
             force_init: true
             variables:
               hostname: "{{ k8s.cluster_name }}-loadbalancer"

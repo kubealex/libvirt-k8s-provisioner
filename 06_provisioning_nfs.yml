@@ -8,7 +8,7 @@
     - name: Provision NFS Server VM
       block:
         - community.general.terraform:
-            project_path: "files/terraform/nfs"
+            project_path: "clusters/{{ k8s.cluster_name }}/nfs"
             force_init: true
             variables:
               hostname: "{{ k8s.cluster_name }}-nfs"
