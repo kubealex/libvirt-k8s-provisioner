@@ -11,6 +11,8 @@
 
 - name: Grab credentials for cluster management
   hosts: masters
+  vars_files:
+    - vars/k8s_cluster.yml
   tasks:
     - name: Fetch kubeconfig file
       fetch:
