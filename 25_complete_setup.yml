@@ -1,5 +1,5 @@
 ---
-- name: Play to join nodes in the cluster
+- name: Prepare deletion playbook for cluster
   hosts: vm_host
   vars_files:
     - vars/k8s_cluster.yml
