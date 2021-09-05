@@ -30,7 +30,6 @@
           cluster_name: "{{ k8s.cluster_name }}"
         force_init: true
         state: present
-      register: output_masters
 
     - name: qemu SELinux fix for running images in different folders
       block:
@@ -75,7 +74,7 @@
     - name: Configure NetworkManager for local DNS
       copy:
         src: files/localdns.conf
-        dest: /etc/NetworkManager/conf.d/localdns.conf
+        dest: /etc/NetworkManager/conf.d/{{ k8s.cluster_name }}-localdns.conf
       notify: 
         - Restart NetworkManager
 

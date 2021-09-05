@@ -72,7 +72,7 @@
         state: absent
       loop:
         - /etc/NetworkManager/dnsmasq.d/{{ k8s.cluster_name }}-libvirt_dnsmasq.conf
-        - /etc/NetworkManager/conf.d/localdns.conf
+        - /etc/NetworkManager/conf.d/{{ k8s.cluster_name }}-localdns.conf
 
     - name: Restart NetworkManager and libvirtd
       service:
