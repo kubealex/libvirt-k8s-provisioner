@@ -1,0 +1,29 @@
+- name: This play ensures environment is set up for cluster creation
+  hosts: vm_host
+  become: true
+  vars_files:
+    - vars/k8s_cluster.yml
+  tasks:
+    - name: Ensure cluster folder exists
+      file:
+        path: "clusters/{{ k8s.cluster_name }}"
+        state: directory
+        owner: kube
+        group: kube
+        mode: 0755
+
+    - name: Populate cluster folder with terraform files
+      copy:
+        src: "files/terraform/"
+        dest: "clusters/{{ k8s.cluster_name }}"
+        owner: kube
+        group: kube
+        mode: 0755
+
+    - name: Snapshot cluster configuration for further use
+      copy:
+        src: "vars/k8s_cluster.yml"
+        dest: "clusters/{{ k8s.cluster_name }}/"
+        owner: kube
+        group: kube
+        mode: 0755

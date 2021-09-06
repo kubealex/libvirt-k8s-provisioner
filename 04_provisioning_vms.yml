@@ -2,12 +2,10 @@
   hosts: vm_host
   vars_files:
     - vars/k8s_cluster.yml
-    
   tasks:
-
     - name: Create ssh keypair
       openssh_keypair:
-        path: "files/terraform/id_rsa"
+        path: "clusters/{{ k8s.cluster_name }}/id_rsa"
 
     - name: Download CentOS image
       get_url:
@@ -24,7 +22,7 @@
       when: k8s.cluster_os == 'Ubuntu'
 
     - community.general.terraform:
-        project_path: "files/terraform/masters"
+        project_path: "clusters/{{ k8s.cluster_name }}/masters"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-master"
@@ -42,7 +40,7 @@
       register: output_masters
 
     - community.general.terraform:
-        project_path: "files/terraform/workers"
+        project_path: "clusters/{{ k8s.cluster_name }}/workers"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-worker"
@@ -61,7 +59,7 @@
       register: output_workers
 
     - community.general.terraform:
-        project_path: "files/terraform/workers-rook"
+        project_path: "clusters/{{ k8s.cluster_name }}/workers-rook"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-worker"
@@ -87,7 +85,7 @@
         node_hostname: '{{ k8s.cluster_name }}-master-{{ item }}.{{ k8s.network.domain }}'
         node_mac: "{{ output_masters.outputs.macs.value[item]|lower }}"
         node_fqdn: '{{ k8s.cluster_name }}-master-{{ item }}.{{ k8s.network.domain }}'
-        ansible_ssh_private_key_file: "files/terraform/id_rsa"
+        ansible_ssh_private_key_file: "clusters/{{ k8s.cluster_name }}/id_rsa"
         ansible_user: kube
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
         groups:
@@ -101,7 +99,7 @@
         node_hostname: '{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}'
         node_mac: "{{ output_workers_rook.outputs.macs.value[item]|lower if (rook_ceph.install_rook and item <= 2) else output_workers_rook.outputs.macs.value[item - rook.rook_cluster_size]|lower if (rook_ceph.install_rook and item > 2 ) else output_workers.outputs.macs.value[item]|lower }}"
         node_fqdn: "{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}"
-        ansible_ssh_private_key_file: "files/terraform/id_rsa"
+        ansible_ssh_private_key_file: "clusters/{{ k8s.cluster_name }}/id_rsa"
         ansible_user: kube
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
         groups:

@@ -5,17 +5,31 @@
     - vars/k8s_cluster.yml
     
   tasks:
+    - name: Ensure cluster folder exists
+      file:
+        path: "clusters/{{ k8s.cluster_name }}"
+        state: directory
+        owner: kube
+        group: kube
+        mode: 0755
+
+    - name: Ensure cluster folder exists
+      copy:
+        src: "files/terraform/"
+        dest: "clusters/{{ k8s.cluster_name }}"
+        owner: kube
+        group: kube
+        mode: 0755
 
     - name: Use TF project to ensure pool and network are defined
       community.general.terraform:
-        project_path: "files/terraform/libvirt-resources"
+        project_path: "clusters/{{ k8s.cluster_name }}/libvirt-resources"
         variables:
           domain: "{{ k8s.network.domain }}"
           network_cidr: ' ["{{ k8s.network.network_cidr }}"]'
           cluster_name: "{{ k8s.cluster_name }}"
         force_init: true
         state: present
-      register: output_masters
 
     - name: qemu SELinux fix for running images in different folders
       block:
@@ -42,7 +56,7 @@
         - name: Enable localdns if systemd-resolved is present
           template:
             src: systemd-resolved.j2
-            dest: /etc/systemd/resolved.conf.d/local-kube.conf
+            dest: /etc/systemd/resolved.conf.d/{{ k8s.cluster_name }}-local-kube.conf
           notify:
             - Restart systemd-resolved
       when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int >= 33) or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int >= 18)
@@ -60,14 +74,14 @@
     - name: Configure NetworkManager for local DNS
       copy:
         src: files/localdns.conf
-        dest: /etc/NetworkManager/conf.d/localdns.conf
+        dest: /etc/NetworkManager/conf.d/{{ k8s.cluster_name }}-localdns.conf
       notify: 
         - Restart NetworkManager
 
     - name: Configure NetworkManager for libvirt network
       template:
         src: templates/libvirt_dnsmasq.j2
-        dest: /etc/NetworkManager/dnsmasq.d/libvirt_dnsmasq.conf
+        dest: /etc/NetworkManager/dnsmasq.d/{{ k8s.cluster_name }}-libvirt_dnsmasq.conf
       notify:
         - Wait for local DNS resolver to be up
   

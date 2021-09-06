@@ -8,7 +8,7 @@
     - name: Destroy cluster VM
       community.general.terraform:
         force_init: true
-        project_path: "files/terraform/{{ item }}"
+        project_path: "clusters/{{ k8s.cluster_name }}/{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
         - workers
@@ -22,7 +22,7 @@
     - name: Destroy cluster VM
       community.general.terraform:
         force_init: true
-        project_path: "files/terraform/{{ item }}"
+        project_path: "clusters/{{ k8s.cluster_name }}/{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
         - workers
@@ -35,7 +35,7 @@
     - name: Destroy cluster VM
       community.general.terraform:
         force_init: true
-        project_path: "files/terraform/{{ item }}"
+        project_path: "clusters/{{ k8s.cluster_name }}/{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
         - workers-rook
@@ -47,20 +47,20 @@
     - name: Destroy libvirt pool and network 
       community.general.terraform:
         force_init: true
-        project_path: "files/terraform/libvirt-resources"
+        project_path: "clusters/{{ k8s.cluster_name }}/libvirt-resources"
         state: absent
 
     - name: Ensure images are deleted
       file:
-        path: "{{ item }}"
+        path: "{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
         - /tmp/OS-GenericCloud.qcow2
 
-    - name: Delete all created paths - root 
+    - name: Delete all created paths - root
       become: true
       file:
-        path: "{{ item }}"
+        path: "{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
         - clusters/{{ k8s.cluster_name }}
@@ -68,15 +68,15 @@
 
     - name: Cleanup local DNS config
       file:
-        path: "{{ item }}"
+        path: "{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
         - /etc/NetworkManager/dnsmasq.d/{{ k8s.cluster_name }}-libvirt_dnsmasq.conf
-        - /etc/NetworkManager/conf.d/localdns.conf
+        - /etc/NetworkManager/conf.d/{{ k8s.cluster_name }}-localdns.conf
 
     - name: Restart NetworkManager and libvirtd
       service:
-        name: "{{ item }}"
+        name: "{{ '{{' }} item {{ '}}' }}"
         state: restarted
       loop:
         - libvirtd
