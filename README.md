@@ -6,7 +6,7 @@ Welcome to the home of the project!
 With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want.
 
 Kubernetes version that is installed can be choosen between:
-- **1.22** - Latest 1.22 release (1.22.1) - ** WARNING! Rancher not yet supported **
+- **1.22** - Latest 1.22 release (1.22.1) - ** WARNING! Rancher is not supported yet by helm chart **
 - **1.21** - Latest 1.21 release (1.21.1)
 - **1.20** - Latest 1.20 release (1.20.7)
 - **1.19** - Latest 1.19 release (1-19.11)
@@ -21,7 +21,7 @@ It also takes care of preparing the host machine with needed packages, configuri
 - dedicated libvirt dnsmasq configuration
 - dedicated libvirt network (fully customizable)
 - dedicated libvirt storage pool (fully customizable) 
-- terraform 1.0
+- terraform 1.0.5
 - libvirt-terraform-provider ( compiled and initialized based on [https://github.com/dmacvicar/terraform-provider-libvirt](https://github.com/dmacvicar/terraform-provider-libvirt))
 
 You can customize the setup choosing:
@@ -101,7 +101,7 @@ Recommended sizings are:
 	  network:
 	    network_cidr: 192.168.200.0/24
 	    domain: k8s.test
-            additional_san: ""
+	    additional_san: ""
 	    pod_cidr: 10.20.0.0/16
 	    service_cidr: 10.110.0.0/16
 	    cni_plugin: calico
@@ -134,7 +134,6 @@ Recommended sizings are:
 
 	metallb:
 	  install_metallb: false
-	  manifest_url: https://raw.githubusercontent.com/metallb/metallb/v0.9.5/manifests
   	  l2:
         iprange: 192.168.200.210-192.168.200.250
 
@@ -150,6 +149,48 @@ VMS are created with these names by default (customizing them is work in progres
 	- **cluster_name**-worker-N.**domain**
 
 It is possible to choose CentOS/Ubuntu as **kubernetes hosts OS**
+
+## Multiple clusters - Thanks to @3rd-st-ninja for the input
+ 
+Since last release, it is now possible to provision multiple clusters on the same host. Each cluster will be self consistent and will have its own folder under the **clusters** folder in playbook root folder.
+
+	clusters
+	└── k8s-provisioner
+		├── admin.kubeconfig
+		├── haproxy.cfg
+		├── id_rsa
+		├── id_rsa.pub
+		├── libvirt-resources
+		│   ├── libvirt-resources.tf
+		│   └── terraform.tfstate
+		├── loadbalancer
+		│   ├── cloud_init.cfg
+		│   ├── k8s-loadbalancer.tf
+		│   └── terraform.tfstate
+		├── masters
+		│   ├── cloud_init.cfg
+		│   ├── k8s-master.tf
+		│   └── terraform.tfstate
+		├── nfs
+		│   ├── cloud_init.cfg
+		│   └── k8s-nfs.tf
+		├── workers
+		│   ├── cloud_init.cfg
+		│   ├── k8s-workers.tf
+		│   └── terraform.tfstate
+		└── workers-rook
+			├── cloud_init.cfg
+			└── k8s-workers.tf
+
+In the main folder will be provided a custom script for removing the single cluster, without touching others.
+
+	k8s-provisioner-cleanup-playbook.yml
+
+As well as a separated inventory for each cluster:
+
+	k8s-provisioner-inventory-k8s
+
+In order to keep clusters separated, ensure that you use a different **k8s.cluster_name**,**k8s.network.domain** and **k8s.network.network_cidr** variables.
 
 ## Rook 
 **Rook** setup actually creates a dedicated kind of worker, with an additional volume on **ALL** workers to be used. It will be improved to just select a number of nodes that can be coherent with the number of **ceph** replicas.

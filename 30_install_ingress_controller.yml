@@ -143,5 +143,5 @@
             dest: clusters/{{ k8s.cluster_name }}/haproxy.cfg
       when: 
         - ingress_controller.install_ingress_controller
-        - k8s.control_plane.vms == 1
+        - k8s.control_plane.vms > 1
 
