@@ -1,2 +1,4 @@
 collections:
   - name: community.general
+  - name: kubernetes.core
+    version: 2.1.1
