@@ -6,7 +6,6 @@
     - vars/k8s_cluster.yml
   tasks:
     - block:
-
       - name: Manage packages on CentOS
         block:
         - name: Upgrade all packages
