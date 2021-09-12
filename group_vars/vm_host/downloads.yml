@@ -10,3 +10,6 @@ ubuntu:
   cloud_image: https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img
 helm:
   helm_installer: https://get.helm.sh/helm-v3.6.3-linux-amd64.tar.gz
+rancher_helm:
+  rancher_chart: https://releases.rancher.com/server-charts/latest
+  cert_manager_chart: https://charts.jetstack.io
