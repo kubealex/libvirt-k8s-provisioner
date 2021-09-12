@@ -12,9 +12,9 @@
             repo_url: "{{ item.repo_url }}"
           loop:
             - name: rancher-latest
-              repo_url: {{ rancher_helm.rancher_chart }}
+              repo_url: "{{ rancher_helm.rancher_chart }}"
             - name: jetstack
-              repo_url: {{ rancher_helm.cert_manager_chart }}
+              repo_url: "{{ rancher_helm.cert_manager_chart }}"
 
         - name: Ensure the needed Namespaces exist.
           kubernetes.core.k8s:
