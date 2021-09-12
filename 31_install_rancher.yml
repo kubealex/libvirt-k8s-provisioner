@@ -21,7 +21,7 @@
             api_version: v1
             kind: Namespace
             name: "{{ item }}"
-            kubeconfig: "clusters/{{ cluster_name }}/admin.kubeconfig"
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             state: present
           loop:
             - cattle-system
