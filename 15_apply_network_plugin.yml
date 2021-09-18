@@ -6,7 +6,6 @@
     - vars/k8s_cluster.yml
   tasks:
     - block:
-        - name: Apply network addon - Calico
         - name: Download metrics-server manifest to the cluster.
           ansible.builtin.get_url:
             url: "{{ item.url }}"
