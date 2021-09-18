@@ -8,7 +8,7 @@
     - block:
         - name: Apply network addon - Calico
         - name: Download metrics-server manifest to the cluster.
-            ansible.builtin.get_url:
+          ansible.builtin.get_url:
             url: "{{ item.url }}"
             dest: "{{ item.name }}"
             mode: '0664'
