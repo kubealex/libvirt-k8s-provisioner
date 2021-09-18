@@ -50,3 +50,11 @@
 
     - set_fact:
         k8s_installed: true               
+
+    - name: Fetch kubeconfig file
+      fetch:
+        src: /etc/kubernetes/admin.conf
+        dest: clusters/{{ k8s.cluster_name }}/admin.kubeconfig
+        flat: yes
+      become: true
+      when: inventory_hostname == groups['masters'][0]

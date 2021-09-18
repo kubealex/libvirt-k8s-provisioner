@@ -1,6 +1,6 @@
 ---
 - name: Apply network plugin
-  hosts: masters
+  hosts: vm_host
   run_once: true
   vars_files:
     - vars/k8s_cluster.yml
@@ -12,28 +12,26 @@
             dest: "{{ item.name }}"
             mode: '0664'
           loop:
-            - calico_operator:
-                name: calico-operator.yaml
-                url: "{{ cni_plugins.calico.calico_operator }}"
-            - calico_crd:
-                name: calico-crd.yaml
-                url: "{{ cni_plugins.calico.calico_crd }}"
+            - name: /tmp/calico-operator.yaml
+              url: "{{ cni_plugins.calico.calico_operator }}"
+            - name: /tmp/calico-crd.yaml
+              url: "{{ cni_plugins.calico.calico_crd }}"
 
         - name: Apply custom CIDR to calico installation manifest
           replace: 
-            path: calico-crd.yaml
+            path: /tmp/calico-crd.yaml
             regexp: 192.168.0.0\/16
             replace: "{{ k8s.network.pod_cidr }}"
 
         - name: Apply calico manifests to the cluster.
           kubernetes.core.k8s:
             state: present
-            src: calico-operator.yaml
+            src: "{{ item }}"
             kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             wait: yes
           loop: 
-            - calico-operator.yaml
-            - calico-crd.yaml
+            - /tmp/calico-operator.yaml
+            - /tmp/calico-crd.yaml
 
 #        - name: Apply network addon - Calico
 #          command: kubectl apply -f {{ cni_plugins.calico.calico_operator }}
