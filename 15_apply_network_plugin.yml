@@ -7,26 +7,56 @@
   tasks:
     - block:
         - name: Apply network addon - Calico
-          command: kubectl apply -f {{ cni_plugins.calico.calico_operator }}
-        - name: Apply CRDs
-          command: kubectl apply -f {{ cni_plugins.calico.calico_crd }}
-        - name: Patch operator resource with correct CIDR
-          command: "kubectl patch installation default --type='json' -p='[{\"op\": \"replace\", \"path\": \"/spec/calicoNetwork/ipPools/0/cidr\", \"value\": {{ k8s.network.pod_cidr }} }]'"
+        - name: Download metrics-server manifest to the cluster.
+            ansible.builtin.get_url:
+            url: "{{ item.url }}"
+            dest: "{{ item.name }}"
+            mode: '0664'
+          loop:
+            - calico_operator:
+                name: calico-operator.yaml
+                url: "{{ cni_plugins.calico.calico_operator }}"
+            - calico_crd:
+                name: calico-crd.yaml
+                url: "{{ cni_plugins.calico.calico_crd }}"
 
-        - name: Wait for Calico pods to be created
-          shell: "kubectl get po --namespace=calico-system --output=jsonpath='{.items[*].metadata.name}'"
-          register: calico_dns_pods_created
-          until: item in calico_dns_pods_created.stdout
-          retries: 10
-          delay: 30
-          with_items:
-            - calico-node
-            - calico-typha
-            - calico-kube-controllers
+        - name: Apply custom CIDR to calico installation manifest
+          replace: 
+            path: calico-crd.yaml
+            regexp: 192.168.0.0\/16
+            replace: "{{ k8s.network.pod_cidr }}"
 
-        - name: Wait for Calico pods become ready
-          shell: "kubectl wait --namespace=calico-system --for=condition=Ready pods --selector k8s-app=calico-node --timeout=600s"
-          register: calico_dns_pods_ready
+        - name: Apply calico manifests to the cluster.
+            kubernetes.core.k8s:
+            state: present
+            src: calico-operator.yaml
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            wait: yes
+          loop: 
+            - calico-operator.yaml
+            - calico-crd.yaml
+
+#        - name: Apply network addon - Calico
+#          command: kubectl apply -f {{ cni_plugins.calico.calico_operator }}
+#        - name: Apply CRDs
+#          command: kubectl apply -f {{ cni_plugins.calico.calico_crd }}
+#        - name: Patch operator resource with correct CIDR
+#          command: "kubectl patch installation default --type='json' -p='[{\"op\": \"replace\", \"path\": \"/spec/calicoNetwork/ipPools/0/cidr\", \"value\": {{ k8s.network.pod_cidr }} }]'"
+
+#        - name: Wait for Calico pods to be created
+#          shell: "kubectl get po --namespace=calico-system --output=jsonpath='{.items[*].metadata.name}'"
+#          register: calico_dns_pods_created
+#          until: item in calico_dns_pods_created.stdout
+#          retries: 10
+#          delay: 30
+#          with_items:
+#            - calico-node
+#            - calico-typha
+#            - calico-kube-controllers
+
+#        - name: Wait for Calico pods become ready
+#          shell: "kubectl wait --namespace=calico-system --for=condition=Ready pods --selector k8s-app=calico-node --timeout=600s"
+#          register: calico_dns_pods_ready
 
       when: k8s.network.cni_plugin == 'calico'
 
