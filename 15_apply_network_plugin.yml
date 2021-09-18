@@ -27,7 +27,7 @@
             replace: "{{ k8s.network.pod_cidr }}"
 
         - name: Apply calico manifests to the cluster.
-            kubernetes.core.k8s:
+          kubernetes.core.k8s:
             state: present
             src: calico-operator.yaml
             kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
