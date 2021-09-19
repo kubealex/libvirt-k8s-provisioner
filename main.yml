@@ -1,6 +1,6 @@
 - import_playbook: 00_pre_flight_checklist.yml
 - import_playbook: 01_install_virtualization_tools.yml
-- import_playbook: 02_prepare_cluster_folder.yml
+- import_playbook: 02_prepare_setup.yml
 - import_playbook: 03_provision_libvirt_resources.yml
 - import_playbook: 04_provisioning_vms.yml
 - import_playbook: 05_provisioning_loadbalancer.yml

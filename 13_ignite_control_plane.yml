@@ -32,32 +32,6 @@
         group: kube
       become: true
 
-#    - name: Wait for control-plane pods to be up and running
-#      kubernetes.core.k8s:
-#        state: present
-#        api_version: v1
-#        kind: Pod
-#        namespace: kube-system
-#        label_selectors: 
-#          tier = control-plane
-#        kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-#        wait: yes
-#
-#    - name: Wait for all control-plane pods become created
-#      shell: "kubectl get po --namespace=kube-system --selector tier=control-plane --output=jsonpath='{.items[*].metadata.name}'#      register: control_plane_pods_created
-#      until: item in control_plane_pods_created.stdout
-#      retries: 10
-#      delay: 30
-#      with_items:
-#        - etcd
-#        - kube-apiserver
-#        - kube-controller-manager
-#        - kube-scheduler
-#
-#    - name: Wait for control-plane pods become ready
-#      shell: "kubectl wait --namespace=kube-system --for=condition=Ready pods --selector tier=control-plane --timeout=600s"
-#      register: control_plane_pods_ready
-#
     - set_fact:
         k8s_installed: true               
 
