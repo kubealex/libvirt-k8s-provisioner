@@ -25,23 +25,6 @@
           loop:
             - /tmp/contour.yaml
           
-#        - name: Install CR
-#          shell: kubectl apply -f {{ ingresses.contour_repo }} 
-#       
-#        - name: Wait for all ingress-contour pods become created
-#          shell: "kubectl get po --namespace=projectcontour --output=jsonpath='{.items[*].metadata.name}'"
-#          register: ingress_contour_pods_created
-#          until: item in ingress_contour_pods_created.stdout
-#          retries: 10
-#          delay: 30
-#          with_items:
-#            - contour
-#            - envoy
-#
-#        - name: Wait for contour and envoy pods pods to become ready
-#          shell: "kubectl wait --namespace=projectcontour --for=condition=Ready pods --selector=app=contour --timeout=600s"
-#          register: ingress_contour_pods_ready
-#
         - name: Save nodePorts in master facts
           shell: kubectl get svc envoy -n projectcontour -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
           loop:
@@ -58,22 +41,24 @@
        
     - name: Take all required steps to install haproxy as ingress controller
       block:
-        - name: Install CRDs
-          shell: kubectl apply -f {{ ingresses.haproxy_repo }} 
-       
-        - name: Wait for all ingress-haproxy pods become created
-          shell: kubectl get po --namespace=haproxy-controller --output=jsonpath='{.items[*].metadata.name}'
-          register: ingress_haproxy_pods_created
-          until: item in ingress_haproxy_pods_created.stdout
-          retries: 10
-          delay: 30
-          with_items:
-            - haproxy-ingress
-            - ingress-default-backend
 
-        - name: Wait for ingress-haproxy pods to become ready
-          shell: "kubectl wait --namespace=haproxy-controller --for=condition=Ready pods --all --timeout=600s"
-          register: ingress_haproxy_pods_ready
+        - name: Download HAProxy CR for later apply
+          ansible.builtin.get_url:
+            url: "{{ item.url }}"
+            dest: "{{ item.name }}"
+            mode: '0664'
+          loop:
+            - name: /tmp/haproxy.yaml
+              url: "{{ ingresses.haproxy_repo }}"
+
+        - name: Ensure HAProxy is installed in your cluster
+          kubernetes.core.k8s:
+            state: present
+            src: "{{ item }}"
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            wait: yes
+          loop:
+            - /tmp/haproxy.yaml
 
         - name: Save nodePorts in master facts
           shell: kubectl get svc haproxy-ingress -n haproxy-controller -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
@@ -91,23 +76,23 @@
       
     - name: Take all required steps to install haproxy as ingress controller
       block:
-        - name: Install CRDs
-          shell: kubectl apply -f {{ ingresses.nginx_repo if k8s.cluster_version != '1.22' else ingresses.nginx_122_repo }}
-       
-        - name: Wait for all ingress-nginx pods become created
-          shell: kubectl get po --namespace=ingress-nginx --output=jsonpath='{.items[*].metadata.name}'
-          register: ingress_nginx_pods_created
-          until: item in ingress_nginx_pods_created.stdout
-          retries: 10
-          delay: 30
-          with_items:
-            - ingress-nginx-admission-create
-            - ingress-nginx-admission-patch
-            - ingress-nginx-controller
+        - name: Download Nginx CR for later apply
+          ansible.builtin.get_url:
+            url: "{{ item.url }}"
+            dest: "{{ item.name }}"
+            mode: '0664'
+          loop:
+            - name: /tmp/nginx.yaml
+              url: "{{ ingresses.nginx_repo if k8s.cluster_version != '1.22' else ingresses.nginx_122_repo }}"
 
-        - name: Wait for ingress-nginx pods to become ready
-          shell: "kubectl wait --namespace=ingress-nginx --for=condition=Ready pods --selector app.kubernetes.io/component=controller  --timeout=600s"
-          register: ingress_nginx_pods_ready
+        - name: Ensure Nginx is installed in your cluster
+          kubernetes.core.k8s:
+            state: present
+            src: "{{ item }}"
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            wait: yes
+          loop:
+            - /tmp/nginx.yaml
 
         - name: Save nodePorts in master facts
           shell: kubectl get svc ingress-nginx-controller  -n ingress-nginx -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
