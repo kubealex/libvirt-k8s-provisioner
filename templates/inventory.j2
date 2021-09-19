@@ -1,12 +1,12 @@
 [masters]
 {% for master in groups['masters'] %}
-{{ hostvars[master].node_hostname }} ansible_host={{ hostvars[master].host_ip }} ansible_ssh_private_key_file={{ hostvars[master].ansible_ssh_private_key_file }} ansible_user={{ hostvars[master].ansible_user }} ansible_ssh_common_args="{{ hostvars[master].ansible_ssh_common_args }} node_fqdn={{ hostvars[master].node_fqdn }}"
+{{ hostvars[master].node_hostname }} ansible_host={{ hostvars[master].host_ip }} ansible_ssh_private_key_file={{ hostvars[master].ansible_ssh_private_key_file }} ansible_user={{ hostvars[master].ansible_user }} ansible_ssh_common_args="{{ hostvars[master].ansible_ssh_common_args }}" node_fqdn={{ hostvars[master].node_fqdn }}
 {% endfor %}
 {% if k8s.worker_nodes.vms > 0 %}
 [workers]
 {% endif %}
 {% for worker in groups['workers'] %}
-{{ hostvars[worker].node_hostname }} ansible_host={{ hostvars[worker].host_ip }} ansible_ssh_private_key_file={{ hostvars[worker].ansible_ssh_private_key_file }} ansible_user={{ hostvars[worker].ansible_user }} ansible_ssh_common_args="{{ hostvars[worker].ansible_ssh_common_args }} node_fqdn={{ hostvars[worker].node_fqdn }}"
+{{ hostvars[worker].node_hostname }} ansible_host={{ hostvars[worker].host_ip }} ansible_ssh_private_key_file={{ hostvars[worker].ansible_ssh_private_key_file }} ansible_user={{ hostvars[worker].ansible_user }} ansible_ssh_common_args="{{ hostvars[worker].ansible_ssh_common_args }}" node_fqdn={{ hostvars[worker].node_fqdn }}
 {% endfor %}
 [k8s_nodes:children]
 {% if k8s.worker_nodes.vms > 0 %}
@@ -16,12 +16,12 @@ masters
 {% if k8s.storage.nfs_enabled %}
 [nfs]
 {% for nfs in groups['nfs'] %}
-{{ hostvars[nfs].node_hostname }} ansible_host={{ hostvars[nfs].host_ip }} ansible_ssh_private_key_file={{ hostvars[nfs].ansible_ssh_private_key_file }} ansible_user={{ hostvars[nfs].ansible_user }} ansible_ssh_common_args="{{ hostvars[nfs].ansible_ssh_common_args }} node_fqdn={{ hostvars[nfs].node_fqdn }}"
+{{ hostvars[nfs].node_hostname }} ansible_host={{ hostvars[nfs].host_ip }} ansible_ssh_private_key_file={{ hostvars[nfs].ansible_ssh_private_key_file }} ansible_user={{ hostvars[nfs].ansible_user }} ansible_ssh_common_args="{{ hostvars[nfs].ansible_ssh_common_args }}" node_fqdn={{ hostvars[nfs].node_fqdn }}
 {% endfor %}
 {% endif %}
 {% if k8s.control_plane.vms > 1 %}
 [loadbalancer]
 {% for lb in groups['loadbalancer'] %}
-{{ hostvars[lb].node_hostname }} ansible_host={{ hostvars[lb].host_ip }} ansible_ssh_private_key_file={{ hostvars[lb].ansible_ssh_private_key_file }} ansible_user={{ hostvars[lb].ansible_user }} ansible_ssh_common_args="{{ hostvars[lb].ansible_ssh_common_args }} node_fqdn={{ hostvars[loadbalancer].node_fqdn }}"
+{{ hostvars[lb].node_hostname }} ansible_host={{ hostvars[lb].host_ip }} ansible_ssh_private_key_file={{ hostvars[lb].ansible_ssh_private_key_file }} ansible_user={{ hostvars[lb].ansible_user }} ansible_ssh_common_args="{{ hostvars[lb].ansible_ssh_common_args }}" node_fqdn={{ hostvars[loadbalancer].node_fqdn }}
 {% endfor %}
 {% endif %}

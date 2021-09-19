@@ -46,3 +46,4 @@
               hostname: "{{ hostvars[groups['loadbalancer'][0]].node_fqdn if (k8s.control_plane.vms > 1) else rancher.ingress_hostname }}"
               bootstrapPassword: admin
             wait: true 
+            wait_timeout: 10m

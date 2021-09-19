@@ -46,6 +46,10 @@
     when: k8s.master_schedulable
     register: result
     failed_when:
+      - result.status is defined
       - result.status != 422
+
+  - debug:
+      var: result
 
         #      when: inventory_hostname == groups['masters'][0]
