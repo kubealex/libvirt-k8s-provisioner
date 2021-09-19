@@ -6,6 +6,11 @@ cni_plugins:
   flannel:
     flannel_repo: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
   cilium: 
+    chart:
+      name: cilium
+      ref: cilium/cilium
+      version: 1.10.4
+      url: https://helm.cilium.io/
     cilium_repo: https://raw.githubusercontent.com/cilium/cilium/1.9.5/install/kubernetes/quick-install.yaml
     cilium_cli: https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-amd64.tar.gz
 

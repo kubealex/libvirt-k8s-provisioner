@@ -9,18 +9,14 @@
         src: templates/clenup-playbook.yml.j2
         dest: "{{ k8s.cluster_name }}-cleanup-playbook.yml"
 
-- name: Grab credentials for cluster management
-  hosts: masters
-  vars_files:
-    - vars/k8s_cluster.yml
-  tasks:
-    - name: Fetch kubeconfig file
-      fetch:
-        src: /etc/kubernetes/admin.conf
-        dest: clusters/{{ k8s.cluster_name }}/admin.kubeconfig
-        flat: yes
-      become: true
-      when: inventory_hostname == groups['masters'][0]
+    - name: Delete image file
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/{{ image_name }}.qcow2
+        - /tmp/{{ image_name }}-master.qcow2
+        - /tmp/{{ image_name }}-worker.qcow2
 
 - name: Label worker nodes, remove taints from master nodes if selected
   hosts: masters
