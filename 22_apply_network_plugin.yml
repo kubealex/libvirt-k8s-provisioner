@@ -72,6 +72,7 @@
             name: cilium
             chart_ref: "{{ cni_plugins.cilium.chart.ref }}"
             chart_version: "{{ cni_plugins.cilium.chart.version }}"
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             release_namespace: kube-system
             values:
               ipam:

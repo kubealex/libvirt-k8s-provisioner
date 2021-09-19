@@ -1,6 +1,6 @@
 --- 
 - name: Prepare cluster to install contour ingress controller
-  hosts: masters
+  hosts: vm_host
   vars_files:
     - vars/k8s_cluster.yml
   run_once: true

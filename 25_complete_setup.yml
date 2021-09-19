@@ -15,22 +15,37 @@
         state: absent
       loop:
         - /tmp/{{ image_name }}.qcow2
-        - /tmp/{{ image_name }}-master.qcow2
-        - /tmp/{{ image_name }}-worker.qcow2
 
 - name: Label worker nodes, remove taints from master nodes if selected
-  hosts: masters
+  hosts: vm_host
   run_once: true
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - block: 
-      - name: Label worker nodes
-        shell: kubectl label nodes {{ hostvars[item].node_fqdn }} node-role.kubernetes.io/worker=
-        loop: "{{ groups['workers'] }}"
+          #    - block: 
+  - name: Label worker nodes
+    kubernetes.core.k8s_json_patch:
+      kind: Node
+      name: "{{ hostvars[item].node_fqdn }}"
+      patch:
+        - op: add
+          path: /metadata/labels/node-role.kubernetes.io~1worker
+          value: ""
+#        shell: kubectl label nodes {{ hostvars[item].node_fqdn }} node-role.kubernetes.io/worker=
+    loop: "{{ groups['workers'] }}"
 
-      - name: Remove taint from master nodes
-        shell: kubectl taint node {{ hostvars[item].node_fqdn }}  node-role.kubernetes.io/master-
-        loop: "{{ groups['masters'] }}"
-        when: k8s.master_schedulable
-      when: inventory_hostname == groups['masters'][0]
+  - name: Remove taint from master nodes
+    kubernetes.core.k8s_json_patch:
+      kind: Node
+      name: "{{ hostvars[item].node_fqdn }}"
+      patch:
+        - op: remove
+          path: /spec/taints/0
+#        shell: kubectl taint node {{ hostvars[item].node_fqdn }}  node-role.kubernetes.io/master-
+    loop: "{{ groups['masters'] }}"
+    when: k8s.master_schedulable
+    register: result
+    failed_when:
+      - result.status != 422
+
+        #      when: inventory_hostname == groups['masters'][0]
