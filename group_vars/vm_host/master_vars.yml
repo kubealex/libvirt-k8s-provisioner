@@ -14,7 +14,23 @@ cni_plugins:
     cilium_repo: https://raw.githubusercontent.com/cilium/cilium/1.9.5/install/kubernetes/quick-install.yaml
     cilium_cli: https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-amd64.tar.gz
 
-ingresses:
+ingress:
+  nginx:
+    chart:
+      name: nginx-stable
+      url: https://helm.nginx.com/stable
+      ref: nginx-stable/nginx-ingress
+  contour:
+    chart:
+      name: bitnami
+      url: https://charts.bitnami.com/bitnami
+      ref: bitnami/contour
+  haproxy:
+    chart:
+      name: haproxytech
+      url: https://haproxytech.github.io/helm-charts
+      ref: haproxytech/kubernetes-ingress
+      
   nginx_repo: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.49.0/deploy/static/provider/baremetal/deploy.yaml
   nginx_122_repo: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.0/deploy/static/provider/baremetal/deploy.yaml
   haproxy_repo: https://raw.githubusercontent.com/haproxytech/kubernetes-ingress/v1.6/deploy/haproxy-ingress.yaml
