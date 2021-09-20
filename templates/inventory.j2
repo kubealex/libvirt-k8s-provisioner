@@ -22,6 +22,6 @@ masters
 {% if k8s.control_plane.vms > 1 %}
 [loadbalancer]
 {% for lb in groups['loadbalancer'] %}
-{{ hostvars[lb].node_hostname }} ansible_host={{ hostvars[lb].host_ip }} ansible_ssh_private_key_file={{ hostvars[lb].ansible_ssh_private_key_file }} ansible_user={{ hostvars[lb].ansible_user }} ansible_ssh_common_args="{{ hostvars[lb].ansible_ssh_common_args }}" node_fqdn={{ hostvars[loadbalancer].node_fqdn }}
+{{ hostvars[lb].node_hostname }} ansible_host={{ hostvars[lb].host_ip }} ansible_ssh_private_key_file={{ hostvars[lb].ansible_ssh_private_key_file }} ansible_user={{ hostvars[lb].ansible_user }} ansible_ssh_common_args="{{ hostvars[lb].ansible_ssh_common_args }}" node_fqdn={{ hostvars[lb].node_fqdn }}
 {% endfor %}
 {% endif %}

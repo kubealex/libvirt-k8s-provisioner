@@ -1,6 +1,5 @@
 - name: This play ensures environment is set up for cluster creation
   hosts: vm_host
-  become: true
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
