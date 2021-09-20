@@ -25,7 +25,8 @@
   - name: Label worker nodes
     kubernetes.core.k8s_json_patch:
       kind: Node
-      name: "{{ hostvars[item].node_fqdn }}"
+      name: "{{ hostvars[item].host_fqdn }}"
+      kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
       patch:
         - op: add
           path: /metadata/labels/node-role.kubernetes.io~1worker
@@ -35,7 +36,8 @@
   - name: Remove taint from master nodes
     kubernetes.core.k8s_json_patch:
       kind: Node
-      name: "{{ hostvars[item].node_fqdn }}"
+      name: "{{ hostvars[item].host_fqdn }}"
+      kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
       patch:
         - op: remove
           path: /spec/taints/0

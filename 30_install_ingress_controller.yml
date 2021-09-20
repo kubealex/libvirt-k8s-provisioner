@@ -26,7 +26,7 @@
             - /tmp/contour.yaml
           
         - name: Save nodePorts in master facts
-          shell: kubectl get svc envoy -n projectcontour -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
+          shell: kubectl get svc envoy --kubeconfig=clusters/{{ k8s.cluster_name }}/admin.kubeconfig -n projectcontour -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
           loop:
             - http
             - https
@@ -61,7 +61,7 @@
             - /tmp/haproxy.yaml
 
         - name: Save nodePorts in master facts
-          shell: kubectl get svc haproxy-ingress -n haproxy-controller -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
+          shell: kubectl get svc haproxy-ingress --kubeconfig=clusters/{{ k8s.cluster_name }}/admin.kubeconfig -n haproxy-controller -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
           loop:
             - http
             - https
@@ -95,7 +95,7 @@
             - /tmp/nginx.yaml
 
         - name: Save nodePorts in master facts
-          shell: kubectl get svc ingress-nginx-controller  -n ingress-nginx -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
+          shell: kubectl get svc ingress-nginx-controller --kubeconfig=clusters/{{ k8s.cluster_name }}/admin.kubeconfig -n ingress-nginx -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
           loop:
             - http
             - https
