@@ -3,11 +3,6 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - name: Install collections and roles together
-      community.general.ansible_galaxy_install:
-        type: both
-        requirements_file: requirements.yml
-
     - name: Ensure cluster folder exists
       file:
         path: "clusters/{{ k8s.cluster_name }}"
