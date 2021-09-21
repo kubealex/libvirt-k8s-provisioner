@@ -51,8 +51,8 @@
           disk_size: "{{ k8s.worker_nodes.disk }}"
           cpu: "{{ k8s.worker_nodes.vcpu }}"
           memory: "{{ k8s.worker_nodes.mem }}"
-          vm_count: "{{ (k8s.worker_nodes.vms - rook.rook_cluster_size) if rook_ceph.install_rook else k8s.worker_nodes.vms }}"
-          vm_counter: "{{ rook.rook_cluster_size if rook_ceph.install_rook else 0 }}" 
+          vm_count: "{{ (k8s.worker_nodes.vms - rook_ceph.rook_cluster_size) if rook_ceph.install_rook else k8s.worker_nodes.vms }}"
+          vm_counter: "{{ rook_ceph.rook_cluster_size if rook_ceph.install_rook else 0 }}" 
           os_image_name: "{{ image_name }}.qcow2"
         state: present
       become: true
@@ -71,7 +71,7 @@
           cpu: "{{ k8s.worker_nodes.vcpu }}"
           memory: "{{ k8s.worker_nodes.mem }}"
           rook_volume_size: "{{ rook_ceph.volume_size }}"
-          vm_count: "{{ rook.rook_cluster_size }}"
+          vm_count: "{{ rook_ceph.rook_cluster_size }}"
           os_image_name: "{{ image_name }}.qcow2"
         state: present
       become: true
@@ -97,7 +97,7 @@
       add_host:
         hostname: '{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}'
         node_hostname: '{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}'
-        node_mac: "{{ output_workers_rook.outputs.macs.value[item]|lower if (rook_ceph.install_rook and item <= 2) else output_workers_rook.outputs.macs.value[item - rook.rook_cluster_size]|lower if (rook_ceph.install_rook and item > 2 ) else output_workers.outputs.macs.value[item]|lower }}"
+        node_mac: "{{ output_workers_rook_ceph.outputs.macs.value[item]|lower if (rook_ceph.install_rook and item <= 2) else output_workers_rook_ceph.outputs.macs.value[item - rook_ceph.rook_cluster_size]|lower if (rook_ceph.install_rook and item > 2 ) else output_workers.outputs.macs.value[item]|lower }}"
         #node_fqdn: "{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}"
         ansible_ssh_private_key_file: "clusters/{{ k8s.cluster_name }}/id_rsa"
         ansible_user: kube
