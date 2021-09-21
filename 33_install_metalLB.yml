@@ -23,7 +23,7 @@
           - name: /tmp/metallb.yaml
             url: "{{ metallb_setup.manifest_url }}/metallb.yaml"
 
-      - name: Ensure metal-lb is installed in your cluster
+      - name: Ensure metal-lb namespace is present
         kubernetes.core.k8s:
           state: present
           src: "{{ item }}"
@@ -31,6 +31,27 @@
           wait: yes
         loop:
           - /tmp/metallb-ns.yaml
+
+# - name: Ensure managed nodes secret is present
+# kubernetes.core.k8s:
+#         state: present
+#          definition:
+#            apiVersion: v1
+#            kind: Secret
+#            metadata:
+#              name: memberlist
+#              namespace: metallb-system
+#            data:
+#              secretkey: "{{ lookup('community.general.random_string', lenght=128, base64=True) }}"
+
+      - name: Ensure metal-lb is installed in your cluster
+        kubernetes.core.k8s:
+          state: present
+          src: "{{ item }}"
+          kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+          #wait: yes
+          apply: yes
+        loop:
           - /tmp/metallb.yaml
           - /tmp/metallb-l2.yaml
 

@@ -1,5 +1,5 @@
 --- 
-- name: Prepare cluster to install contour ingress controller
+- name: Prepare cluster to install ingress controller
   hosts: vm_host
   vars_files:
     - vars/k8s_cluster.yml
@@ -30,6 +30,8 @@
             kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             release_namespace: projectcontour
             values:
+              contour:
+                ingressClass: ""
               replicaCount: 1
               defaultBackend:
                 enabled: true
@@ -37,6 +39,7 @@
                 kind: deployment
                 useHostPort: false
                 service:
+                  externalTrafficPolicy: Cluster
                   type: NodePort
                   nodePorts:
                     http: "{{ ingress_controller.node_port.http }}"
@@ -173,10 +176,9 @@
               controller:
                 service:
                   type: NodePort
-                  httpPort:
-                    nodePort: "{{ ingress_controller.node_port.http }}"
-                  httpsPort:
-                    nodePort: "{{ ingress_controller.node_port.https }}"
+                  nodePorts:
+                    http: "{{ ingress_controller.node_port.http }}"
+                    https: "{{ ingress_controller.node_port.https }}"
             wait: true
               
 #        - name: Download Nginx CR for later apply
@@ -248,5 +250,5 @@
             dest: clusters/{{ k8s.cluster_name }}/haproxy.cfg
       when: 
         - ingress_controller.install_ingress_controller
-        - k8s.control_plane.vms > 1
+        - k8s.control_plane.vms > 1 or k8s.worker_nodes.vms > 1
 

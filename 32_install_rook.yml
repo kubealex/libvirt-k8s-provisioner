@@ -5,24 +5,70 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - block:
-      - name: Clone rook repository
-        git:
-          repo: "{{ rook.rook_repo }}"
-          dest: /tmp/rook
-          version: "{{ rook.rook_version }}"
-          force: true
+    - name: Take all required steps to install Rook in your cluster
+      block:
+        - name: Ensure the needed Namespaces exist.
+          kubernetes.core.k8s:
+            definition:
+              api_version: v1
+              kind: Namespace
+              metadata:
+                name: rook-ceph
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            state: present
 
-      - name: Ensure Rook prerequeistes are installed in your cluster
-        kubernetes.core.k8s:
-          state: present
-          src: "{{ item }}"
-          kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-          wait: yes
-        loop:
-          - /tmp/rook/cluster/examples/kubernetes/ceph/crds.yaml
-          - /tmp/rook/cluster/examples/kubernetes/ceph/common.yaml
-          - /tmp/rook/cluster/examples/kubernetes/ceph/operator.yaml
+
+        - name: Add helm chart repository for Rook
+          kubernetes.core.helm_repository:
+            name: "{{ item.name }}"
+            repo_url: "{{ item.repo_url }}"
+          loop:
+            - name: "{{ rook.operator.chart.name }}"
+              repo_url: "{{ rook.operator.chart.url }}"
+            - name: "{{ rook.cluster.chart.name }}"
+              repo_url: "{{ rook.cluster.chart.url }}"
+
+        - name: Ensure rook-operator helm chart is installed
+          kubernetes.core.helm:
+            name: rook-operator
+            chart_ref: "{{ rook.operator.chart.ref }}"
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            release_namespace: rook-ceph
+            wait: true
+
+        - name: Trigger rook template
+          template:
+            src: templates/rook-values.yml.j2
+            dest: /tmp/rook-values.yml
+
+        - name: Ensure rook-ceph-cluster helm chart is installed
+          kubernetes.core.helm:
+            name: rook-ceph-cluster
+            chart_ref: "{{ rook.cluster.chart.ref }}"
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            release_namespace: rook-ceph
+            values_files:
+              - /tmp/rook-values.yml
+            wait: true
+                                      
+#    - block:
+#      - name: Clone rook repository
+#        git:
+#          repo: "{{ rook.rook_repo }}"
+#          dest: /tmp/rook
+#          version: "{{ rook.rook_version }}"
+#          force: true
+#
+#      - name: Ensure Rook prerequeistes are installed in your cluster
+#        kubernetes.core.k8s:
+#          state: present
+#          src: "{{ item }}"
+#          kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+#          wait: yes
+#        loop:
+#          - /tmp/rook/cluster/examples/kubernetes/ceph/crds.yaml
+#          - /tmp/rook/cluster/examples/kubernetes/ceph/common.yaml
+#          - /tmp/rook/cluster/examples/kubernetes/ceph/operator.yaml
 
 #      - name: Create CRDs for rook-ceph
 #        shell:  "kubectl create -f /tmp/rook/cluster/examples/kubernetes/ceph/crds.yaml"
@@ -48,14 +94,14 @@
 #      - name: Wait for operator pod to be ready
 #        shell: "kubectl wait --namespace=rook-ceph --for=condition=Ready pods -l 'app in (rook-ceph-operator)'  --timeout=600s"
 
-      - name: Ensure Rook prerequeistes are installed in your cluster
-        kubernetes.core.k8s:
-          state: present
-          src: "{{ item }}"
-          kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-          wait: yes
-        loop:
-          - /tmp/rook/cluster/examples/kubernetes/ceph/cluster.yaml
+#      - name: Ensure Rook prerequeistes are installed in your cluster
+#        kubernetes.core.k8s:
+#          state: present
+#          src: "{{ item }}"
+#          kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+#          wait: yes
+#        loop:
+#          - /tmp/rook/cluster/examples/kubernetes/ceph/cluster.yaml
 
 #      - name: Create cluster resources for rook_ceph
 #        shell: "kubectl create -f /tmp/rook/cluster/examples/kubernetes/ceph/cluster.yaml"

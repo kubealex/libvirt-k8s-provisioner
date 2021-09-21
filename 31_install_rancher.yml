@@ -43,7 +43,9 @@
             chart_ref: rancher-latest/rancher
             release_namespace: cattle-system
             values:
+              replicas: 1
               hostname: "{{ hostvars[groups['loadbalancer'][0]].host_fqdn if (k8s.control_plane.vms > 1) else rancher.ingress_hostname }}"
               bootstrapPassword: admin
             wait: true 
             wait_timeout: 10m
+      when: rancher.install_rancher      
