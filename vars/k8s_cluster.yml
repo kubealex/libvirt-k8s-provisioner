@@ -41,12 +41,16 @@ k8s:
 rook_ceph:
   install_rook: false
   volume_size: 50
+  rook_cluster_size: 1
 
 # Ingress controller configuration [nginx/haproxy/contour]
 
 ingress_controller:
   install_ingress_controller: true
   type: haproxy
+  node_port:
+    http: 31080
+    https: 31443
 
 # Section for Rancher setup
 

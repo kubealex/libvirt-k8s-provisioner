@@ -97,7 +97,7 @@
       add_host:
         hostname: '{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}'
         node_hostname: '{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}'
-        node_mac: "{{ output_workers_rook_ceph.outputs.macs.value[item]|lower if (rook_ceph.install_rook and item <= 2) else output_workers_rook_ceph.outputs.macs.value[item - rook_ceph.rook_cluster_size]|lower if (rook_ceph.install_rook and item > 2 ) else output_workers.outputs.macs.value[item]|lower }}"
+        node_mac: "{{ output_workers_rook.outputs.macs.value[item]|lower if (rook_ceph.install_rook and item <= 2) else output_workers_rook.outputs.macs.value[item - rook_ceph.rook_cluster_size]|lower if (rook_ceph.install_rook and item > 2 ) else output_workers.outputs.macs.value[item]|lower }}"
         #node_fqdn: "{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}"
         ansible_ssh_private_key_file: "clusters/{{ k8s.cluster_name }}/id_rsa"
         ansible_user: kube
