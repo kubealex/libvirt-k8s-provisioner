@@ -7,6 +7,7 @@ virtualization_packages:
     - python3-lxml
     - python3-netaddr
     - python3-libvirt
+    - python3-pip
     - libvirt-devel
     - libvirt
     - qemu-kvm
@@ -22,6 +23,7 @@ virtualization_packages:
     - python3-lxml
     - python3-netaddr
     - python3-libvirt
+    - python3-pip
     - libvirt-daemon-system
     - libvirt-clients
     - libvirt-dev
@@ -38,6 +40,7 @@ virtualization_packages:
     - python3-lxml
     - python3-netaddr
     - python3-libvirt
+    - python3-pip
     - libvirt-devel
     - libvirt
     - qemu-kvm

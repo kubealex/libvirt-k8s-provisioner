@@ -107,4 +107,4 @@
       
       - name: Reboot loadbalancer
         reboot: 
-      when: k8s.control_plane.vms > 1
+      when: k8s.control_plane.vms > 1 or (k8s.worker_nodes.vms > 1 and ingress_controller.install_ingress_controller)

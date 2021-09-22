@@ -41,9 +41,9 @@
 
     - name: Fail fast if rook and less than 3 worker nodes
       fail: 
-        msg: In order to use rook, at least three worker nodes must be present
+        msg: You can't have less worker nodes than Rook cluster size
       when:
-        - k8s.worker_nodes.vms < 3 
+        - k8s.worker_nodes.vms < rook_ceph.rook_cluster_size
         - rook_ceph.install_rook 
 
     - name: Fail fast if no container runtime is defined

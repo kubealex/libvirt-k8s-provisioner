@@ -1,108 +1,215 @@
 --- 
-- name: Prepare cluster to install contour ingress controller
-  hosts: masters
+- name: Prepare cluster to install ingress controller
+  hosts: vm_host
   vars_files:
     - vars/k8s_cluster.yml
   run_once: true
   tasks:
     - name: Take all required steps to install contour as ingress controller
-      block:
-        - name: Install CR
-          shell: kubectl apply -f {{ ingresses.contour_repo }} 
-       
-        - name: Wait for all ingress-contour pods become created
-          shell: "kubectl get po --namespace=projectcontour --output=jsonpath='{.items[*].metadata.name}'"
-          register: ingress_contour_pods_created
-          until: item in ingress_contour_pods_created.stdout
-          retries: 10
-          delay: 30
-          with_items:
-            - contour
-            - envoy
+      block:              
+        - name: Ensure the needed Namespaces exist.
+          kubernetes.core.k8s:
+            api_version: v1
+            kind: Namespace
+            name: projectcontour
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            state: present
 
-        - name: Wait for contour and envoy pods pods to become ready
-          shell: "kubectl wait --namespace=projectcontour --for=condition=Ready pods --selector=app=contour --timeout=600s"
-          register: ingress_contour_pods_ready
-
-        - name: Save nodePorts in master facts
-          shell: kubectl get svc envoy -n projectcontour -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
+        - name: Add helm chart repository for Contour
+          kubernetes.core.helm_repository:
+            name: "{{ item.name }}"
+            repo_url: "{{ item.repo_url }}"
           loop:
-            - http
-            - https
-          register: ports
-        
-        - name: Save facts
-          set_fact:
-            ingress_http_port: "{{ ports.results[0].stdout }}" 
-            ingress_https_port: "{{ ports.results[1].stdout }}" 
+            - name: "{{ ingress.contour.chart.name }}"
+              repo_url: "{{ ingress.contour.chart.url }}"
+
+        - name: Ensure Contour helm chart is installed
+          kubernetes.core.helm:
+            name: contour
+            chart_ref: "{{ ingress.contour.chart.ref }}"
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            release_namespace: projectcontour
+            values:
+              contour:
+                ingressClass: ""
+              replicaCount: 1
+              defaultBackend:
+                enabled: true
+              envoy:
+                kind: deployment
+                useHostPort: false
+                service:
+                  externalTrafficPolicy: Cluster
+                  type: NodePort
+                  nodePorts:
+                    http: "{{ ingress_controller.node_port.http }}"
+                    https: "{{ ingress_controller.node_port.https }}"
+            wait: true
       
+#        - name: Download Contour CR for later apply
+#          ansible.builtin.get_url:
+#            url: "{{ item.url }}"
+#            dest: "{{ item.name }}"
+#            mode: '0664'
+#          loop:
+#            - name: /tmp/contour.yaml
+#              url: "{{ ingresses.contour_repo }}"
+#
+#        - name: Ensure Contour is installed in your cluster
+#          kubernetes.core.k8s:
+#            state: present
+#            src: "{{ item }}"
+#            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+#            wait: yes
+#          loop:
+#            - /tmp/contour.yaml
+#          
+#        - name: Save nodePorts in master facts
+#          shell: kubectl get svc envoy --kubeconfig=clusters/{{ k8s.cluster_name }}/admin.kubeconfig -n projectcontour -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
+#          loop:
+#            - http
+#            - https
+#          register: ports
+#        
+#        - name: Save facts
+#          set_fact:
+#            ingress_http_port: "{{ ports.results[0].stdout }}" 
+#            ingress_https_port: "{{ ports.results[1].stdout }}" 
       when: ingress_controller.install_ingress_controller and ingress_controller.type == 'contour'
        
     - name: Take all required steps to install haproxy as ingress controller
       block:
-        - name: Install CRDs
-          shell: kubectl apply -f {{ ingresses.haproxy_repo }} 
-       
-        - name: Wait for all ingress-haproxy pods become created
-          shell: "kubectl get po --namespace=haproxy-controller --output=jsonpath='{.items[*].metadata.name}'"
-          register: ingress_haproxy_pods_created
-          until: item in ingress_haproxy_pods_created.stdout
-          retries: 10
-          delay: 30
-          with_items:
-            - haproxy-ingress
-            - ingress-default-backend
+        - name: Ensure the needed Namespaces exist.
+          kubernetes.core.k8s:
+            api_version: v1
+            kind: Namespace
+            name: haproxy-controller
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            state: present
 
-        - name: Wait for ingress-haproxy pods to become ready
-          shell: "kubectl wait --namespace=haproxy-controller --for=condition=Ready pods --all --timeout=600s"
-          register: ingress_haproxy_pods_ready
-
-        - name: Save nodePorts in master facts
-          shell: kubectl get svc haproxy-ingress -n haproxy-controller -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
+        - name: Add helm chart repository for haproxy
+          kubernetes.core.helm_repository:
+            name: "{{ item.name }}"
+            repo_url: "{{ item.repo_url }}"
           loop:
-            - http
-            - https
-          register: ports
-        
-        - name: Save facts
-          set_fact:
-            ingress_http_port: "{{ ports.results[0].stdout }}" 
-            ingress_https_port: "{{ ports.results[1].stdout }}" 
-      
+            - name: "{{ ingress.haproxy.chart.name }}"
+              repo_url: "{{ ingress.haproxy.chart.url }}"
+
+        - name: Ensure haproxy helm chart is installed
+          kubernetes.core.helm:
+            name: haproxy
+            chart_ref: "{{ ingress.haproxy.chart.ref }}"
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            release_namespace: haproxy-controller
+            values:
+              controller:
+                service:
+                  type: NodePort
+                  nodePorts:
+                    http: "{{ ingress_controller.node_port.http }}"
+                    https: "{{ ingress_controller.node_port.https }}"
+                    stat: 31024
+            wait: true
+
+#        - name: Download HAProxy CR for later apply
+#          ansible.builtin.get_url:
+#            url: "{{ item.url }}"
+#            dest: "{{ item.name }}"
+#            mode: '0664'
+#          loop:
+#            - name: /tmp/haproxy.yaml
+#              url: "{{ ingresses.haproxy_repo }}"
+#
+#        - name: Ensure HAProxy is installed in your cluster
+#          kubernetes.core.k8s:
+#            state: present
+#            src: "{{ item }}"
+#            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+#            wait: yes
+#          loop:
+#            - /tmp/haproxy.yaml
+#
+#        - name: Save nodePorts in master facts
+#          shell: kubectl get svc haproxy-ingress --kubeconfig=clusters/{{ k8s.cluster_name }}/admin.kubeconfig -n haproxy-controller -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
+#          loop:
+#            - http
+#            - https
+#          register: ports
+#        
+#        - name: Save facts
+#          set_fact:
+#            ingress_http_port: "{{ ports.results[0].stdout }}" 
+#            ingress_https_port: "{{ ports.results[1].stdout }}" 
       when: ingress_controller.install_ingress_controller and ingress_controller.type == 'haproxy'
       
-    - name: Take all required steps to install haproxy as ingress controller
+    - name: Take all required steps to install Nginx as ingress controller
       block:
-        - name: Install CRDs
-          shell: kubectl apply -f {{ ingresses.nginx_repo if k8s.cluster_version != '1.22' else ingresses.nginx_122_repo }}
-       
-        - name: Wait for all ingress-nginx pods become created
-          shell: "kubectl get po --namespace=ingress-nginx --output=jsonpath='{.items[*].metadata.name}'"
-          register: ingress_nginx_pods_created
-          until: item in ingress_nginx_pods_created.stdout
-          retries: 10
-          delay: 30
-          with_items:
-            - ingress-nginx-admission-create
-            - ingress-nginx-admission-patch
-            - ingress-nginx-controller
+        - name: Ensure the needed Namespaces exist.
+          kubernetes.core.k8s:
+            definition:
+              api_version: v1
+              kind: Namespace
+              metadata:
+                name: ingress-nginx
+                labels:
+                  app.kubernetes.io/name: ingress-nginx
+                  app.kubernetes.io/instance: ingress-nginx
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            state: present
+              
 
-        - name: Wait for ingress-nginx pods to become ready
-          shell: "kubectl wait --namespace=ingress-nginx --for=condition=Ready pods --selector app.kubernetes.io/component=controller  --timeout=600s"
-          register: ingress_nginx_pods_ready
-
-        - name: Save nodePorts in master facts
-          shell: kubectl get svc ingress-nginx-controller  -n ingress-nginx -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
+        - name: Add helm chart repository for Nginx
+          kubernetes.core.helm_repository:
+            name: "{{ item.name }}"
+            repo_url: "{{ item.repo_url }}"
           loop:
-            - http
-            - https
-          register: ports
-        
-        - name: Save facts
-          set_fact:
-            ingress_http_port: "{{ ports.results[0].stdout }}" 
-            ingress_https_port: "{{ ports.results[1].stdout }}" 
-      
+            - name: "{{ ingress.nginx.chart.name }}"
+              repo_url: "{{ ingress.nginx.chart.url }}"
+
+        - name: Ensure Nginx helm chart is installed
+          kubernetes.core.helm:
+            name: nginx
+            chart_ref: "{{ ingress.nginx.chart.ref }}"
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            release_namespace: ingress-nginx
+            values:
+              controller:
+                service:
+                  type: NodePort
+                  nodePorts:
+                    http: "{{ ingress_controller.node_port.http }}"
+                    https: "{{ ingress_controller.node_port.https }}"
+            wait: true
+              
+#        - name: Download Nginx CR for later apply
+#          ansible.builtin.get_url:
+#            url: "{{ item.url }}"
+#            dest: "{{ item.name }}"
+#            mode: '0664'
+#          loop:
+#            - name: /tmp/nginx.yaml
+#              url: "{{ ingresses.nginx_repo if k8s.cluster_version != '1.22' else ingresses.nginx_122_repo }}"
+#
+#        - name: Ensure Nginx is installed in your cluster
+#          kubernetes.core.k8s:
+#            state: present
+#            src: "{{ item }}"
+#            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+#            wait: yes
+#          loop:
+#            - /tmp/nginx.yaml
+#
+#        - name: Save nodePorts in master facts
+#          shell: kubectl get svc ingress-nginx-controller --kubeconfig=clusters/{{ k8s.cluster_name }}/admin.kubeconfig -n ingress-nginx -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
+#          loop:
+#            - http
+#            - https
+#          register: ports
+#        
+#        - name: Save facts
+#          set_fact:
+#            ingress_http_port: "{{ ports.results[0].stdout }}" 
+#            ingress_https_port: "{{ ports.results[1].stdout }}" 
       when: ingress_controller.install_ingress_controller and ingress_controller.type == 'nginx'
 
 - name: Refresh facts
@@ -143,5 +250,5 @@
             dest: clusters/{{ k8s.cluster_name }}/haproxy.cfg
       when: 
         - ingress_controller.install_ingress_controller
-        - k8s.control_plane.vms > 1
+        - k8s.control_plane.vms > 1 or k8s.worker_nodes.vms > 1
 

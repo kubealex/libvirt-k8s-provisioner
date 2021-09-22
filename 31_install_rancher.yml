@@ -1,78 +1,53 @@
 --- 
 - name: Prepare cluster to install rancher
-  hosts: masters
+  hosts: vm_host
   run_once: true
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
     - block:
-        - name: Ensure helm is installed
-          unarchive:
-            src: "{{ helm.helm_installer }}"
-            dest: /tmp/
-            remote_src: true
+        - name: Add a repository
+          kubernetes.core.helm_repository:
+            name: "{{ item.name }}"
+            repo_url: "{{ item.repo_url }}"
+          loop:
+            - name: rancher-latest
+              repo_url: "{{ rancher_helm.rancher_chart }}"
+            - name: jetstack
+              repo_url: "{{ rancher_helm.cert_manager_chart }}"
 
-        - name: Install helm in PATH
-          copy:
-            src: /tmp/linux-amd64/helm
-            dest: /usr/local/bin/
-            remote_src: true
-            mode: +x
-          become: true
-
-        - name: remove directory
-          file:
-            path: /tmp/linux-amd64
-            state: absent
-
-        - name: Add helm repo
-          shell: helm repo add rancher-latest {{ rancher_helm.rancher_chart }}
-
-        - name: Ensure rancher namespace exists
-          shell: kubectl create namespace cattle-system
-
-        - name: Install CRDs
-          shell: kubectl apply --validate=false -f {{ rancher_helm.cert_manager_crd }}
-       
-        - name: Ensure cert-manager namespace exists
-          shell: kubectl create namespace cert-manager
-
-        - name: Add cert-manager helm repo
-          shell: helm repo add jetstack {{ rancher_helm.cert_manager_chart }}
-
-        - name: Update helm repos
-          shell: helm repo update
-
-        - name: Install helm chart
-          shell: helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.0.4
-
-        - name: Wait for all cert-manager pods become created
-          shell: "kubectl get po --namespace=cert-manager --output=jsonpath='{.items[*].metadata.name}'"
-          register: cert_manager_pods_created
-          until: item in cert_manager_pods_created.stdout
-          retries: 10
-          delay: 30
-          with_items:
+        - name: Ensure the needed Namespaces exist.
+          kubernetes.core.k8s:
+            api_version: v1
+            kind: Namespace
+            name: "{{ item }}"
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            state: present
+          loop:
+            - cattle-system
             - cert-manager
-            - cert-manager-cainjector
-            - cert-manager-webhook
 
-        - name: Wait for cert-manager pods to become ready
-          shell: "kubectl wait --namespace=cert-manager --for=condition=Ready pods --all --timeout=600s"
-          register: cert_manager_pods_ready
-
-        - name: Install rancher
-          shell: helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname={{ hostvars[groups['loadbalancer'][0]].node_fqdn if (k8s.control_plane.vms > 1) else rancher.ingress_hostname }}
-
-        - name: Wait for rancher deploy to end
-          shell: "kubectl -n cattle-system rollout status deploy/rancher"
-          register: rancher_rollout_succeeded
-          until: '"successfully rolled out" in rancher_rollout_succeeded.stdout'
-          retries: 10
-          delay: 30
-
-        - name: Wait for rancher pods to be ready
-#          shell: "kubectl wait --namespace=cattle-system --for=condition=Ready pods --all --timeout=600s"
-          shell: "kubectl wait --for=condition=available --timeout=600s deployment/rancher -n cattle-system"
-      when: rancher.install_rancher
-
+        - name: Ensure cert-manage helm chart is installed
+          kubernetes.core.helm:
+            name: cert-manager
+            chart_ref: jetstack/cert-manager
+            chart_version: v1.5.1
+            release_namespace: cert-manager
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            values:
+              installCRDs: true
+            wait: true
+   
+        - name: Ensure rancher helm chart is installed
+          kubernetes.core.helm:
+            name: rancher
+            chart_ref: rancher-latest/rancher
+            release_namespace: cattle-system
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            values:
+              replicas: 1
+              hostname: "{{ hostvars[groups['loadbalancer'][0]].host_fqdn if (k8s.control_plane.vms > 1) else rancher.ingress_hostname }}"
+              bootstrapPassword: admin
+            wait: true 
+            wait_timeout: 10m
+      when: rancher.install_rancher      

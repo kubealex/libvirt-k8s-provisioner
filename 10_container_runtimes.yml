@@ -70,7 +70,6 @@
         - name: Ensure the presence of apt-repo for docker
           apt_repository:
             repo: "{{ docker.ubuntu.docker_repo }}"
-#            update_cache_retries: 25
             state: present
             
         - name: Ensure docker packages are installed
@@ -152,7 +151,6 @@
           apt_repository:
             repo: "{{ item.repo }}"
             filename: "{{ item.file }}"
-#            update_cache_retries: 25
             state: present
           loop: 
             - repo: "{{ crio.ubuntu.libcontainers_repo }}"
@@ -191,39 +189,6 @@
           template: 
             src: templates/crio.conf.j2
             dest: /etc/crio/crio.conf
-
-#        - name: Ensure systemd as default cgroup_manager
-#          replace:
-#            path: /etc/crio/crio.conf
-#            regexp: '^cgroup_manager.*'
-#            replace: 'cgroup_manager = "systemd"'
-
-#        - name: Ensure systemd as default cgroup_manager
-#          replace:
-#            path: /etc/crio/crio.conf
-#            regexp: '^conmon_cgroup.*'
-#            replace: 'conmon_cgroup = "pod"'
-
-#        - name: Add capabilities due to particular capabilities required by Rancher
-#          block: 
-#            - name: Ensure MKNOD is enabled if installing Rancher
-#              lineinfile:
-#                path: /etc/crio/crio.conf
-#                line: '"MKNOD",'
-#                insertafter: 'default_capabilities'
-#          when: rancher.install_rancher
-           
-#        - name: Ensure to use all possible plugins dir
-#          replace:
-#            path: /etc/crio/crio.conf
-#            regexp: '"/usr/libexec/cni",'
-#            replace: '"/usr/libexec/cni", "/opt/cni/bin/",'
-
-#        - name: Add docker.io to registries due to bad usage of unqualified images from many dev teams
-#          lineinfile:
-#            path: /etc/crio/crio.conf
-#            regexp: '^#registries'
-#            line: 'registries = [ "docker.io", "quay.io" ]'
 
         - name: Remove example CNI configs
           file:

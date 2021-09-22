@@ -1,6 +1,5 @@
 - name: This play ensures environment is set up for cluster creation
   hosts: vm_host
-  become: true
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
@@ -27,3 +26,31 @@
         owner: kube
         group: kube
         mode: 0755
+
+    - name: Ensure helm is installed
+      unarchive:
+        src: "{{ helm.helm_installer }}"
+        dest: /tmp/
+        remote_src: true
+
+    - name: Install helm in PATH
+      copy:
+        src: /tmp/linux-amd64/helm
+        dest: /usr/local/bin/
+        remote_src: true
+        mode: +x
+      become: true
+
+    - name: remove directory
+      file:
+        path: /tmp/linux-amd64
+        state: absent
+
+    - name: Ensure needed pip packages are present
+      pip:
+        executable: pip3
+        name: "{{ item }}"
+      loop: 
+        - PyYAML
+        - kubernetes
+        - jsonpatch
