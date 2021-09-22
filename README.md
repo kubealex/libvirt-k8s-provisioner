@@ -7,9 +7,9 @@ With this project, you can build up in minutes a fully working k8s cluster (sing
 
 Kubernetes version that is installed can be choosen between:
 - **1.22** - Latest 1.22 release (1.22.1) - ** WARNING! Rancher is not supported yet by helm chart **
-- **1.21** - Latest 1.21 release (1.21.1)
-- **1.20** - Latest 1.20 release (1.20.7)
-- **1.19** - Latest 1.19 release (1-19.11)
+- **1.21** - Latest 1.21 release (1.21.5)
+- **1.20** - Latest 1.20 release (1.20.11)
+- **1.19** - Latest 1.19 release (1-19.15)
 
 Terraform will take care of the provisioning of:
 - Loadbalancer machine with **haproxy** installed and configured for **HA** clusters
@@ -54,15 +54,26 @@ You can customize the setup choosing:
 The user is capable of logging via SSH too.  
 
 ## Quickstart
-The playbook is meant to be ran against a/many local or remote host/s, defined under **vm_host** group, depending on how many clusters you want to configure at once.  
+The playbook is meant to be ran against a local host or a remote host that has access to subnets that will be created, defined under **vm_host** group, depending on how many clusters you want to configure at once.  
+
+First of all, you need to install required collections to get started:
+
+    ansible-galaxy collection install -r requirements.yml
+
+Once the collections are installed, you can simply run the playbook:
 
     ansible-playbook main.yml
 
 You can quickly make it work by configuring the needed vars, but you can go straight with the defaults!
 
-    make create
-
 You can also install your cluster using the **Makefile** with: 
+
+To install collections: 
+
+    make setup
+
+To install the cluster:
+
     make create
 
 Recommended sizings are:
@@ -117,12 +128,16 @@ Recommended sizings are:
 	rook_ceph:
 	  install_rook: false
 	  volume_size: 50
+          rook_cluster_size: 1
 
 	# Ingress controller configuration [nginx/haproxy]
 
 	ingress_controller:
 	  install_ingress_controller: true
 	  type: haproxy
+          node_port:
+            http: 31080
+            https: 31443    
 
 	# Section for Rancher setup
 
@@ -179,8 +194,8 @@ Since last release, it is now possible to provision multiple clusters on the sam
 		│   ├── k8s-workers.tf
 		│   └── terraform.tfstate
 		└── workers-rook
-			├── cloud_init.cfg
-			└── k8s-workers.tf
+		    ├── cloud_init.cfg
+		    └── k8s-workers.tf
 
 In the main folder will be provided a custom script for removing the single cluster, without touching others.
 
@@ -193,11 +208,10 @@ As well as a separated inventory for each cluster:
 In order to keep clusters separated, ensure that you use a different **k8s.cluster_name**,**k8s.network.domain** and **k8s.network.network_cidr** variables.
 
 ## Rook 
-**Rook** setup actually creates a dedicated kind of worker, with an additional volume on **ALL** workers to be used. It will be improved to just select a number of nodes that can be coherent with the number of **ceph** replicas.
-Feel free to suggest modifications/improvements.
+**Rook** setup actually creates a dedicated kind of worker, with an additional volume on the VMs that are required. Now it is possible to select the size of Rook cluster using **rook_ceph.rook_cluster_size** variable in the settings.
 
 ## Rancher 
-Basic setup is made starting from Rancher documentation, with **Helm** chart.
+Basic setup is made starting from Rancher documentation, with **Helm** chart. **Rancher is not supported on 1.22 at this time**
 
 ## MetalLB 
 Basic setup taken from the documentation. At the moment, the parameter **l2** reports the IPs that can be used (defaults to some IPs in the same subnet of the hosts) as 'external' IPs for accessing the applications

@@ -33,6 +33,7 @@
             chart_ref: jetstack/cert-manager
             chart_version: v1.5.1
             release_namespace: cert-manager
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             values:
               installCRDs: true
             wait: true
@@ -42,6 +43,7 @@
             name: rancher
             chart_ref: rancher-latest/rancher
             release_namespace: cattle-system
+            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             values:
               replicas: 1
               hostname: "{{ hostvars[groups['loadbalancer'][0]].host_fqdn if (k8s.control_plane.vms > 1) else rancher.ingress_hostname }}"
