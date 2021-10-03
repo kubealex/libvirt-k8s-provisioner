@@ -6,7 +6,7 @@
     - vars/k8s_cluster.yml
   tasks:
     - block:
-        - name: Download metrics-server manifest to the cluster.
+        - name: Download Calico manifest.
           ansible.builtin.get_url:
             url: "{{ item.url }}"
             dest: "{{ item.name }}"
@@ -35,7 +35,6 @@
       when: k8s.network.cni_plugin == 'calico'
 
     - block:
-
         - name: Add helm chart repository for Cilium
           kubernetes.core.helm_repository:
             name: "{{ item.name }}"

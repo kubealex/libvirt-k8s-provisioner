@@ -13,3 +13,7 @@
       - name: Join control-plane nodes in cluster
         command: kubeadm join --config /tmp/kubeadm-join.yaml
         become: true
+      - name: Mark node as joined
+        set_fact:
+          k8s_joined: true
+      when: k8s_joined is not defined
