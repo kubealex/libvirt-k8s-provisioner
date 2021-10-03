@@ -2,46 +2,45 @@
 - name: Install cluster with kubeadm
   vars_files:
     - vars/k8s_cluster.yml
-  hosts: masters
+  hosts: masters[0]
   run_once: true
   tasks:
-    - name: Start kubeadm install
-      shell: kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs
-      become: true
-    
-    - name: Get information on generated certificate
-      openssl_certificate_info:
-        path: /etc/kubernetes/pki/ca.crt
-      register: cert
+  - name: Start kubeadm install
+    shell: kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs
+    become: true
+  
+  - name: Get information on generated certificate
+    openssl_certificate_info:
+      path: /etc/kubernetes/pki/ca.crt
+    register: cert
 
-    - name: Set fact for certificate hash
-      set_fact:
-        kubehash: "sha256:{{ cert.public_key_fingerprints.sha256 | replace(':', '') }}"
+  - name: Set fact for certificate hash
+    set_fact:
+      kubehash: "sha256:{{ cert.public_key_fingerprints.sha256 | replace(':', '') }}"
 
-    - name: Create kube directory
-      file:
-        path: /home/kube/.kube
-        state: directory
- 
-    - name: Copy kubeconfig
-      copy:
-        src: /etc/kubernetes/admin.conf
-        dest: /home/kube/.kube/config
-        remote_src: true
-        owner: kube
-        group: kube
-      become: true
+  - name: Create kube directory
+    file:
+      path: /home/kube/.kube
+      state: directory
 
-    - set_fact:
-        k8s_installed: true               
+  - name: Copy kubeconfig
+    copy:
+      src: /etc/kubernetes/admin.conf
+      dest: /home/kube/.kube/config
+      remote_src: true
+      owner: kube
+      group: kube
+    become: true
 
-    - name: Fetch kubeconfig file
-      fetch:
-        src: /etc/kubernetes/admin.conf
-        dest: clusters/{{ k8s.cluster_name }}/admin.kubeconfig
-        flat: yes
-      become: true
-      when: inventory_hostname == groups['masters'][0]
+  - set_fact:
+      k8s_installed: true               
+
+  - name: Fetch kubeconfig file
+    fetch:
+      src: /etc/kubernetes/admin.conf
+      dest: clusters/{{ k8s.cluster_name }}/admin.kubeconfig
+      flat: yes
+    become: true
 
 - name: Verify cluster has been initialized
   vars_files:
