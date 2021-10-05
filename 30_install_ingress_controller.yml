@@ -103,6 +103,7 @@
             release_namespace: haproxy-controller
             values:
               controller:
+                ingressClass: null
                 service:
                   type: NodePort
                   nodePorts:
@@ -247,7 +248,7 @@
         - name: Fire up new haproxy template
           template:
             src: templates/haproxy.j2
-            dest: clusters/{{ k8s.cluster_name }}/haproxy.cfg
+            dest: "clusters/{{ k8s.cluster_name }}/haproxy.cfg"
       when: 
         - ingress_controller.install_ingress_controller
         - k8s.control_plane.vms > 1 or k8s.worker_nodes.vms > 1

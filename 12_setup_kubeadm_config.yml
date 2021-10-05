@@ -5,7 +5,7 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    block:
+    - block:
       - name: Generate cluster token
         command: kubeadm token generate
         register: kubetoken_generated
@@ -26,4 +26,4 @@
         template: 
           src: templates/kubeadm-config.yaml.j2
           dest: /tmp/kubeadm-config.yaml
-    when: !k8s_installed
+      when: k8s_installed is not defined
