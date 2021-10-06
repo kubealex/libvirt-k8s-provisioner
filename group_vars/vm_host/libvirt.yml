@@ -1,3 +1,0 @@
-libvirt:
-  storage:
-    pool_path: /var/lib/libvirt/images

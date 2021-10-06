@@ -1,3 +1,24 @@
+##################################
+##        Infra related         ##
+##################################
+
+terraform_url: https://releases.hashicorp.com/terraform/1.0.8/terraform_1.0.8_linux_amd64.zip
+image_name: OS-GenericCloud
+centos:
+  cloud_image: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20210603.0.x86_64.qcow2
+ubuntu:
+  cloud_image: https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img
+helm:
+  helm_installer: https://get.helm.sh/helm-v3.7.0-linux-amd64.tar.gz
+
+libvirt:
+  storage:
+    pool_path: /var/lib/libvirt/images
+
+##################################
+##      Kubernetes related      ##
+##################################
+
 cni_plugins:
   calico:
     calico_repo: https://docs.projectcalico.org/manifests/calico.yaml
@@ -5,14 +26,12 @@ cni_plugins:
     calico_crd: https://docs.projectcalico.org/manifests/custom-resources.yaml
   flannel:
     flannel_repo: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-  cilium: 
+  cilium:
     chart:
       name: cilium
       ref: cilium/cilium
       version: 1.10.4
       url: https://helm.cilium.io/
-#    cilium_repo: https://raw.githubusercontent.com/cilium/cilium/1.9.5/install/kubernetes/quick-install.yaml
-#    cilium_cli: https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-amd64.tar.gz
 
 ingress:
   nginx:
@@ -30,18 +49,12 @@ ingress:
       name: haproxytech
       url: https://haproxytech.github.io/helm-charts
       ref: haproxytech/kubernetes-ingress
-      
-#  nginx_repo: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.49.0/deploy/static/provider/baremetal/deploy.yaml
-#  nginx_122_repo: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.0/deploy/static/provider/baremetal/deploy.yaml
-#  haproxy_repo: https://raw.githubusercontent.com/haproxytech/kubernetes-ingress/v1.6/deploy/haproxy-ingress.yaml
-#  contour_repo: https://projectcontour.io/quickstart/contour.yaml
 
 helm:
   helm_installer: https://get.helm.sh/helm-v3.6.3-linux-amd64.tar.gz
 
 rancher_helm:
   rancher_chart: https://releases.rancher.com/server-charts/latest
-#  cert_manager_crd: https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.crds.yaml
   cert_manager_chart: https://charts.jetstack.io
 
 rook:
@@ -55,10 +68,6 @@ rook:
       name: rook-release
       url: https://charts.rook.io/release
       ref: rook-release/rook-ceph-cluster
-
-#  rook_cluster_size: 1
-#  rook_repo: https://github.com/rook/rook.git
-#  rook_version: v1.7.2
 
 metallb_setup:
   manifest_url: https://raw.githubusercontent.com/metallb/metallb/v0.10.2/manifests
