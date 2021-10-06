@@ -15,6 +15,55 @@ libvirt:
   storage:
     pool_path: /var/lib/libvirt/images
 
+os_packages:
+  centos:
+    - unzip
+    - git
+    - gcc
+    - make
+    - python3-lxml
+    - python3-netaddr
+    - python3-libvirt
+    - python3-pip
+    - libvirt-devel
+    - libvirt
+    - qemu-kvm
+    - virt-install
+    - virt-manager
+
+  ubuntu:
+    - unzip
+    - git
+    - gcc
+    - make
+    - network-manager
+    - python3-lxml
+    - python3-netaddr
+    - python3-libvirt
+    - python3-pip
+    - libvirt-daemon-system
+    - libvirt-clients
+    - libvirt-dev
+    - bridge-utils
+    - qemu-kvm
+    - virtinst
+    - virt-manager
+
+  fedora:
+    - unzip
+    - git
+    - gcc
+    - make
+    - python3-lxml
+    - python3-netaddr
+    - python3-libvirt
+    - python3-pip
+    - libvirt-devel
+    - libvirt
+    - qemu-kvm
+    - virt-install
+    - virt-manager
+
 ##################################
 ##      Kubernetes related      ##
 ##################################

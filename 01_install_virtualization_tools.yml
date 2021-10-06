@@ -12,14 +12,14 @@
 
       - name: Install required packages
         yum:
-          name: "{{ virtualization_packages.centos }}"
+          name: "{{ os_packages.centos }}"
           state: latest
         when:
           - ansible_distribution == 'CentOS'
 
       - name: Install required packages
         yum:
-          name: "{{ virtualization_packages.fedora }}"
+          name: "{{ os_packages.fedora }}"
           state: latest
         when:
           - ansible_distribution == 'Fedora'
@@ -35,7 +35,7 @@
 
       - name: Install required packages
         apt:
-          name: "{{ virtualization_packages.ubuntu }}"
+          name: "{{ os_packages.ubuntu }}"
           state: latest
 
       when: ansible_distribution == 'Ubuntu'
