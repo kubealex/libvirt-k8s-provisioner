@@ -41,6 +41,11 @@
         mode: +x
       become: true
 
+    - name: Install Helm Diff
+      kubernetes.core.helm_plugin:
+        state: present
+        plugin_path: https://github.com/databus23/helm-diff
+
     - name: remove directory
       file:
         path: /tmp/linux-amd64

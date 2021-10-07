@@ -2,8 +2,7 @@
 localhost ansible_connection=local
 [masters]
 {% for master in groups['masters'] %}
-{{ hostvars[master].node_hostname }} ansible_host={{ hostvars[master].host_ip }} ansible_ssh_private_key_file={{ hostvars[master].ansible_ssh_private_key_file }} ansible_user={{ hostvars[master].ansible_user }} ansible_ssh_common_args="{{ hostvars[master].ansible_ssh_common_args }}" host_fqdn={{ hostvars[master].host_fqdn }} host_ip={{ hostvars[master].host_ip }} {% if loop.first %} kubehash={{ hostvars[master].kubehash }} kubetoken={{ hostvars[master].kubetoken }} kubecertkey={{ hostvars[master].kubecertkey }} k8s_installed={{ hostvars[master].k8s_installed }} {% else %} k8s_joined={{ hostvars[master].k8s_joined }} 
-{% endif %}
+{{ hostvars[master].node_hostname }} ansible_host={{ hostvars[master].host_ip }} ansible_ssh_private_key_file={{ hostvars[master].ansible_ssh_private_key_file }} ansible_user={{ hostvars[master].ansible_user }} ansible_ssh_common_args="{{ hostvars[master].ansible_ssh_common_args }}" host_fqdn={{ hostvars[master].host_fqdn }} host_ip={{ hostvars[master].host_ip }} {% if loop.first %} kubehash={{ hostvars[master].kubehash }} kubetoken={{ hostvars[master].kubetoken }} kubecertkey={{ hostvars[master].kubecertkey }} k8s_installed={{ hostvars[master].k8s_installed }} {% else %} k8s_joined={{ hostvars[master].k8s_joined }} {% endif %} 
 {% endfor %}
 {% if k8s.worker_nodes.vms > 0 %}
 [workers]
