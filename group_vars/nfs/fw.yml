@@ -1,9 +1,0 @@
-services:
-  - nfs
-  - mountd
-  - rpc-bind
-ports:
-  - 4001/udp
-  - 4001/tcp
-  - 2049/tcp
-  - 2049/udp
