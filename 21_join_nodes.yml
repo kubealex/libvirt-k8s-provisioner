@@ -9,9 +9,9 @@
       - name: Fire joinConfiguration template for worker nodes
         template:
           src: templates/kubeadm-join-config.yaml.j2
-          dest: /tmp/kubeadm-join.yaml
+          dest: /tmp/{{ k8s.cluster_name }}/kubeadm-join.yaml
       - name: Join worker nodes in cluster
-        command: kubeadm join --config /tmp/kubeadm-join.yaml
+        command: kubeadm join --config /tmp/{{ k8s.cluster_name }}/kubeadm-join.yaml
         become: true
       - name: Mark node as joined
         set_fact:

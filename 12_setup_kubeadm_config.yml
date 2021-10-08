@@ -25,5 +25,5 @@
       - name: Add kubelet config for node
         template: 
           src: templates/kubeadm-config.yaml.j2
-          dest: /tmp/kubeadm-config.yaml
+          dest: /tmp/{{ k8s.cluster_name }}/kubeadm-config.yaml
       when: k8s_installed is not defined

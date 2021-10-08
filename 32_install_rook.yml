@@ -38,7 +38,7 @@
         - name: Trigger rook template
           template:
             src: templates/rook-values.yml.j2
-            dest: /tmp/rook-values.yml
+            dest: /tmp/{{ k8s.cluster_name }}/rook-values.yaml
 
         - name: Ensure rook-ceph-cluster helm chart is installed
           kubernetes.core.helm:
@@ -47,6 +47,6 @@
             kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             release_namespace: rook-ceph
             values_files:
-              - /tmp/rook-values.yml
+              - /tmp/{{ k8s.cluster_name }}/rook-values.yaml
             wait: true
       when: rook_ceph.install_rook

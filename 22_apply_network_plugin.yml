@@ -12,14 +12,14 @@
             dest: "{{ item.name }}"
             mode: '0664'
           loop:
-            - name: /tmp/calico-operator.yaml
+            - name: /tmp/{{ k8s.cluster_name }}/calico-operator.yaml
               url: "{{ cni_plugins.calico.calico_operator }}"
-            - name: /tmp/calico-crd.yaml
+            - name: /tmp/{{ k8s.cluster_name }}/calico-crd.yaml
               url: "{{ cni_plugins.calico.calico_crd }}"
 
         - name: Apply custom CIDR to calico installation manifest
           replace: 
-            path: /tmp/calico-crd.yaml
+            path: /tmp/{{ k8s.cluster_name }}/calico-crd.yaml
             regexp: 192.168.0.0\/16
             replace: "{{ k8s.network.pod_cidr }}"
 
@@ -30,8 +30,8 @@
             kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             wait: yes
           loop: 
-            - /tmp/calico-operator.yaml
-            - /tmp/calico-crd.yaml
+            - /tmp/{{ k8s.cluster_name }}/calico-operator.yaml
+            - /tmp/{{ k8s.cluster_name }}/calico-crd.yaml
       when: k8s.network.cni_plugin == 'calico'
 
     - block:
@@ -60,18 +60,18 @@
         - name: Download flannel manifest
           get_url:
             url: "{{ cni_plugins.flannel.flannel_repo }}"
-            dest: /tmp/kube-flannel.yml
+            dest: /tmp/{{ k8s.cluster_name }}/kube-flannel.yaml
         
         - name: Patch kube-flannel to use host-gw instead of vxlan
           replace:
-            path: /tmp/kube-flannel.yml
+            path: /tmp/{{ k8s.cluster_name }}/kube-flannel.yaml
             regexp: 'vxlan'
             replace: 'host-gw'
 
         - name: Apply flannel manifests to the cluster.
           kubernetes.core.k8s:
             state: present
-            src: /tmp/kube-flannel.yml
+            src: /tmp/{{ k8s.cluster_name }}/kube-flannel.yaml
             kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             wait: yes
       when: k8s.network.cni_plugin == 'flannel'

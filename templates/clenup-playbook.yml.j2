@@ -5,72 +5,29 @@
     - vars/k8s_cluster.yml
   become: true
   tasks:
-    - name: Destroy cluster VM
+    - name: Destroy cluster VM and libvirt resources
       community.general.terraform:
         force_init: true
         project_path: "clusters/{{ k8s.cluster_name }}/{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
         - workers
-        - masters
-        - loadbalancer
-        - nfs
-      when: 
-        - not rook_ceph.install_rook
-        - k8s.control_plane.vms > 1
-
-    - name: Destroy cluster VM
-      community.general.terraform:
-        force_init: true
-        project_path: "clusters/{{ k8s.cluster_name }}/{{ '{{' }} item {{ '}}' }}"
-        state: absent
-      loop:
-        - workers
-        - masters
-        - nfs
-      when:
-        - not rook_ceph.install_rook
-        - k8s.control_plane.vms == 1
-
-    - name: Destroy cluster VM
-      community.general.terraform:
-        force_init: true
-        project_path: "clusters/{{ k8s.cluster_name }}/{{ '{{' }} item {{ '}}' }}"
-        state: absent
-      loop:
         - workers-rook
-        - workers
         - masters
         - loadbalancer
-      when: rook_ceph.install_rook
+        - nfs
+        - libvirt-resources
 
-    - name: Destroy libvirt pool and network 
-      community.general.terraform:
-        force_init: true
-        project_path: "clusters/{{ k8s.cluster_name }}/libvirt-resources"
-        state: absent
-
-    - name: Ensure images are deleted
-      file:
-        path: "{{ '{{' }} item {{ '}}' }}"
-        state: absent
-      loop:
-        - /tmp/OS-GenericCloud.qcow2
-
-    - name: Delete all created paths - root
+    - name: Delete all created paths and downloaded resources
       become: true
       file:
         path: "{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
         - clusters/{{ k8s.cluster_name }}
-        - "{{ k8s.cluster_name }}-inventory-k8s"
-
-    - name: Cleanup local DNS config
-      file:
-        path: "{{ '{{' }} item {{ '}}' }}"
-        state: absent
-      loop:
+        - /tmp/{{ k8s.cluster_name }}
+        - "{{ k8s.cluster_name }}-inventory"
+        - "{{ k8s.cluster_name }}-cleanup-playbook.yml"
         - /etc/NetworkManager/dnsmasq.d/{{ k8s.cluster_name }}-libvirt_dnsmasq.conf
         - /etc/NetworkManager/conf.d/{{ k8s.cluster_name }}-localdns.conf
 

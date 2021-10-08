@@ -10,7 +10,7 @@
       - name: Render template for L2 configuration
         template:
           src: templates/metallb-l2.j2
-          dest: /tmp/metallb-l2.yaml
+          dest: /tmp/{{ k8s.cluster_name }}/metallb-l2.yaml
 
       - name: Download metal-lb CR for later apply
         ansible.builtin.get_url:
@@ -18,9 +18,9 @@
           dest: "{{ item.name }}"
           mode: '0664'
         loop:
-          - name: /tmp/metallb-ns.yaml
+          - name: /tmp/{{ k8s.cluster_name }}/metallb-ns.yaml
             url: "{{ metallb_setup.manifest_url }}/namespace.yaml"
-          - name: /tmp/metallb.yaml
+          - name: /tmp/{{ k8s.cluster_name }}/metallb.yaml
             url: "{{ metallb_setup.manifest_url }}/metallb.yaml"
 
       - name: Ensure metal-lb namespace is present
@@ -40,18 +40,18 @@
           #wait: yes
           apply: yes
         loop:
-          - /tmp/metallb.yaml
-          - /tmp/metallb-l2.yaml
+          - /tmp/{{ k8s.cluster_name }}/metallb.yaml
+          - /tmp/{{ k8s.cluster_name }}/metallb-l2.yaml
 
       - name: Render template for L2 configuration
         template:
           src: templates/metallb-l2.j2
-          dest: /tmp/metallb-l2.yaml
+          dest: /tmp/{{ k8s.cluster_name }}/metallb-l2.yaml
 
       - name: Ensure metal-lb configmap is added in your cluster
         kubernetes.core.k8s:
           state: present
-          src: "/tmp/metallb-l2.yaml"
+          src: "/tmp/{{ k8s.cluster_name }}/metallb-l2.yaml"
           kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
           wait: yes
           apply: yes
