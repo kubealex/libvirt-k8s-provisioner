@@ -2,13 +2,13 @@
 localhost ansible_connection=local
 [masters]
 {% for master in groups['masters'] %}
-{{ hostvars[master].node_hostname }} ansible_host={{ hostvars[master].host_ip }} ansible_ssh_private_key_file={{ hostvars[master].ansible_ssh_private_key_file }} ansible_user={{ hostvars[master].ansible_user }} ansible_ssh_common_args="{{ hostvars[master].ansible_ssh_common_args }}" host_fqdn={{ hostvars[master].host_fqdn }} host_ip={{ hostvars[master].host_ip }} {% if loop.first %} kubehash={{ hostvars[master].kubehash }} kubetoken={{ hostvars[master].kubetoken }} kubecertkey={{ hostvars[master].kubecertkey }} k8s_installed={{ hostvars[master].k8s_installed }} {% else %} k8s_joined={{ hostvars[master].k8s_joined }} {% endif %} 
+{{ hostvars[master].host_fqdn }} ansible_host={{ hostvars[master].host_ip }} ansible_ssh_private_key_file={{ hostvars[master].ansible_ssh_private_key_file }} ansible_user={{ hostvars[master].ansible_user }} ansible_ssh_common_args="{{ hostvars[master].ansible_ssh_common_args }}" host_fqdn={{ hostvars[master].host_fqdn }} host_ip={{ hostvars[master].host_ip }} {% if loop.first %} kubehash={{ hostvars[master].kubehash }} kubetoken={{ hostvars[master].kubetoken }} kubecertkey={{ hostvars[master].kubecertkey }} k8s_installed={{ hostvars[master].k8s_installed }} {% else %} k8s_joined={{ hostvars[master].k8s_joined }} {% endif %} 
 {% endfor %}
 {% if k8s.worker_nodes.vms > 0 %}
 [workers]
 {% endif %}
 {% for worker in groups['workers'] %}
-{{ hostvars[worker].node_hostname }} ansible_host={{ hostvars[worker].host_ip }} ansible_ssh_private_key_file={{ hostvars[worker].ansible_ssh_private_key_file }} ansible_user={{ hostvars[worker].ansible_user }} ansible_ssh_common_args="{{ hostvars[worker].ansible_ssh_common_args }}" host_fqdn={{ hostvars[worker].host_fqdn }} host_ip={{ hostvars[worker].host_ip }} k8s_joined={{ hostvars[worker].k8s_joined }}
+{{ hostvars[worker].host_fqdn }} ansible_host={{ hostvars[worker].host_ip }} ansible_ssh_private_key_file={{ hostvars[worker].ansible_ssh_private_key_file }} ansible_user={{ hostvars[worker].ansible_user }} ansible_ssh_common_args="{{ hostvars[worker].ansible_ssh_common_args }}" host_fqdn={{ hostvars[worker].host_fqdn }} host_ip={{ hostvars[worker].host_ip }} k8s_joined={{ hostvars[worker].k8s_joined }}
 {% endfor %}
 [k8s_nodes:children]
 {% if k8s.worker_nodes.vms > 0 %}
@@ -18,12 +18,12 @@ masters
 {% if k8s.storage.nfs_enabled %}
 [nfs]
 {% for nfs in groups['nfs'] %}
-{{ hostvars[nfs].node_hostname }} ansible_host={{ hostvars[nfs].host_ip }} ansible_ssh_private_key_file={{ hostvars[nfs].ansible_ssh_private_key_file }} ansible_user={{ hostvars[nfs].ansible_user }} ansible_ssh_common_args="{{ hostvars[nfs].ansible_ssh_common_args }}" host_fqdn={{ hostvars[nfs].host_fqdn }} host_ip={{ hostvars[nfs].host_ip }}
+{{ hostvars[nfs].host_fqdn }} ansible_host={{ hostvars[nfs].host_ip }} ansible_ssh_private_key_file={{ hostvars[nfs].ansible_ssh_private_key_file }} ansible_user={{ hostvars[nfs].ansible_user }} ansible_ssh_common_args="{{ hostvars[nfs].ansible_ssh_common_args }}" host_fqdn={{ hostvars[nfs].host_fqdn }} host_ip={{ hostvars[nfs].host_ip }}
 {% endfor %}
 {% endif %}
 {% if k8s.control_plane.vms > 1 or k8s.worker_nodes.vms > 1 %}
 [loadbalancer]
 {% for lb in groups['loadbalancer'] %}
-{{ hostvars[lb].node_hostname }} ansible_host={{ hostvars[lb].host_ip }} ansible_ssh_private_key_file={{ hostvars[lb].ansible_ssh_private_key_file }} ansible_user={{ hostvars[lb].ansible_user }} ansible_ssh_common_args="{{ hostvars[lb].ansible_ssh_common_args }}" host_fqdn={{ hostvars[lb].host_fqdn }} host_ip={{ hostvars[lb].host_ip }}
+{{ hostvars[lb].host_fqdn }} ansible_host={{ hostvars[lb].host_ip }} ansible_ssh_private_key_file={{ hostvars[lb].ansible_ssh_private_key_file }} ansible_user={{ hostvars[lb].ansible_user }} ansible_ssh_common_args="{{ hostvars[lb].ansible_ssh_common_args }}" host_fqdn={{ hostvars[lb].host_fqdn }} host_ip={{ hostvars[lb].host_ip }}
 {% endfor %}
 {% endif %}
