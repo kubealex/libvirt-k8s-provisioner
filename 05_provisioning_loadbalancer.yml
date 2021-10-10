@@ -22,6 +22,7 @@
 
         - name: Add loadbalancer to inventory
           add_host:
+            hostname: '{{ k8s.cluster_name }}-loadbalancer.{{ k8s.network.domain }}'
             ansible_ssh_private_key_file: "clusters/{{ k8s.cluster_name }}/id_rsa"
             ansible_user: kube
             ansible_ssh_common_args: '-o StrictHostKeyChecking=no'

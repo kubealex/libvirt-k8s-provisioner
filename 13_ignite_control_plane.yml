@@ -6,7 +6,7 @@
   tasks:
     - block:
         - name: Start kubeadm install
-          shell: kubeadm init --config /tmp/{{ k8s.cluster_name }}/kubeadm-config.yaml --upload-certs
+          shell: kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs
           become: true
       
         - name: Get information on generated certificate
