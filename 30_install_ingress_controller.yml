@@ -45,36 +45,6 @@
                     http: "{{ ingress_controller.node_port.http }}"
                     https: "{{ ingress_controller.node_port.https }}"
             wait: true
-      
-#        - name: Download Contour CR for later apply
-#          ansible.builtin.get_url:
-#            url: "{{ item.url }}"
-#            dest: "{{ item.name }}"
-#            mode: '0664'
-#          loop:
-#            - name: /tmp/contour.yaml
-#              url: "{{ ingresses.contour_repo }}"
-#
-#        - name: Ensure Contour is installed in your cluster
-#          kubernetes.core.k8s:
-#            state: present
-#            src: "{{ item }}"
-#            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-#            wait: yes
-#          loop:
-#            - /tmp/contour.yaml
-#          
-#        - name: Save nodePorts in master facts
-#          shell: kubectl get svc envoy --kubeconfig=clusters/{{ k8s.cluster_name }}/admin.kubeconfig -n projectcontour -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
-#          loop:
-#            - http
-#            - https
-#          register: ports
-#        
-#        - name: Save facts
-#          set_fact:
-#            ingress_http_port: "{{ ports.results[0].stdout }}" 
-#            ingress_https_port: "{{ ports.results[1].stdout }}" 
       when: ingress_controller.install_ingress_controller and ingress_controller.type == 'contour'
        
     - name: Take all required steps to install haproxy as ingress controller
@@ -103,6 +73,7 @@
             release_namespace: haproxy-controller
             values:
               controller:
+                ingressClass: null
                 service:
                   type: NodePort
                   nodePorts:
@@ -110,36 +81,6 @@
                     https: "{{ ingress_controller.node_port.https }}"
                     stat: 31024
             wait: true
-
-#        - name: Download HAProxy CR for later apply
-#          ansible.builtin.get_url:
-#            url: "{{ item.url }}"
-#            dest: "{{ item.name }}"
-#            mode: '0664'
-#          loop:
-#            - name: /tmp/haproxy.yaml
-#              url: "{{ ingresses.haproxy_repo }}"
-#
-#        - name: Ensure HAProxy is installed in your cluster
-#          kubernetes.core.k8s:
-#            state: present
-#            src: "{{ item }}"
-#            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-#            wait: yes
-#          loop:
-#            - /tmp/haproxy.yaml
-#
-#        - name: Save nodePorts in master facts
-#          shell: kubectl get svc haproxy-ingress --kubeconfig=clusters/{{ k8s.cluster_name }}/admin.kubeconfig -n haproxy-controller -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
-#          loop:
-#            - http
-#            - https
-#          register: ports
-#        
-#        - name: Save facts
-#          set_fact:
-#            ingress_http_port: "{{ ports.results[0].stdout }}" 
-#            ingress_https_port: "{{ ports.results[1].stdout }}" 
       when: ingress_controller.install_ingress_controller and ingress_controller.type == 'haproxy'
       
     - name: Take all required steps to install Nginx as ingress controller
@@ -181,35 +122,6 @@
                     https: "{{ ingress_controller.node_port.https }}"
             wait: true
               
-#        - name: Download Nginx CR for later apply
-#          ansible.builtin.get_url:
-#            url: "{{ item.url }}"
-#            dest: "{{ item.name }}"
-#            mode: '0664'
-#          loop:
-#            - name: /tmp/nginx.yaml
-#              url: "{{ ingresses.nginx_repo if k8s.cluster_version != '1.22' else ingresses.nginx_122_repo }}"
-#
-#        - name: Ensure Nginx is installed in your cluster
-#          kubernetes.core.k8s:
-#            state: present
-#            src: "{{ item }}"
-#            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-#            wait: yes
-#          loop:
-#            - /tmp/nginx.yaml
-#
-#        - name: Save nodePorts in master facts
-#          shell: kubectl get svc ingress-nginx-controller --kubeconfig=clusters/{{ k8s.cluster_name }}/admin.kubeconfig -n ingress-nginx -o jsonpath='{..spec.ports[?(@.name=="{{ item }}")].nodePort}'
-#          loop:
-#            - http
-#            - https
-#          register: ports
-#        
-#        - name: Save facts
-#          set_fact:
-#            ingress_http_port: "{{ ports.results[0].stdout }}" 
-#            ingress_https_port: "{{ ports.results[1].stdout }}" 
       when: ingress_controller.install_ingress_controller and ingress_controller.type == 'nginx'
 
 - name: Refresh facts
@@ -247,7 +159,7 @@
         - name: Fire up new haproxy template
           template:
             src: templates/haproxy.j2
-            dest: clusters/{{ k8s.cluster_name }}/haproxy.cfg
+            dest: "clusters/{{ k8s.cluster_name }}/haproxy.cfg"
       when: 
         - ingress_controller.install_ingress_controller
         - k8s.control_plane.vms > 1 or k8s.worker_nodes.vms > 1

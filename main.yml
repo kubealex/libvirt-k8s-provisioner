@@ -7,7 +7,6 @@
 - import_playbook: 06_provisioning_nfs.yml
 - import_playbook: 07_nfs_services.yml
 - import_playbook: 08_loadbalancer_services.yml
-- import_playbook: 09_save_inventory.yml
 - import_playbook: 10_container_runtimes.yml
 - import_playbook: 11_install_kube_packages.yml
 - import_playbook: 12_setup_kubeadm_config.yml
@@ -16,6 +15,7 @@
 - import_playbook: 21_join_nodes.yml
 - import_playbook: 22_apply_network_plugin.yml
 - import_playbook: 25_complete_setup.yml
+- import_playbook: 29_save_inventory.yml
 - import_playbook: 30_install_ingress_controller.yml
 - import_playbook: 31_install_rancher.yml
 - import_playbook: 32_install_rook.yml

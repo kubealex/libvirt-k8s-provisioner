@@ -1,29 +1,29 @@
 ---
 - name: Prepare kubeadm-config for cluster setup
-  hosts: masters
+  hosts: masters[0]
   become: true
-  run_once: true
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - name: Generate cluster token
-      command: kubeadm token generate
-      register: kubetoken_generated
+    - block:
+      - name: Generate cluster token
+        command: kubeadm token generate
+        register: kubetoken_generated
 
-    - name: Set generated token as fact
-      set_fact:
-        kubetoken: "{{ kubetoken_generated.stdout }}"
+      - name: Set generated token as fact
+        set_fact:
+          kubetoken: "{{ kubetoken_generated.stdout }}"
 
-    - name: Generate certificate key
-      command: kubeadm {{ 'alpha' if (k8s.cluster_version == '1.19') else '' }} certs certificate-key
-      register: kubecert_generated
+      - name: Generate certificate key
+        command: kubeadm {{ 'alpha' if (k8s.cluster_version == '1.19') else '' }} certs certificate-key
+        register: kubecert_generated
 
-    - name: Set generated token as fact
-      set_fact:
-        kubecertkey: "{{ kubecert_generated.stdout }}"
+      - name: Set generated token as fact
+        set_fact:
+          kubecertkey: "{{ kubecert_generated.stdout }}"
 
-    - name: Add kubelet config for node
-      template: 
-        src: templates/kubeadm-config.yaml.j2
-        dest: /tmp/kubeadm-config.yaml
-
+      - name: Add kubelet config for node
+        template: 
+          src: templates/kubeadm-config.yaml.j2
+          dest: /tmp/kubeadm-config.yaml
+      when: k8s_installed is not defined

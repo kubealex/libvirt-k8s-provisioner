@@ -7,24 +7,32 @@
       file:
         path: "clusters/{{ k8s.cluster_name }}"
         state: directory
-        owner: kube
-        group: kube
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}" 
+        mode: 0755
+
+    - name: Ensure pivot tmp folder exists
+      file:
+        path: "/tmp/{{ k8s.cluster_name }}"
+        state: directory
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
         mode: 0755
 
     - name: Populate cluster folder with terraform files
       copy:
         src: "files/terraform/"
         dest: "clusters/{{ k8s.cluster_name }}"
-        owner: kube
-        group: kube
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
         mode: 0755
 
     - name: Snapshot cluster configuration for further use
       copy:
         src: "vars/k8s_cluster.yml"
         dest: "clusters/{{ k8s.cluster_name }}/"
-        owner: kube
-        group: kube
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
         mode: 0755
 
     - name: Ensure helm is installed
@@ -40,6 +48,11 @@
         remote_src: true
         mode: +x
       become: true
+
+    - name: Install Helm Diff
+      kubernetes.core.helm_plugin:
+        state: present
+        plugin_path: https://github.com/databus23/helm-diff
 
     - name: remove directory
       file:

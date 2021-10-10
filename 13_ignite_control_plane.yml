@@ -2,46 +2,46 @@
 - name: Install cluster with kubeadm
   vars_files:
     - vars/k8s_cluster.yml
-  hosts: masters
-  run_once: true
+  hosts: masters[0]
   tasks:
-    - name: Start kubeadm install
-      shell: kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs
-      become: true
+    - block:
+        - name: Start kubeadm install
+          shell: kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs
+          become: true
+      
+        - name: Get information on generated certificate
+          openssl_certificate_info:
+            path: /etc/kubernetes/pki/ca.crt
+          register: cert
+  
+        - name: Set fact for certificate hash
+          set_fact:
+            kubehash: "sha256:{{ cert.public_key_fingerprints.sha256 | replace(':', '') }}"
+  
+        - name: Create kube directory
+          file:
+            path: /home/kube/.kube
+            state: directory
     
-    - name: Get information on generated certificate
-      openssl_certificate_info:
-        path: /etc/kubernetes/pki/ca.crt
-      register: cert
+        - name: Copy kubeconfig
+          copy:
+            src: /etc/kubernetes/admin.conf
+            dest: /home/kube/.kube/config
+            remote_src: true
+            owner: "{{ ansible_user_id }}"
+            group: "{{ ansible_user_id }}"
+          become: true
+  
+        - name: Fetch kubeconfig file
+          fetch:
+            src: /etc/kubernetes/admin.conf
+            dest: clusters/{{ k8s.cluster_name }}/admin.kubeconfig
+            flat: yes
+          become: true
 
-    - name: Set fact for certificate hash
-      set_fact:
-        kubehash: "sha256:{{ cert.public_key_fingerprints.sha256 | replace(':', '') }}"
-
-    - name: Create kube directory
-      file:
-        path: /home/kube/.kube
-        state: directory
- 
-    - name: Copy kubeconfig
-      copy:
-        src: /etc/kubernetes/admin.conf
-        dest: /home/kube/.kube/config
-        remote_src: true
-        owner: kube
-        group: kube
-      become: true
-
-    - set_fact:
-        k8s_installed: true               
-
-    - name: Fetch kubeconfig file
-      fetch:
-        src: /etc/kubernetes/admin.conf
-        dest: clusters/{{ k8s.cluster_name }}/admin.kubeconfig
-        flat: yes
-      become: true
-      when: inventory_hostname == groups['masters'][0]
+        - set_fact:
+            k8s_installed: true
+      when: k8s_installed is not defined
 
 - name: Verify cluster has been initialized
   vars_files:
@@ -58,3 +58,4 @@
           tier = control-plane
         kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
         wait: yes
+      when: hostvars[groups['masters'][0]].k8s_installed is not defined
