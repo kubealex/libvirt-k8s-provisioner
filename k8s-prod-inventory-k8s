@@ -1,0 +1,12 @@
+[vm_host]
+localhost ansible_connection=local
+[masters]
+k8s-prod-master-0.k8s.prod ansible_host=192.168.200.170 ansible_ssh_private_key_file=clusters/k8s-prod/id_rsa ansible_user=kube ansible_ssh_common_args="-o StrictHostKeyChecking=no" host_fqdn=k8s-prod-master-0.k8s.prod host_ip=192.168.200.170  kubehash=sha256:0d8496742618c9fd7f5edf4aadd4e627653bc8702bd8770741a1fa66ba2617df kubetoken=o5ysvt.jbfax4ykw4so6wob kubecertkey=a625dda8dddc9aef4f819bf031a5ec5c855f46bd557e27da077d01fc1037d6bb k8s_installed=True  
+[workers]
+k8s-prod-worker-0.k8s.prod ansible_host=192.168.200.234 ansible_ssh_private_key_file=clusters/k8s-prod/id_rsa ansible_user=kube ansible_ssh_common_args="-o StrictHostKeyChecking=no" host_fqdn=k8s-prod-worker-0.k8s.prod host_ip=192.168.200.234 k8s_joined=True
+k8s-prod-worker-1.k8s.prod ansible_host=192.168.200.206 ansible_ssh_private_key_file=clusters/k8s-prod/id_rsa ansible_user=kube ansible_ssh_common_args="-o StrictHostKeyChecking=no" host_fqdn=k8s-prod-worker-1.k8s.prod host_ip=192.168.200.206 k8s_joined=True
+[k8s_nodes:children]
+workers
+masters
+[loadbalancer]
+k8s-prod-loadbalancer.k8s.prod ansible_host=192.168.200.252 ansible_ssh_private_key_file=clusters/k8s-prod/id_rsa ansible_user=kube ansible_ssh_common_args="-o StrictHostKeyChecking=no" host_fqdn=k8s-prod-loadbalancer.k8s.prod host_ip=192.168.200.252

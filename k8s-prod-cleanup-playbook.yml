@@ -1,0 +1,40 @@
+---
+- name: Cleanup playbook
+  hosts: vm_host
+  vars_files:
+    - vars/k8s_cluster.yml
+  become: true
+  tasks:
+    - name: Destroy cluster VM and libvirt resources
+      community.general.terraform:
+        force_init: true
+        project_path: "clusters/k8s-prod/{{ item }}"
+        state: absent
+      loop:
+        - workers
+        - workers-rook
+        - masters
+        - loadbalancer
+        - nfs
+        - libvirt-resources
+
+    - name: Delete all created paths and downloaded resources
+      become: true
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - clusters/k8s-prod
+        - /tmp/k8s-prod
+        - "k8s-prod-inventory"
+        - "k8s-prod-cleanup-playbook.yml"
+        - /etc/NetworkManager/dnsmasq.d/k8s-prod-libvirt_dnsmasq.conf
+        - /etc/NetworkManager/conf.d/k8s-prod-localdns.conf
+
+    - name: Restart NetworkManager and libvirtd
+      service:
+        name: "{{ item }}"
+        state: restarted
+      loop:
+        - libvirtd
+        - NetworkManager

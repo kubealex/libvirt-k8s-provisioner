@@ -1,6 +1,6 @@
 # General configuration
 k8s:
-  cluster_name: k8s-test
+  cluster_name: k8s-prod
   cluster_os: Ubuntu
   cluster_version: "1.22"
   container_runtime: crio
@@ -10,22 +10,22 @@ k8s:
 
   control_plane:
     vcpu: 2
-    mem: 2
-    vms: 3
+    mem: 12
+    vms: 1
     disk: 30
 
   worker_nodes:
-    vcpu: 2
-    mem: 1
-    vms: 1
+    vcpu: 3
+    mem: 16
+    vms: 2
     disk: 30
 
 # Network configuration
 
   network:
     network_cidr: 192.168.200.0/24
-    domain: k8s.test
-    additional_san: ""
+    domain: k8s.prod
+    additional_san: "k8s.inetninja.com"
     pod_cidr: 10.20.0.0/16
     service_cidr: 10.110.0.0/16
 
@@ -37,14 +37,10 @@ k8s:
     nfs_fsSize: 50
     nfs_export: /srv/k8s
 
-
-# Metrics server configuration
-metrics_server:
-  enabled: true
 # Rook configuration
 rook_ceph:
-  install_rook: false
-  volume_size: 50
+  install_rook: true
+  volume_size: 200
   rook_cluster_size: 1
 
 # Ingress controller configuration [nginx/haproxy/contour]
