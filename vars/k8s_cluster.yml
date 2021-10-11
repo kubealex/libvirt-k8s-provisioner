@@ -3,7 +3,7 @@ k8s:
   cluster_name: k8s-test
   cluster_os: Ubuntu
   cluster_version: "1.22"
-  container_runtime: crio
+  container_runtime: docker
   master_schedulable: false
 
 # Nodes configuration
@@ -16,7 +16,7 @@ k8s:
 
   worker_nodes:
     vcpu: 2
-    mem: 1
+    mem: 2
     vms: 1
     disk: 30
 
@@ -30,17 +30,13 @@ k8s:
     service_cidr: 10.110.0.0/16
 
 # Choose between [calico/flannel/cilium]
-    cni_plugin: cilium
+    cni_plugin: calico
 
   storage:
     nfs_enabled: false
     nfs_fsSize: 50
     nfs_export: /srv/k8s
 
-
-# Metrics server configuration
-metrics_server:
-  enabled: true
 # Rook configuration
 rook_ceph:
   install_rook: false
@@ -65,6 +61,6 @@ rancher:
 # Section for metalLB setup
 
 metallb:
-  install_metallb: true
+  install_metallb: false
   l2: 
     iprange: 192.168.200.210-192.168.200.250
