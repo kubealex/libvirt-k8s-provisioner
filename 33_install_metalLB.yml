@@ -30,7 +30,7 @@
           kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
           wait: yes
         loop:
-          - /tmp/metallb-ns.yaml
+          - /tmp/{{ k8s.cluster_name }}/metallb-ns.yaml
 
       - name: Ensure metal-lb is installed in your cluster
         kubernetes.core.k8s:
