@@ -41,7 +41,6 @@
           apply: yes
         loop:
           - /tmp/{{ k8s.cluster_name }}/metallb.yaml
-          - /tmp/{{ k8s.cluster_name }}/metallb-l2.yaml
 
       - name: Render template for L2 configuration
         template:
