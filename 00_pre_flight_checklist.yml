@@ -24,7 +24,7 @@
         msg: Using Rancher for version {{ k8s.cluster_version }} is not yet supported.
       when:
         - rancher.install_rancher
-        - k8s.cluster_version == '1.22'
+        - k8s.cluster_version == '1.22' or k8s.cluster_version == '1.23'
 
     - name: Check at least one vm for control plane is defined
       fail:

@@ -2,8 +2,8 @@
 k8s:
   cluster_name: k8s-test
   cluster_os: Ubuntu
-  cluster_version: "1.22"
-  container_runtime: docker
+  cluster_version: "1.23"
+  container_runtime: crio
   master_schedulable: false
 
 # Nodes configuration
