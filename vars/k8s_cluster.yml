@@ -3,7 +3,7 @@ k8s:
   cluster_name: k8s-test
   cluster_os: Ubuntu
   cluster_version: "1.23"
-  container_runtime: crio
+  container_runtime: docker
   master_schedulable: false
 
 # Nodes configuration
@@ -11,7 +11,7 @@ k8s:
   control_plane:
     vcpu: 2
     mem: 2
-    vms: 3
+    vms: 1
     disk: 30
 
   worker_nodes:
@@ -30,7 +30,7 @@ k8s:
     service_cidr: 10.110.0.0/16
 
 # Choose between [calico/flannel/cilium]
-    cni_plugin: calico
+    cni_plugin: cilium
 
   storage:
     nfs_enabled: false
