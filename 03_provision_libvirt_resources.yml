@@ -66,6 +66,7 @@
         src: templates/libvirt_dnsmasq.j2
         dest: /etc/NetworkManager/dnsmasq.d/{{ k8s.cluster_name }}-libvirt_dnsmasq.conf
       notify:
+        - Restart NetworkManager
         - Wait for local DNS resolver to be up
   
   handlers:
