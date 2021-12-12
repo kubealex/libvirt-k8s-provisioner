@@ -23,6 +23,12 @@
             regexp: 192.168.0.0\/16
             replace: "{{ k8s.network.pod_cidr }}"
 
+        - name: Temporary fix for non ascii char in Calico CRD (https://github.com/projectcalico/api/pull/46)
+          replace:
+            path: /tmp/{{ k8s.cluster_name }}/calico-operator.yaml
+            regexp: \’
+            replace: ""
+
         - name: Apply calico manifests to the cluster.
           kubernetes.core.k8s:
             state: present
