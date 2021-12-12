@@ -21,7 +21,8 @@
         mode: 0777
       when: k8s.cluster_os == 'Ubuntu'
 
-    - community.general.terraform:
+    - name: Ensure control plane VMs are in place
+      community.general.terraform:
         project_path: "clusters/{{ k8s.cluster_name }}/masters"
         force_init: true
         variables:
@@ -39,7 +40,8 @@
       become: true
       register: output_masters
 
-    - community.general.terraform:
+    - name: Ensure worker VMs are in place
+      community.general.terraform:
         project_path: "clusters/{{ k8s.cluster_name }}/workers"
         force_init: true
         variables:
@@ -58,7 +60,8 @@
       become: true
       register: output_workers
 
-    - community.general.terraform:
+    - name: Ensure Rook dedicated worker VMs are in place
+      community.general.terraform:
         project_path: "clusters/{{ k8s.cluster_name }}/workers-rook"
         force_init: true
         variables:
@@ -118,7 +121,7 @@
 
     - ping:
 
-    - name: add hosts to children groups
+    - name: Add hosts to correct groups
       group_by:
         key: "{{ group_children }}"
 
