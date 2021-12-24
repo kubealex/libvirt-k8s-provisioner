@@ -8,6 +8,8 @@ centos:
   cloud_image: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20210603.0.x86_64.qcow2
 ubuntu:
   cloud_image: https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img
+ubuntu_hirsute:
+  cloud_image: https://cloud-images.ubuntu.com/releases/hirsute/release/ubuntu-21.04-server-cloudimg-amd64.img
 
 libvirt:
   storage:

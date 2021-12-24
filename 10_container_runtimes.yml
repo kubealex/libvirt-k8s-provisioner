@@ -6,6 +6,10 @@
     - vars/k8s_cluster.yml
   tasks:
 
+    - name: Retrieve the minor version
+      set_fact:
+        kubernetes_version: "{{ k8s.cluster_version.split('.') }}"
+
     - name: Upgrade all packages
       yum:
         name: '*'
@@ -160,6 +164,13 @@
               file: /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
             - repo: "{{ crio.ubuntu.crio_repo }}"
               file: /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:1.19.list
+
+        - name: Temporary fix for memory swap slices on 20.04
+          lineinfile: 
+            path: /etc/default/grub
+            regexp: '^GRUB_CMDLINE_LINUX'
+            line: 'GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"'
+        
           when: k8s.cluster_os == 'Ubuntu'
 
         - name: Add kubic CentOS repository
@@ -263,3 +274,6 @@
             state: restarted
             enabled: true
       when: k8s.container_runtime == 'containerd'
+
+    - name: Reboot nodes before proceeding
+      reboot:

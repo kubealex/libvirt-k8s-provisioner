@@ -42,12 +42,6 @@
           - haproxy
           - NetworkManager
 
-#        # Workaround to fix firewalld zone not persisting after reboot: https://github.com/firewalld/firewalld/issues/195
-# 
-#      - name: Set interface to internal zone 
-#        shell: nmcli connection modify System\ eth0 connection.zone internal
-#        when: k8s.cluster_os == 'CentOS'
-
       - name: Stop NetworkManager
         service: 
           name: NetworkManager
