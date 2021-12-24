@@ -26,13 +26,6 @@
         - rancher.install_rancher
         - k8s.cluster_version == '1.22' or k8s.cluster_version == '1.23'
 
-#    - name: Version preserver check - 1.23
-#      fail:
-#        msg: Using cri-o for version {{ k8s.cluster_version }} is not yet supported.
-#      when:
-#        - k8s.cluster_version == '1.23'
-#        - k8s.container_runtime == 'crio'
-
     - name: Check at least one vm for control plane is defined
       fail:
         msg: At least one control plane should be selected
