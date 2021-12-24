@@ -6,6 +6,10 @@
     - vars/k8s_cluster.yml
   tasks:
 
+    - name: Retrieve the minor version
+      set_fact:
+        kubernetes_version: "{{ k8s.cluster_version.split('.') }}"
+
     - name: Upgrade all packages
       yum:
         name: '*'
