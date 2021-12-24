@@ -67,3 +67,26 @@
         - PyYAML
         - kubernetes
         - jsonpatch
+
+    - name: Retrieve the minor version
+      set_fact:
+        kubernetes_version: "{{ k8s.cluster_version.split('.') }}"
+
+    - name: Create ssh keypair
+      openssh_keypair:
+        path: "clusters/{{ k8s.cluster_name }}/id_rsa"
+
+    - name: Download CentOS image
+      get_url:
+        url: "{{ centos.cloud_image }}"
+        dest: /tmp/{{ image_name }}.qcow2
+        mode: 0777
+      when: k8s.cluster_os == 'CentOS'
+
+    - name: Download Ubuntu image
+      get_url:
+        url: "{{ ubuntu_hirsute.cloud_image if kubernetes_version.1 | int > 20 else ubuntu.cloud_image }}"
+        dest: /tmp/{{ image_name }}.qcow2
+        mode: 0777
+      when: k8s.cluster_os == 'Ubuntu'
+

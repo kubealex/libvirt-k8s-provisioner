@@ -3,24 +3,6 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - name: Create ssh keypair
-      openssh_keypair:
-        path: "clusters/{{ k8s.cluster_name }}/id_rsa"
-
-    - name: Download CentOS image
-      get_url:
-        url: "{{ centos.cloud_image }}"
-        dest: /tmp/{{ image_name }}.qcow2
-        mode: 0777
-      when: k8s.cluster_os == 'CentOS'
-
-    - name: Download Ubuntu image
-      get_url:
-        url: "{{ ubuntu.cloud_image }}"
-        dest: /tmp/{{ image_name }}.qcow2
-        mode: 0777
-      when: k8s.cluster_os == 'Ubuntu'
-
     - name: Ensure control plane VMs are in place
       community.general.terraform:
         project_path: "clusters/{{ k8s.cluster_name }}/masters"
