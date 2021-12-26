@@ -6,10 +6,11 @@ Welcome to the home of the project!
 With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want.
 
 Kubernetes version that is installed can be choosen between:
-- **1.22** - Latest 1.22 release (1.22.1) - ** WARNING! Rancher is not supported yet by helm chart **
-- **1.21** - Latest 1.21 release (1.21.5)
-- **1.20** - Latest 1.20 release (1.20.11)
-- **1.19** - Latest 1.19 release (1-19.15)
+- **1.23** - Latest 1.23 release (1.23.1) - ** WARNING! Rancher is not supported yet by helm chart **
+- **1.22** - Latest 1.22 release (1.22.4) - ** WARNING! Rancher is not supported yet by helm chart **
+- **1.21** - Latest 1.21 release (1.21.7)
+- **1.20** - Latest 1.20 release (1.20.13)
+- **1.19** - Latest 1.19 release (1.19.16)
 
 Terraform will take care of the provisioning of:
 - Loadbalancer machine with **haproxy** installed and configured for **HA** clusters
@@ -89,7 +90,7 @@ Recommended sizings are:
 	k8s:
 	  cluster_name: k8s-test
 	  cluster_os: Ubuntu
-	  cluster_version: 1.22
+	  cluster_version: 1.23
 	  container_runtime: crio
 	  master_schedulable: false
 
@@ -102,7 +103,7 @@ Recommended sizings are:
 	    disk: 30
 
 	  worker_nodes:
-	    vcpu: 1
+	    vcpu: 2
 	    mem: 2
 	    vms: 1
 	    disk: 30
