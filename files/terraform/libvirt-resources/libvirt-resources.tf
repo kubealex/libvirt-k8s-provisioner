@@ -38,10 +38,11 @@ resource "libvirt_network" "kube_network" {
 }
 
 terraform {
+  required_version = ">= 1.0"
   required_providers {
     libvirt = {
       source = "registry.terraform.io/dmacvicar/libvirt"
-      version = "0.6.11"
+      version = "0.6.12"
     }
   }
 }
