@@ -1,3 +1,4 @@
+clusters/
 *.default
 *.good
 id_rsa*
