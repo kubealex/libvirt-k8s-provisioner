@@ -1,9 +1,7 @@
 clusters/
+*-inventory-k8s
+*-cleanup-playbook.yml
 *.default
 *.good
-id_rsa*
 terraform.tfstate*
 .terraform*
-admin.kubeconfig
-test.yml
-haproxy.cfg
