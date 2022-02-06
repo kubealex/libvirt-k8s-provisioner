@@ -1,5 +1,5 @@
 clusters/
-*-inventory-k8s
+*-inventory
 *-cleanup-playbook.yml
 *.default
 *.good
