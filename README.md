@@ -35,7 +35,6 @@ You can customize the setup choosing:
 - **additional SANS** to be added to api-server
 - **NFS Server creation for exporting shares to be used as PVs**
 - **[nginx-ingress-controller](https://kubernetes.github.io/ingress-nginx/)**, **[haproxy-ingress-controller](https://github.com/haproxytech/kubernetes-ingress)** or **[Project Contour](https://projectcontour.io/)**  if you want to enable ingress management.  
-- **[Rancher](https://rancher.com/)** installation to manage your cluster. **Working up to 1.21**
 - **[metalLB](https://metallb.universe.tf/)** to manage bare-metal LoadBalancer services - **WIP** - Only L2 configuration can be set-up via playbook.
 - **[Rook-Ceph](https://rook.io/docs/rook/v1.4/ceph-storage.html)** - **WIP - To be improved, current rook-ceph cluster size is fixed to 3 nodes**
 
@@ -125,7 +124,6 @@ Recommended sizings are:
    	    nfs_fsSize: 50GB
 	    nfs_export: /srv/k8s
 
-
 	rook_ceph:
 	  install_rook: false
 	  volume_size: 50
@@ -139,12 +137,6 @@ Recommended sizings are:
           node_port:
             http: 31080
             https: 31443    
-
-	# Section for Rancher setup
-
-	rancher:
-	  install_rancher: true
-	  ingress_hostname: "rancher.k8s.test"
 
 	# Section for metalLB setup
 

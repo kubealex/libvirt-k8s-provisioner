@@ -19,13 +19,6 @@
         - k8s.cluster_os != 'CentOS'
         - k8s.cluster_os != 'Ubuntu'
 
-    - name: Version preserver check - 1.22
-      fail:
-        msg: Using Rancher for version {{ k8s.cluster_version }} is not yet supported.
-      when:
-        - rancher.install_rancher
-        - k8s.cluster_version == '1.22' or k8s.cluster_version == '1.23'
-
     - name: Check at least one vm for control plane is defined
       fail:
         msg: At least one control plane should be selected
@@ -68,10 +61,3 @@
         - k8s.network.cni_plugin != 'calico'
         - k8s.network.cni_plugin != 'flannel'
         - k8s.network.cni_plugin != 'cilium'
-
-    - name: Check if an ingress controller is selected before installing rancher
-      fail:
-        msg: To install Rancher, install_ingress_controller must be true
-      when:
-        - rancher.install_rancher
-        - ingress_controller.install_ingress_controller == false
