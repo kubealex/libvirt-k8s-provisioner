@@ -33,6 +33,7 @@
             chart_ref: "{{ rook.operator.chart.ref }}"
             kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             release_namespace: rook-ceph
+            update_repo_cache: true
             wait: true
 
         - name: Trigger rook template
@@ -46,6 +47,7 @@
             chart_ref: "{{ rook.cluster.chart.ref }}"
             kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             release_namespace: rook-ceph
+            update_repo_cache: true
             values_files:
               - /tmp/{{ k8s.cluster_name }}/rook-values.yaml
             wait: true
