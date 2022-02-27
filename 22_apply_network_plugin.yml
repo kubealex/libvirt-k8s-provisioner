@@ -56,6 +56,7 @@
             chart_version: "{{ cni_plugins.cilium.chart.version }}"
             kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             release_namespace: kube-system
+            update_repo_cache: true
             values:
               ipam:
                 mode: kubernetes

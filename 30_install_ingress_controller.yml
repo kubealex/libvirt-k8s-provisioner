@@ -29,6 +29,7 @@
             chart_ref: "{{ ingress.contour.chart.ref }}"
             kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             release_namespace: projectcontour
+            update_repo_cache: true
             values:
               contour:
                 ingressClass: ""
@@ -80,6 +81,7 @@
                     http: "{{ ingress_controller.node_port.http }}"
                     https: "{{ ingress_controller.node_port.https }}"
                     stat: 31024
+            update_repo_cache: true
             wait: true
       when: ingress_controller.install_ingress_controller and ingress_controller.type == 'haproxy'
       
@@ -120,6 +122,7 @@
                   nodePorts:
                     http: "{{ ingress_controller.node_port.http }}"
                     https: "{{ ingress_controller.node_port.https }}"
+            update_repo_cache: true
             wait: true
               
       when: ingress_controller.install_ingress_controller and ingress_controller.type == 'nginx'
