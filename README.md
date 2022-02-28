@@ -6,10 +6,10 @@ Welcome to the home of the project!
 With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want.
 
 Kubernetes version that is installed can be choosen between:
-- **1.23** - Latest 1.23 release (1.23.1) - ** WARNING! Rancher is not supported yet by helm chart **
-- **1.22** - Latest 1.22 release (1.22.4) - ** WARNING! Rancher is not supported yet by helm chart **
-- **1.21** - Latest 1.21 release (1.21.7)
-- **1.20** - Latest 1.20 release (1.20.13)
+- **1.23** - Latest 1.23 release (1.23.4)
+- **1.22** - Latest 1.22 release (1.22.7) 
+- **1.21** - Latest 1.21 release (1.21.10)
+- **1.20** - Latest 1.20 release (1.20.15)
 - **1.19** - Latest 1.19 release (1.19.16)
 
 Terraform will take care of the provisioning of:
@@ -202,9 +202,6 @@ In order to keep clusters separated, ensure that you use a different **k8s.clust
 
 ## Rook 
 **Rook** setup actually creates a dedicated kind of worker, with an additional volume on the VMs that are required. Now it is possible to select the size of Rook cluster using **rook_ceph.rook_cluster_size** variable in the settings.
-
-## Rancher 
-Basic setup is made starting from Rancher documentation, with **Helm** chart. **Rancher is not supported on 1.22 at this time**
 
 ## MetalLB 
 Basic setup taken from the documentation. At the moment, the parameter **l2** reports the IPs that can be used (defaults to some IPs in the same subnet of the hosts) as 'external' IPs for accessing the applications
