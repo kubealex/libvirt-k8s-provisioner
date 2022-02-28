@@ -22,7 +22,7 @@ It also takes care of preparing the host machine with needed packages, configuri
 - dedicated libvirt dnsmasq configuration
 - dedicated libvirt network (fully customizable)
 - dedicated libvirt storage pool (fully customizable) 
-- terraform 1.1.4
+- terraform 1.1.6
 - libvirt-terraform-provider ( compiled and initialized based on [https://github.com/dmacvicar/terraform-provider-libvirt](https://github.com/dmacvicar/terraform-provider-libvirt))
 
 You can customize the setup choosing:
