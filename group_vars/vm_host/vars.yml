@@ -102,10 +102,6 @@ ingress:
 helm:
   helm_installer: https://get.helm.sh/helm-v3.8.0-linux-amd64.tar.gz
 
-rancher_helm:
-  rancher_chart: https://releases.rancher.com/server-charts/latest
-  cert_manager_chart: https://charts.jetstack.io
-
 rook:
   operator:
     chart:

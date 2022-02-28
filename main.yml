@@ -17,6 +17,5 @@
 - import_playbook: 25_complete_setup.yml
 - import_playbook: 29_save_inventory.yml
 - import_playbook: 30_install_ingress_controller.yml
-- import_playbook: 31_install_rancher.yml
 - import_playbook: 32_install_rook.yml
 - import_playbook: 33_install_metalLB.yml

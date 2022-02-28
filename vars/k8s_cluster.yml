@@ -52,12 +52,6 @@ ingress_controller:
     http: 31080
     https: 31443
 
-# Section for Rancher setup
-
-rancher:
-  install_rancher: false
-  ingress_hostname: "rancher.k8s.test"
-
 # Section for metalLB setup
 
 metallb:
