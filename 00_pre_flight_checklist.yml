@@ -32,7 +32,7 @@
         - k8s.worker_nodes.vms is not defined or k8s.worker_nodes.vms <= 0
         - not k8s.master_schedulable 
 
-    - name: Fail fast if rook and less than 3 worker nodes
+    - name: Fail fast if Rook cluster size exceeds worker nodes.
       fail: 
         msg: You can't have less worker nodes than Rook cluster size
       when:
