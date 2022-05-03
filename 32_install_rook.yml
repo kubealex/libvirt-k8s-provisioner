@@ -34,6 +34,9 @@
             kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             release_namespace: rook-ceph
             update_repo_cache: true
+            values:
+              csi:
+                provisionerReplicas: "{{ rook_ceph.rook_cluster_size }}"
             wait: true
 
         - name: Trigger rook template

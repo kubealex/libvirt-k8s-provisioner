@@ -81,6 +81,8 @@
                     http: "{{ ingress_controller.node_port.http }}"
                     https: "{{ ingress_controller.node_port.https }}"
                     stat: 31024
+                kind: Deployment
+                replicaCount: 1
             update_repo_cache: true
             wait: true
       when: ingress_controller.install_ingress_controller and ingress_controller.type == 'haproxy'

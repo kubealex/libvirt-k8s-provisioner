@@ -8,7 +8,64 @@ cephClusterSpec:
   mon:
     count: {{ rook_ceph.rook_cluster_size }}
   mgr:
-    count: 1
+    count: {{ rook_ceph.rook_cluster_size }}
+  resources:
+    mgr:
+      limits:
+        cpu: "1000m"
+        memory: "1Gi"
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+    mon:
+      limits:
+        cpu: "1000m"
+        memory: "1Gi"
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+    osd:
+      limits:
+        cpu: "1000m"
+        memory: "1Gi"
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+    prepareosd:
+      limits:
+        cpu: "1000m"
+        memory: "1Gi"
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+    mgr-sidecar:
+      limits:
+        cpu: "1000m"
+        memory: "1Gi"
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+    crashcollector:
+      limits:
+        cpu: "500m"
+        memory: "60Mi"
+      requests:
+        cpu: "100m"
+        memory: "60Mi"
+    logcollector:
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+      requests:
+        cpu: "100m"
+        memory: "100Mi"
+    cleanup:
+      limits:
+        cpu: "1000m"
+        memory: "1Gi"
+      requests:
+        cpu: "100m"
+        memory: "256Mi"  
 cephBlockPools:
   - name: ceph-blockpool
     spec:
