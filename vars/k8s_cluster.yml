@@ -2,8 +2,8 @@
 k8s:
   cluster_name: k8s-test
   cluster_os: Ubuntu
-  cluster_version: "1.23"
-  container_runtime: docker
+  cluster_version: "1.24"
+  container_runtime: crio
   master_schedulable: false
 
 # Nodes configuration
@@ -12,13 +12,13 @@ k8s:
     vcpu: 2
     mem: 2
     vms: 1
-    disk: 30
+    disk: 40
 
   worker_nodes:
     vcpu: 2
     mem: 2
     vms: 1
-    disk: 30
+    disk: 40
 
 # Network configuration
 

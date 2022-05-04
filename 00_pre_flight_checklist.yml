@@ -11,13 +11,20 @@
         - ansible_distribution != 'CentOS'
         - ansible_distribution != 'Fedora'
         - ansible_distribution != 'Ubuntu'
-
+        
     - name: Check if target distribution is correct
       fail:
         msg: Target distribution is not supported. Supported values are 'Ubuntu', 'CentOS'
       when:
         - k8s.cluster_os != 'CentOS'
         - k8s.cluster_os != 'Ubuntu'
+
+    - name: Check if Docker is selected on 1.24
+      fail:
+        msg: Please select a different container runtime.
+      when:
+        - k8s.container_runtime != 'docker'
+        - k8s.cluster_version == '1.24'
 
     - name: Check at least one vm for control plane is defined
       fail:
