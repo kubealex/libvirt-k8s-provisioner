@@ -23,7 +23,7 @@
       fail:
         msg: Please select a different container runtime.
       when:
-        - k8s.container_runtime != 'docker'
+        - k8s.container_runtime == 'docker'
         - k8s.cluster_version == '1.24'
 
     - name: Check at least one vm for control plane is defined
