@@ -33,11 +33,11 @@ docker:
 
 crio:
   ubuntu:
-    libcontainers_repo: deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_{{ '21' if hostvars[groups['masters'][0]].kubernetes_version.1 | int > 20 else '20' }}.04/ /
-    libcontainers_key: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_{{ '21' if hostvars[groups['masters'][0]].kubernetes_version.1 | int > 20 else '20' }}.04/Release.key
+    libcontainers_repo: deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_{{ '21.10' if hostvars[groups['masters'][0]].kubernetes_version.1 | int > 20 else '20.04' }}/ /
+    libcontainers_key: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_{{ '21.10' if hostvars[groups['masters'][0]].kubernetes_version.1 | int > 20 else '20.04' }}/Release.key
     libcontainers_keyring: /etc/apt/trusted.gpg.d/libcontainers.gpg
-    crio_repo: deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ vars["k8s"]["cluster_version"] }}/xUbuntu_{{ '21' if hostvars[groups['masters'][0]].kubernetes_version.1 | int > 20 else '20' }}.04/ /
-    crio_key: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:/{{ vars["k8s"]["cluster_version"] }}/xUbuntu_{{ '21' if hostvars[groups['masters'][0]].kubernetes_version.1 | int > 20 else '20' }}.04/Release.key
+    crio_repo: deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ vars["k8s"]["cluster_version"] }}/xUbuntu_{{ '21.10' if hostvars[groups['masters'][0]].kubernetes_version.1 | int > 20 else '20.04' }}/ /
+    crio_key: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:/{{ vars["k8s"]["cluster_version"] }}/xUbuntu_{{ '21.10' if hostvars[groups['masters'][0]].kubernetes_version.1 | int > 20 else '20.04' }}/Release.key
     crio_keyring: /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg
   centos:
     libcontainers_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_8_Stream/devel:kubic:libcontainers:stable.repo

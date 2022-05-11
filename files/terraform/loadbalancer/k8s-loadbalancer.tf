@@ -6,6 +6,7 @@ variable "cpu" { default = 1 }
 variable "iface" { default = "ens3" }
 variable "libvirt_network" { default = "k8s" }
 variable "libvirt_pool" { default= "k8s" }
+variable "disk_size" { default = 25 }
 variable "os_image_name" { default= "CentOS-GenericCloud.qcow2" }
 
 provider "libvirt" {
@@ -17,6 +18,13 @@ resource "libvirt_volume" "os_image" {
   pool = var.libvirt_pool
   source = "/tmp/${var.os_image_name}"
   format = "qcow2"
+}
+
+resource "libvirt_volume" "os_image_resized" {
+  name = "${var.hostname}-os_image_resized"
+  pool = var.libvirt_pool
+  base_volume_id = libvirt_volume.os_image.id
+  size           = var.disk_size*1073741824
 }
 
 resource "libvirt_cloudinit_disk" "commoninit" {
@@ -41,7 +49,7 @@ resource "libvirt_domain" "k8s-loadbalancer" {
   vcpu = var.cpu
 
   disk {
-     volume_id = libvirt_volume.os_image.id
+     volume_id = libvirt_volume.os_image_resized.id
   }
 
   network_interface {
