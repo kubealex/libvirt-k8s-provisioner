@@ -6,9 +6,10 @@ Welcome to the home of the project!
 With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want.
 
 Kubernetes version that is installed can be choosen between:
-- **1.23** - Latest 1.23 release (1.23.4)
-- **1.22** - Latest 1.22 release (1.22.7) 
-- **1.21** - Latest 1.21 release (1.21.10)
+- **1.24** - Latest 1.24 release (1.24.0)
+- **1.23** - Latest 1.23 release (1.23.6)
+- **1.22** - Latest 1.22 release (1.22.9) 
+- **1.21** - Latest 1.21 release (1.21.12)
 - **1.20** - Latest 1.20 release (1.20.15)
 - **1.19** - Latest 1.19 release (1.19.16)
 
@@ -22,7 +23,7 @@ It also takes care of preparing the host machine with needed packages, configuri
 - dedicated libvirt dnsmasq configuration
 - dedicated libvirt network (fully customizable)
 - dedicated libvirt storage pool (fully customizable) 
-- terraform 1.1.6
+- terraform 1.1.9
 - libvirt-terraform-provider ( compiled and initialized based on [https://github.com/dmacvicar/terraform-provider-libvirt](https://github.com/dmacvicar/terraform-provider-libvirt))
 
 You can customize the setup choosing:
@@ -42,10 +43,9 @@ You can customize the setup choosing:
 
 - OS: 
   - Ubuntu 20.04 LTS Cloud base image [https://cloud-images.ubuntu.com/releases/focal/release/](https://cloud-images.ubuntu.com/releases/focal/release/) 
-  - Centos Stream Generic Cloud base image [https://cloud.centos.org/centos/8-stream/x86_64/images/](https://cloud.centos.org/centos/8-stream/x86_64/images/) 
+  - Ubuntu 22.04 LTS Cloud base image [https://cloud-images.ubuntu.com/releases/jammy/release/](https://cloud-images.ubuntu.com/releases/jammy/release/)
+  - Centos Stream 8 Generic Cloud base image [https://cloud.centos.org/centos/8-stream/x86_64/images/](https://cloud.centos.org/centos/8-stream/x86_64/images/) 
 
-  - ~~Centos7 Generic Cloud base image [https://cloud.centos.org/centos/7/images/](https://cloud.centos.org/centos/7/images/)~~ - DEPRECATED! 
-  - ~~Centos8 Generic Cloud base image [https://cloud.centos.org/centos/8/x86_64/images/](https://cloud.centos.org/centos/8/x86_64/images/)~~ - DEPRECATED! 
 - cloud-init: 
   - user: **kube**
   - pass: **kuberocks**  
@@ -89,8 +89,8 @@ Recommended sizings are:
 	k8s:
 	  cluster_name: k8s-test
 	  cluster_os: Ubuntu
-	  cluster_version: 1.23
-	  container_runtime: crio
+	  cluster_version: 1.24
+	  container_runtime: containerd
 	  master_schedulable: false
 
 	# Nodes configuration
@@ -115,7 +115,7 @@ Recommended sizings are:
 	    additional_san: ""
 	    pod_cidr: 10.20.0.0/16
 	    service_cidr: 10.110.0.0/16
-	    cni_plugin: calico
+	    cni_plugin: cilium
 
 	# Rook configuration
 	storage:
@@ -148,7 +148,7 @@ Recommended sizings are:
 Size for **disk** and **mem** is in GB. 
 **disk** allows to provision space in the cloud image for pod's ephemeral storage. 
 
-**cluster_version** can be 1.19, 1.20, 1.21 or 1.22 to install the corresponding latest version for the release
+**cluster_version** can be 1.19, 1.20, 1.21, 1.22, 1.23, 1.24 to install the corresponding latest version for the release
 
 VMS are created with these names by default (customizing them is work in progress):
 
@@ -156,7 +156,7 @@ VMS are created with these names by default (customizing them is work in progres
 	- **cluster_name**-master-N.**domain**
 	- **cluster_name**-worker-N.**domain**
 
-It is possible to choose CentOS/Ubuntu as **kubernetes hosts OS**
+It is possible to choose **CentOS**/**Ubuntu** as **kubernetes hosts OS**
 
 ## Multiple clusters - Thanks to @3rd-st-ninja for the input
  
