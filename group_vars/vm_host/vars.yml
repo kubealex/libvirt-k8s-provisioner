@@ -2,7 +2,7 @@
 ##        Infra related         ##
 ##################################
 
-terraform_url: https://releases.hashicorp.com/terraform/1.1.6/terraform_1.1.6_linux_amd64.zip
+terraform_url: https://releases.hashicorp.com/terraform/1.1.9/terraform_1.1.9_linux_amd64.zip
 image_name: OS-GenericCloud
 centos:
   cloud_image: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20220125.1.x86_64.qcow2
