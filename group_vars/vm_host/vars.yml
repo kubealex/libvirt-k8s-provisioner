@@ -8,8 +8,8 @@ centos:
   cloud_image: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20220125.1.x86_64.qcow2
 ubuntu:
   cloud_image: https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img
-ubuntu_impish:
-  cloud_image: https://cloud-images.ubuntu.com/releases/impish/release/ubuntu-21.10-server-cloudimg-amd64.img
+ubuntu_jammy:
+  cloud_image: https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img
 
 libvirt:
   storage:
@@ -79,7 +79,7 @@ cni_plugins:
     chart:
       name: cilium
       ref: cilium/cilium
-      version: 1.11.2
+      version: 1.11.4
       url: https://helm.cilium.io/
 
 ingress:
