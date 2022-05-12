@@ -55,6 +55,22 @@
             - key: net.bridge.bridge-nf-call-iptables
               value: 1
 
+        - name: Fix dead traffic on Systemd 245+ for cilium
+          block:
+          - name: Setup sysctl
+            copy:
+              dest: /etc/sysctl.d/99-restore-cilium-traffic.conf
+              content: "net.ipv4.conf.lxc*.rp_filter = 0"        
+
+          - name: Ensure sysctl is restarted
+            service:
+              name: systemd-sysctl
+              state: restarted
+          when:
+            - kubernetes_version.1 | int >= 20
+            - k8s.cluster_os == "Ubuntu"
+            - k8s.network.cni_plugin == "cilium"
+
     - name: Configure docker on a Ubuntu machine
       block: 
         - name: Ensure required packages are present
@@ -197,12 +213,32 @@
               - cri-o
               - cri-o-runc
             state: latest
-          when: k8s.cluster_os == 'Ubuntu'
+          when: 
+            - k8s.cluster_os == 'Ubuntu'
+            - kubernetes_version.1 | int <= 20
+
+        - name: Ensure cri-o is installed - Ubuntu
+          apt:
+            name:
+              - cri-o
+              - crun
+            state: latest
+          when: 
+            - k8s.cluster_os == 'Ubuntu'
+            - kubernetes_version.1 | int > 20
 
         - name: Fire crio-conf template 
           template: 
             src: templates/crio.conf.j2
             dest: /etc/crio/crio.conf
+
+        - name: Fire crio-conf template
+          template:
+            src: templates/crio.conf.crun.j2
+            dest: /etc/crio/crio.conf.d/01-crio-runc.conf
+          when:
+            - k8s.cluster_os == 'Ubuntu'
+            - kubernetes_version.1 | int > 20
 
         - name: Remove example CNI configs
           file:
