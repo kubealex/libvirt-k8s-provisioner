@@ -26,13 +26,6 @@
         - k8s.container_runtime == 'docker'
         - k8s.cluster_version == '1.24'
 
-    - name: Check if crio is selected on 1.24 - temporary
-      fail:
-        msg: packaged cri-o is still not available
-      when:
-        - k8s.container_runtime == 'crio'
-        - k8s.cluster_version == '1.24'
-
     - name: Check at least one vm for control plane is defined
       fail:
         msg: At least one control plane should be selected
