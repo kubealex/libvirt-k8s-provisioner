@@ -89,7 +89,7 @@ Recommended sizings are:
 	  cluster_name: k8s-test
 	  cluster_os: Ubuntu
 	  cluster_version: 1.24
-	  container_runtime: containerd
+	  container_runtime: crio
 	  master_schedulable: false
 
 	# Nodes configuration
