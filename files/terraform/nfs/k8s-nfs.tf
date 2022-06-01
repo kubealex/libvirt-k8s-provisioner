@@ -6,7 +6,6 @@ variable "cpu" { default = 1 }
 variable "iface" { default = "ens3" }
 variable "libvirt_network" { default = "k8s" }
 variable "libvirt_pool" { default= "k8s" }
-variable "nfs_fsSize" { default = 50 }
 variable "os_image_name" { default= "CentOS-GenericCloud.qcow2" }
 
 provider "libvirt" {
@@ -17,13 +16,6 @@ resource "libvirt_volume" "os_image" {
   name = "${var.hostname}-os_image"
   pool = var.libvirt_pool
   source = "/tmp/${var.os_image_name}"
-  format = "qcow2"
-}
-
-resource "libvirt_volume" "nfs_fs" {
-  name = "${var.hostname}-nfs_fs"
-  pool = var.libvirt_pool
-  size = var.nfs_fsSize*1073741824
   format = "qcow2"
 }
 

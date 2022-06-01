@@ -14,7 +14,6 @@
         - workers
         - masters
         - loadbalancer
-        - nfs
       when: 
         - not rook_ceph.install_rook
         - k8s.control_plane.vms > 1
@@ -27,7 +26,6 @@
       loop:
         - workers
         - masters
-        - nfs
       when:
         - not rook_ceph.install_rook
         - k8s.control_plane.vms == 1

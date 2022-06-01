@@ -4,8 +4,6 @@
 - import_playbook: 03_provision_libvirt_resources.yml
 - import_playbook: 04_provisioning_vms.yml
 - import_playbook: 05_provisioning_loadbalancer.yml
-- import_playbook: 06_provisioning_nfs.yml
-- import_playbook: 07_nfs_services.yml
 - import_playbook: 08_loadbalancer_services.yml
 - import_playbook: 10_container_runtimes.yml
 - import_playbook: 11_install_kube_packages.yml

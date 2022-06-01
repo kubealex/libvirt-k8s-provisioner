@@ -34,7 +34,6 @@ You can customize the setup choosing:
 - **pod CIDR** to be used during installation. 
 - **network plugin** to be used, based on the documentation. **[Project Calico](https://www.projectcalico.org/calico-networking-for-kubernetes/)** **[Flannel](https://github.com/coreos/flannel)** **[Project Cilium](https://cilium.io/)**
 - **additional SANS** to be added to api-server
-- **NFS Server creation for exporting shares to be used as PVs**
 - **[nginx-ingress-controller](https://kubernetes.github.io/ingress-nginx/)**, **[haproxy-ingress-controller](https://github.com/haproxytech/kubernetes-ingress)** or **[Project Contour](https://projectcontour.io/)**  if you want to enable ingress management.  
 - **[metalLB](https://metallb.universe.tf/)** to manage bare-metal LoadBalancer services - **WIP** - Only L2 configuration can be set-up via playbook.
 - **[Rook-Ceph](https://rook.io/docs/rook/v1.4/ceph-storage.html)** - **WIP - To be improved, current rook-ceph cluster size is fixed to 3 nodes**
@@ -117,13 +116,6 @@ Recommended sizings are:
 	    service_cidr: 10.110.0.0/16
 	    cni_plugin: cilium
 
-	# Rook configuration
-	storage:
-	  nfs:
-   	    nfs_enabled: true
-   	    nfs_fsSize: 50GB
-	    nfs_export: /srv/k8s
-
 	rook_ceph:
 	  install_rook: false
 	  volume_size: 50
@@ -179,9 +171,6 @@ Since last release, it is now possible to provision multiple clusters on the sam
 		│   ├── cloud_init.cfg
 		│   ├── k8s-master.tf
 		│   └── terraform.tfstate
-		├── nfs
-		│   ├── cloud_init.cfg
-		│   └── k8s-nfs.tf
 		├── workers
 		│   ├── cloud_init.cfg
 		│   ├── k8s-workers.tf

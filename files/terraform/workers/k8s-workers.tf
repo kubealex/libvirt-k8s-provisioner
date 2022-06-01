@@ -43,7 +43,6 @@ data "template_file" "user_data" {
   template = file("${path.module}/cloud_init.cfg")
   vars = {
     network_manager = var.os == "centos" ? "NetworkManager" : "network-manager"
-    nfs = var.os == "centos" ? "nfs-utils" : "nfs-common"
     hostname = "${var.hostname}-${count.index + var.vm_counter}.${var.domain}"
     fqdn = "${var.hostname}-${count.index + var.vm_counter}.${var.domain}"
    }

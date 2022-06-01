@@ -15,12 +15,6 @@ localhost ansible_connection=local
 workers
 {% endif %}
 masters
-{% if k8s.storage.nfs_enabled %}
-[nfs]
-{% for nfs in groups['nfs'] %}
-{{ hostvars[nfs].host_fqdn }} ansible_host={{ hostvars[nfs].host_ip }} ansible_ssh_private_key_file={{ hostvars[nfs].ansible_ssh_private_key_file }} ansible_user={{ hostvars[nfs].ansible_user }} ansible_ssh_common_args="{{ hostvars[nfs].ansible_ssh_common_args }}" host_fqdn={{ hostvars[nfs].host_fqdn }} host_ip={{ hostvars[nfs].host_ip }}
-{% endfor %}
-{% endif %}
 {% if k8s.control_plane.vms > 1 or k8s.worker_nodes.vms > 1 %}
 [loadbalancer]
 {% for lb in groups['loadbalancer'] %}

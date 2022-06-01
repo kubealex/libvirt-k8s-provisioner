@@ -32,11 +32,6 @@ k8s:
 # Choose between [calico/flannel/cilium]
     cni_plugin: cilium
 
-  storage:
-    nfs_enabled: false
-    nfs_fsSize: 50
-    nfs_export: /srv/k8s
-
 # Rook configuration
 rook_ceph:
   install_rook: false
