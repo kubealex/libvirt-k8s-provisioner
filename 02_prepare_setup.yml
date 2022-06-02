@@ -4,7 +4,7 @@
     - vars/k8s_cluster.yml
   tasks:
     - name: Ensure cluster folder exists
-      file:
+      ansible.builtin.file:
         path: "clusters/{{ k8s.cluster_name }}"
         state: directory
         owner: "{{ ansible_user_id }}"
@@ -12,7 +12,7 @@
         mode: 0755
 
     - name: Ensure pivot tmp folder exists
-      file:
+      ansible.builtin.file:
         path: "/tmp/{{ k8s.cluster_name }}"
         state: directory
         owner: "{{ ansible_user_id }}"
@@ -20,7 +20,7 @@
         mode: 0755
 
     - name: Populate cluster folder with terraform files
-      copy:
+      ansible.builtin.copy:
         src: "files/terraform/"
         dest: "clusters/{{ k8s.cluster_name }}"
         owner: "{{ ansible_user_id }}"
@@ -28,7 +28,7 @@
         mode: 0755
 
     - name: Snapshot cluster configuration for further use
-      copy:
+      ansible.builtin.copy:
         src: "vars/k8s_cluster.yml"
         dest: "clusters/{{ k8s.cluster_name }}/"
         owner: "{{ ansible_user_id }}"
@@ -36,13 +36,13 @@
         mode: 0755
 
     - name: Ensure helm is installed
-      unarchive:
+      ansible.builtin.unarchive:
         src: "{{ helm.helm_installer }}"
         dest: /tmp/
         remote_src: true
 
     - name: Install helm in PATH
-      copy:
+      ansible.builtin.copy:
         src: /tmp/linux-amd64/helm
         dest: /usr/local/bin/
         remote_src: true
@@ -55,12 +55,12 @@
         plugin_path: https://github.com/databus23/helm-diff
 
     - name: remove directory
-      file:
+      ansible.builtin.file:
         path: /tmp/linux-amd64
         state: absent
 
     - name: Ensure needed pip packages are present
-      pip:
+      ansible.builtin.pip:
         executable: pip3
         name: "{{ item }}"
       loop: 
@@ -69,22 +69,22 @@
         - jsonpatch
 
     - name: Retrieve the minor version
-      set_fact:
+      ansible.builtin.set_fact:
         kubernetes_version: "{{ k8s.cluster_version.split('.') }}"
 
     - name: Create ssh keypair
-      openssh_keypair:
+      community.crypto.openssh_keypair:
         path: "clusters/{{ k8s.cluster_name }}/id_rsa"
 
     - name: Download CentOS image
-      get_url:
+      ansible.builtin.get_url:
         url: "{{ centos.cloud_image }}"
         dest: /tmp/{{ image_name }}.qcow2
         mode: 0777
       when: k8s.cluster_os == 'CentOS'
 
     - name: Download Ubuntu image
-      get_url:
+      ansible.builtin.get_url:
         url: "{{ ubuntu_jammy.cloud_image if kubernetes_version.1 | int > 20 else ubuntu.cloud_image }}"
         dest: /tmp/{{ image_name }}.qcow2
         mode: 0777
