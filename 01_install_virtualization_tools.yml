@@ -6,19 +6,19 @@
     - name: Manage packets when distro is 'CentOS'
       block:
       - name: Upgrade all packages
-        yum:
+        ansible.builtin.yum:
           name: '*'
           state: latest
 
       - name: Install required packages
-        yum:
+        ansible.builtin.yum:
           name: "{{ os_packages.centos }}"
           state: latest
         when:
           - ansible_distribution == 'CentOS'
 
       - name: Install required packages
-        yum:
+        ansible.builtin.yum:
           name: "{{ os_packages.fedora }}"
           state: latest
         when:
@@ -29,26 +29,26 @@
     - name: Manage packets when distro is 'Ubuntu'
       block:
       - name: Upgrade all packages
-        apt:
+        ansible.builtin.apt:
           name: '*'
           state: latest
 
       - name: Install required packages
-        apt:
+        ansible.builtin.apt:
           name: "{{ os_packages.ubuntu }}"
           state: latest
 
       when: ansible_distribution == 'Ubuntu'
 
     - name: Download and provision Terraform
-      unarchive: 
+      ansible.builtin.unarchive: 
         src: "{{ terraform_url }}"
         dest: /usr/bin/
         mode: 0755
         remote_src: yes
 
     - name: Virtualization services are enabled
-      service:
+      ansible.builtin.service:
         name: libvirtd
         state: started
         enabled: true
