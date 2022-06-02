@@ -1,4 +1,5 @@
 collections:
   - name: community.general
+  - name: community.crypto
   - name: kubernetes.core
   - name: ansible.posix
