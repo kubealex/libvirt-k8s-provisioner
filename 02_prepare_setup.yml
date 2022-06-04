@@ -67,6 +67,7 @@
         - PyYAML
         - kubernetes
         - jsonpatch
+        - netaddr
 
     - name: Retrieve the minor version
       set_fact:
