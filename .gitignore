@@ -5,3 +5,4 @@ clusters/
 *.good
 terraform.tfstate*
 .terraform*
+inventory-k8s
