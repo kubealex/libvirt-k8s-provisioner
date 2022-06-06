@@ -49,8 +49,10 @@
         ansible.builtin.wait_for_connection:
           timeout: 600
           delay: 0
+        delegate_to: "{{ groups['vm_host'][0] }}"
 
       - ansible.builtin.ping:
+        delegate_to: "{{ groups['vm_host'][0] }}"
 
       - name: Extract facts from setup
         ansible.builtin.setup:
