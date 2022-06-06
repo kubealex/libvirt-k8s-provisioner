@@ -142,12 +142,12 @@
   tasks: 
     - block:
         - name: Fire up new haproxy template
-          template:
+          ansible.builtin.template:
             src: templates/haproxy.j2
             dest: /etc/haproxy/haproxy.cfg
 
         - name: Restart haproxy
-          systemd:
+          ansible.builtin.systemd:
             name: haproxy
             state: restarted
       when:
@@ -162,7 +162,7 @@
   tasks:
     - block:
         - name: Fire up new haproxy template
-          template:
+          ansible.builtin.template:
             src: templates/haproxy.j2
             dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/haproxy.cfg"
       when: 

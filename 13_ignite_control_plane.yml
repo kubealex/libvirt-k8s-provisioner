@@ -6,25 +6,25 @@
   tasks:
     - block:
         - name: Start kubeadm install
-          shell: kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs
+          ansible.builtin.shell: kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs
           become: true
       
         - name: Get information on generated certificate
-          openssl_certificate_info:
+          ansible.builtin.openssl_certificate_info:
             path: /etc/kubernetes/pki/ca.crt
           register: cert
   
         - name: Set fact for certificate hash
-          set_fact:
+          ansible.builtin.set_fact:
             kubehash: "sha256:{{ cert.public_key_fingerprints.sha256 | replace(':', '') }}"
   
         - name: Create kube directory
-          file:
+          ansible.builtin.file:
             path: /home/kube/.kube
             state: directory
     
         - name: Copy kubeconfig
-          copy:
+          ansible.builtin.copy:
             src: /etc/kubernetes/admin.conf
             dest: /home/kube/.kube/config
             remote_src: true
@@ -33,13 +33,13 @@
           become: true
   
         - name: Fetch kubeconfig file
-          fetch:
+          ansible.builtin.fetch:
             src: /etc/kubernetes/admin.conf
-            dest: clusters/{{ k8s.cluster_name }}/admin.kubeconfig
+            dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             flat: yes
           become: true
 
-        - set_fact:
+        - ansible.builtin.set_fact:
             k8s_installed: true
       when: k8s_installed is not defined
 
@@ -56,6 +56,6 @@
         namespace: kube-system
         label_selectors:
           tier = control-plane
-        kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+        kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
         wait: yes
       when: hostvars[groups['masters'][0]].k8s_installed is not defined

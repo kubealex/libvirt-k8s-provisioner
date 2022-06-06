@@ -8,7 +8,7 @@
     - block:
 
       - name: Render template for L2 configuration
-        template:
+        ansible.builtin.template:
           src: templates/metallb-l2.j2
           dest: /tmp/{{ k8s.cluster_name }}/metallb-l2.yaml
 
@@ -43,7 +43,7 @@
           - /tmp/{{ k8s.cluster_name }}/metallb.yaml
 
       - name: Render template for L2 configuration
-        template:
+        ansible.builtin.template:
           src: templates/metallb-l2.j2
           dest: /tmp/{{ k8s.cluster_name }}/metallb-l2.yaml
 

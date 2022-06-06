@@ -5,12 +5,12 @@
     - vars/k8s_cluster.yml
   tasks:
     - name: Prepare playbook for cluster deletion
-      template:
+      ansible.builtin.template:
         src: templates/cleanup-playbook.yml.j2
         dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ k8s.cluster_name }}-cleanup-playbook.yml"
 
     - name: Delete image file
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       loop:

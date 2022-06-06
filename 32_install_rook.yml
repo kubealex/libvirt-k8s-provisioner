@@ -40,7 +40,7 @@
             wait: true
 
         - name: Trigger rook template
-          template:
+          ansible.builtin.template:
             src: templates/rook-values.yml.j2
             dest: /tmp/{{ k8s.cluster_name }}/rook-values.yaml
 

@@ -4,15 +4,15 @@
     vars/k8s_cluster.yml
   tasks:
     - name: Gather facts from all servers
-      setup:
+      ansible.builtin.setup:
       delegate_to: "{{ item }}"
       delegate_facts: true
       loop: "{{ groups['all'] }}"
 
     - name: Fire up inventory template
-      template:
+      ansible.builtin.template:
         src: templates/inventory.j2
         dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ k8s.cluster_name }}-inventory-k8s"
 
-    - debug:
+    - ansible.builtin.debug:
         msg: Inventory is now saved as {{ k8s.cluster_name }}-inventory-k8s, you can resume next steps by referencing it.

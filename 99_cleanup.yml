@@ -49,14 +49,14 @@
         state: absent
 
     - name: Ensure images are deleted
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       loop:
         - /tmp/OS-GenericCloud.qcow2
 
     - name: Delete all created paths - root 
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       loop:
@@ -64,7 +64,7 @@
         - "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ k8s.cluster_name }}-inventory-k8s"
 
     - name: Cleanup local DNS config
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       loop:
@@ -72,7 +72,7 @@
         - /etc/NetworkManager/conf.d/{{ k8s.cluster_name }}-localdns.conf
 
     - name: Restart NetworkManager and libvirtd
-      service:
+      ansible.builtin.service:
         name: "{{ item }}"
         state: restarted
       loop:
