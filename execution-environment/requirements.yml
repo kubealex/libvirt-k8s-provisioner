@@ -1,0 +1,6 @@
+collections:
+  - name: ansible.posix
+  - name: ansible.utils
+  - name: community.crypto
+  - name: community.general
+  - name: community.libvirt

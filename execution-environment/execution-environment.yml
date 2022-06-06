@@ -1,0 +1,8 @@
+---
+version: 1
+
+#ansible_config: 'ansible.cfg'
+
+dependencies:
+  galaxy: requirements.yml
+
