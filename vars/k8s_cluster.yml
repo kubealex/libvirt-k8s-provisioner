@@ -1,4 +1,8 @@
 # General configuration
+
+workspace_directory:
+  base_path: "/tmp/k8s-setup"
+  
 k8s:
   cluster_name: k8s-test
   cluster_os: Ubuntu
