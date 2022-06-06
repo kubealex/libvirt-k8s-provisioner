@@ -117,8 +117,9 @@
         
     - name: Copy key in local folder
       ansible.builtin.copy:
-        content: "{{ hostvars['vm_host'][kube_key] }}"
+        content: "{{ hostvars[groups['vm_host'][0]]['kube_key'] }}"  
         dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
+        mode: 0600
 
 - name: Check connection and set facts
   hosts: masters,workers

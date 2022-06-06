@@ -54,7 +54,7 @@
 
     - name: Save kubeconfig as file
       ansible.builtin.copy:
-        content: hostvars[groups['masters'][0]]['kubeconfig']
+        content: "{{ hostvars[groups['masters'][0]]['kubeconfig'] }}"
         dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
 
     - name: Wait for control-plane pods to be up and running
