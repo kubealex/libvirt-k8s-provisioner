@@ -8,7 +8,7 @@
     - name: Destroy cluster VM
       community.general.terraform:
         force_init: true
-        project_path: "clusters/{{ k8s.cluster_name }}/{{ item }}"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ item }}"
         state: absent
       loop:
         - workers
@@ -21,7 +21,7 @@
     - name: Destroy cluster VM
       community.general.terraform:
         force_init: true
-        project_path: "clusters/{{ k8s.cluster_name }}/{{ item }}"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ item }}"
         state: absent
       loop:
         - workers
@@ -33,7 +33,7 @@
     - name: Destroy cluster VM
       community.general.terraform:
         force_init: true
-        project_path: "clusters/{{ k8s.cluster_name }}/{{ item }}"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ item }}"
         state: absent
       loop:
         - workers-rook
@@ -45,7 +45,7 @@
     - name: Destroy libvirt pool and network 
       community.general.terraform:
         force_init: true
-        project_path: "clusters/{{ k8s.cluster_name }}/libvirt-resources"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/libvirt-resources"
         state: absent
 
     - name: Ensure images are deleted
@@ -56,13 +56,12 @@
         - /tmp/OS-GenericCloud.qcow2
 
     - name: Delete all created paths - root 
-      become: true
       file:
         path: "{{ item }}"
         state: absent
       loop:
-        - clusters/{{ k8s.cluster_name }}
-        - "{{ k8s.cluster_name }}-inventory-k8s"
+        - "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}"
+        - "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ k8s.cluster_name }}-inventory-k8s"
 
     - name: Cleanup local DNS config
       file:

@@ -27,7 +27,7 @@
         kubernetes.core.k8s:
           state: present
           src: "{{ item }}"
-          kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+          kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
           wait: yes
         loop:
           - /tmp/{{ k8s.cluster_name }}/metallb-ns.yaml
@@ -36,7 +36,7 @@
         kubernetes.core.k8s:
           state: present
           src: "{{ item }}"
-          kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+          kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
           #wait: yes
           apply: yes
         loop:
@@ -51,6 +51,6 @@
         kubernetes.core.k8s:
           state: present
           src: "/tmp/{{ k8s.cluster_name }}/metallb-l2.yaml"
-          kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+          kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
           wait: yes
           apply: yes

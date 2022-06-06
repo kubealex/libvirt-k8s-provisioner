@@ -2,10 +2,11 @@
   hosts: vm_host
   vars_files:
     - vars/k8s_cluster.yml
+  become: true
   tasks:
     - name: Ensure control plane VMs are in place
       community.general.terraform:
-        project_path: "clusters/{{ k8s.cluster_name }}/masters"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/masters"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-master"
@@ -19,12 +20,12 @@
           vm_count: "{{ k8s.control_plane.vms }}"
           os_image_name: "{{ image_name }}.qcow2"
         state: present
-      become: true
+
       register: output_masters
 
     - name: Ensure worker VMs are in place
       community.general.terraform:
-        project_path: "clusters/{{ k8s.cluster_name }}/workers"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/workers"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-worker"
@@ -39,12 +40,11 @@
           vm_counter: "{{ rook_ceph.rook_cluster_size if rook_ceph.install_rook else 0 }}" 
           os_image_name: "{{ image_name }}.qcow2"
         state: present
-      become: true
       register: output_workers
 
     - name: Ensure Rook dedicated worker VMs are in place
       community.general.terraform:
-        project_path: "clusters/{{ k8s.cluster_name }}/workers-rook"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/workers-rook"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-worker"
@@ -59,14 +59,13 @@
           vm_count: "{{ rook_ceph.rook_cluster_size }}"
           os_image_name: "{{ image_name }}.qcow2"
         state: present
-      become: true
       register: output_workers_rook
       when: rook_ceph.install_rook
 
     - name: Add masters to given group
       add_host:
         hostname: '{{ k8s.cluster_name }}-master-{{ item }}.{{ k8s.network.domain }}'
-        ansible_ssh_private_key_file: "clusters/{{ k8s.cluster_name }}/id_rsa"
+        ansible_ssh_private_key_file: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
         ansible_user: kube
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
         groups:
@@ -77,7 +76,7 @@
     - name: Add workers to given group
       add_host:
         hostname: '{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}'
-        ansible_ssh_private_key_file: "clusters/{{ k8s.cluster_name }}/id_rsa"
+        ansible_ssh_private_key_file: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
         ansible_user: kube
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
         groups:

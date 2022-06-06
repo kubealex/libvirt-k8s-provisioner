@@ -8,7 +8,7 @@
     - name: Destroy cluster VM and libvirt resources
       community.general.terraform:
         force_init: true
-        project_path: "clusters/{{ k8s.cluster_name }}/{{ '{{' }} item {{ '}}' }}"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
         - workers
@@ -18,12 +18,11 @@
         - libvirt-resources
 
     - name: Delete all created paths and downloaded resources
-      become: true
       file:
         path: "{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
-        - clusters/{{ k8s.cluster_name }}
+        - {{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}
         - /tmp/{{ k8s.cluster_name }}
         - "{{ k8s.cluster_name }}-inventory"
         - "{{ k8s.cluster_name }}-cleanup-playbook.yml"

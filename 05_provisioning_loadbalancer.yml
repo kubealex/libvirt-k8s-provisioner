@@ -1,5 +1,6 @@
 - name: This play provisions loadbalancer VM for control plane
   hosts: vm_host
+  become: true
   vars_files:
     - vars/k8s_cluster.yml
     
@@ -8,7 +9,7 @@
       block:
         - name: Ensure Load Balancer VM is in place
           community.general.terraform:
-            project_path: "clusters/{{ k8s.cluster_name }}/loadbalancer"
+            project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/loadbalancer"
             force_init: true
             variables:
               hostname: "{{ k8s.cluster_name }}-loadbalancer"
@@ -18,13 +19,12 @@
               libvirt_pool: "{{ k8s.cluster_name }}"
               os_image_name: "{{ image_name }}.qcow2"
             state: present
-          become: true
           register: output_loadbalancer
 
         - name: Add loadbalancer to inventory
           add_host:
             hostname: '{{ k8s.cluster_name }}-loadbalancer.{{ k8s.network.domain }}'
-            ansible_ssh_private_key_file: "clusters/{{ k8s.cluster_name }}/id_rsa"
+            ansible_ssh_private_key_file: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
             ansible_user: kube
             ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
             groups:
@@ -36,8 +36,8 @@
             path: ~/.ssh/known_hosts
             state: absent
           loop: "{{ groups['loadbalancer'] }}"
-          become: true
       when: k8s.control_plane.vms > 1 or (k8s.worker_nodes.vms > 1 and ingress_controller.install_ingress_controller)
+
 - name: Check connection to loadbalancer
   hosts: loadbalancer
   gather_facts: no

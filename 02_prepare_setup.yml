@@ -3,12 +3,19 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
+
+    - name: Ensure workspace directory exists
+      ansible.builtin.file:
+        path: "{{ workspace_directory.base_path }}"
+        state: directory
+
     - name: Ensure cluster folder exists
       ansible.builtin.file:
-        path: "clusters/{{ k8s.cluster_name }}"
+        path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}"
         state: directory
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_id }}" 
+        recurse: true
         mode: 0755
 
     - name: Ensure pivot tmp folder exists
@@ -22,7 +29,7 @@
     - name: Populate cluster folder with terraform files
       ansible.builtin.copy:
         src: "files/terraform/"
-        dest: "clusters/{{ k8s.cluster_name }}"
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}"
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_id }}"
         mode: 0755
@@ -30,7 +37,7 @@
     - name: Snapshot cluster configuration for further use
       ansible.builtin.copy:
         src: "vars/k8s_cluster.yml"
-        dest: "clusters/{{ k8s.cluster_name }}/"
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/"
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_id }}"
         mode: 0755
@@ -44,7 +51,7 @@
     - name: Install helm in PATH
       ansible.builtin.copy:
         src: /tmp/linux-amd64/helm
-        dest: /usr/local/bin/
+        dest: /usr/bin/
         remote_src: true
         mode: +x
       become: true
@@ -67,6 +74,7 @@
         - PyYAML
         - kubernetes
         - jsonpatch
+        - netaddr
 
     - name: Retrieve the minor version
       ansible.builtin.set_fact:
@@ -74,7 +82,7 @@
 
     - name: Create ssh keypair
       community.crypto.openssh_keypair:
-        path: "clusters/{{ k8s.cluster_name }}/id_rsa"
+        path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
 
     - name: Download CentOS image
       ansible.builtin.get_url:

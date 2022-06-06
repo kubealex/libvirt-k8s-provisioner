@@ -6,8 +6,8 @@
   tasks:
     - name: Prepare playbook for cluster deletion
       template:
-        src: templates/clenup-playbook.yml.j2
-        dest: "{{ k8s.cluster_name }}-cleanup-playbook.yml"
+        src: templates/cleanup-playbook.yml.j2
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ k8s.cluster_name }}-cleanup-playbook.yml"
 
     - name: Delete image file
       file:
@@ -20,7 +20,7 @@
       kubernetes.core.k8s_json_patch:
         kind: Node
         name: "{{ hostvars[item].host_fqdn }}"
-        kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+        kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
         patch:
           - op: add
             path: /metadata/labels/node-role.kubernetes.io~1worker
@@ -31,7 +31,7 @@
       kubernetes.core.k8s_json_patch:
         kind: Node
         name: "{{ hostvars[item].host_fqdn }}"
-        kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+        kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
         patch:
           - op: remove
             path: /spec/taints/0

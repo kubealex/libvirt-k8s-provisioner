@@ -14,7 +14,7 @@
               kind: Namespace
               metadata:
                 name: rook-ceph
-            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             state: present
 
         - name: Add helm chart repository for Rook
@@ -31,7 +31,7 @@
           kubernetes.core.helm:
             name: rook-operator
             chart_ref: "{{ rook.operator.chart.ref }}"
-            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             release_namespace: rook-ceph
             update_repo_cache: true
             values:
@@ -48,7 +48,7 @@
           kubernetes.core.helm:
             name: rook-ceph-cluster
             chart_ref: "{{ rook.cluster.chart.ref }}"
-            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             release_namespace: rook-ceph
             update_repo_cache: true
             values_files:

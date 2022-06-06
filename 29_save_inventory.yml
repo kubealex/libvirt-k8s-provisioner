@@ -12,7 +12,7 @@
     - name: Fire up inventory template
       template:
         src: templates/inventory.j2
-        dest: "{{ k8s.cluster_name }}-inventory-k8s"
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ k8s.cluster_name }}-inventory-k8s"
 
     - debug:
         msg: Inventory is now saved as {{ k8s.cluster_name }}-inventory-k8s, you can resume next steps by referencing it.

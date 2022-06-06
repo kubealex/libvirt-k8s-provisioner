@@ -35,7 +35,6 @@
         repo: "{{ kubernetes.ubuntu.k8s_repo }}"
         filename: "{{ kubernetes.ubuntu.k8s_repo_file }}"
         state: present
-#        update_cache_retries: 25
       when: k8s.cluster_os == 'Ubuntu'
     
     - name: Ensure Kubernetes packages are installed

@@ -33,7 +33,7 @@
           kubernetes.core.k8s:
             state: present
             src: "{{ item }}"
-            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             wait: yes
           loop: 
             - /tmp/{{ k8s.cluster_name }}/calico-operator.yaml
@@ -54,7 +54,7 @@
             name: cilium
             chart_ref: "{{ cni_plugins.cilium.chart.ref }}"
             chart_version: "{{ cni_plugins.cilium.chart.version }}"
-            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             release_namespace: kube-system
             update_repo_cache: true
             values:
@@ -79,7 +79,7 @@
           kubernetes.core.k8s:
             state: present
             src: /tmp/{{ k8s.cluster_name }}/kube-flannel.yaml
-            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             wait: yes
       when: k8s.network.cni_plugin == 'flannel'
 
@@ -90,5 +90,5 @@
         kind: Deployment
         namespace: kube-system
         name: coredns
-        kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+        kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
         wait: yes
