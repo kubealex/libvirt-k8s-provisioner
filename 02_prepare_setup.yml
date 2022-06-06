@@ -18,40 +18,27 @@
       ansible.builtin.file:
         path: "{{ workspace_directory.base_path }}"
         state: directory
-        mode: 0755
 
     - name: Ensure cluster folder exists
       ansible.builtin.file:
         path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}"
         state: directory
-        owner: "{{ ansible_user_id }}"
-        group: "{{ ansible_user_id }}" 
         recurse: true
-        mode: 0755
         
     - name: Ensure pivot tmp folder exists
       ansible.builtin.file:
         path: "/tmp/{{ k8s.cluster_name }}"
         state: directory
-        owner: "{{ ansible_user_id }}"
-        group: "{{ ansible_user_id }}"
-        mode: 0755
 
     - name: Populate cluster folder with terraform files
       ansible.builtin.copy:
         src: "files/terraform/"
         dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}"
-        owner: "{{ ansible_user_id }}"
-        group: "{{ ansible_user_id }}"
-        mode: 0755
 
     - name: Snapshot cluster configuration for further use
       ansible.builtin.copy:
         src: "vars/k8s_cluster.yml"
         dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/"
-        owner: "{{ ansible_user_id }}"
-        group: "{{ ansible_user_id }}"
-        mode: 0755
 
     - name: Ensure helm is installed
       ansible.builtin.unarchive:
