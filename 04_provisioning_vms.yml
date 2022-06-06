@@ -110,8 +110,6 @@
       ansible.builtin.file:
         path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}"
         state: directory
-        owner: "{{ ansible_user_id }}"
-        group: "{{ ansible_user_id }}" 
         recurse: true
         
     - name: Copy key in local folder
