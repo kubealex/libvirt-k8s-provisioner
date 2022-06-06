@@ -87,6 +87,7 @@
     - name: Create ssh keypair
       community.crypto.openssh_keypair:
         path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
+      become: true
 
     - name: Download CentOS image
       ansible.builtin.get_url:
