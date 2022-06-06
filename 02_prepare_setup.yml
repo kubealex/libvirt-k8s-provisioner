@@ -5,6 +5,17 @@
     - vars/k8s_cluster.yml
   tasks:
 
+    - name: Ensure needed pip packages are present
+      ansible.builtin.pip:
+        executable: pip3
+        name: "{{ item }}"
+      loop: 
+        - PyYAML
+        - kubernetes
+        - jsonpatch
+        - netaddr
+      become: false
+
     - name: Ensure workspace directory exists
       ansible.builtin.file:
         path: "{{ workspace_directory.base_path }}"
@@ -66,17 +77,6 @@
       ansible.builtin.file:
         path: /tmp/linux-amd64
         state: absent
-
-    - name: Ensure needed pip packages are present
-      ansible.builtin.pip:
-        executable: pip3
-        name: "{{ item }}"
-      loop: 
-        - PyYAML
-        - kubernetes
-        - jsonpatch
-        - netaddr
-      become: false
 
     - name: Retrieve the minor version
       ansible.builtin.set_fact:
