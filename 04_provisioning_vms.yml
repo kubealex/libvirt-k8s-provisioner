@@ -92,6 +92,27 @@
         state: absent
       loop: "{{ query('inventory_hostnames', 'all:!vm_host') }}"
 
+    - name: Fetch SSH key from vm_host
+      ansible.builtin.slurp:
+        src: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
+      register: ssh_key
+
+    - name: Set SSH key as fact
+      ansible.builtin.set_fact:
+        kube_key: "{{ ssh_key['content'] | b64decode }}"
+
+- name: Create temp file with key
+  hosts: localhost
+  tasks:
+    - name: Ensure cluster folder exists
+      ansible.builtin.file:
+        path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}"
+        state: directory
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}" 
+        recurse: true
+        mode: 0755
+
 - name: Check connection and set facts
   hosts: masters,workers
   gather_facts: no
