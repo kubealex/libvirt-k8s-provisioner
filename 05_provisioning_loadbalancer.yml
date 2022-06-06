@@ -1,6 +1,5 @@
 - name: This play provisions loadbalancer VM for control plane
   hosts: vm_host
-  become: true
   vars_files:
     - vars/k8s_cluster.yml
     
@@ -19,6 +18,7 @@
               libvirt_pool: "{{ k8s.cluster_name }}"
               os_image_name: "{{ image_name }}.qcow2"
             state: present
+          become: true
           register: output_loadbalancer
 
         - name: Add loadbalancer to inventory

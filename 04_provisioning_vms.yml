@@ -2,7 +2,6 @@
   hosts: vm_host
   vars_files:
     - vars/k8s_cluster.yml
-  become: true
   tasks:
     - name: Ensure control plane VMs are in place
       community.general.terraform:
@@ -20,7 +19,7 @@
           vm_count: "{{ k8s.control_plane.vms }}"
           os_image_name: "{{ image_name }}.qcow2"
         state: present
-
+      become: true
       register: output_masters
 
     - name: Ensure worker VMs are in place
@@ -40,6 +39,7 @@
           vm_counter: "{{ rook_ceph.rook_cluster_size if rook_ceph.install_rook else 0 }}" 
           os_image_name: "{{ image_name }}.qcow2"
         state: present
+      become: true
       register: output_workers
 
     - name: Ensure Rook dedicated worker VMs are in place
@@ -60,6 +60,7 @@
           os_image_name: "{{ image_name }}.qcow2"
         state: present
       register: output_workers_rook
+      become: true
       when: rook_ceph.install_rook
 
     - name: Add masters to given group
