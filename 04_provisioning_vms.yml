@@ -99,10 +99,8 @@
       ansible.builtin.wait_for_connection:
         timeout: 600
         delay: 0
-      delegate_to: "{{ groups['vm_host'][0] }}"
 
     - ansible.builtin.ping:
-      delegate_to: "{{ groups['vm_host'][0] }}"
 
     - name: Add hosts to correct groups
       ansible.builtin.group_by:
@@ -111,7 +109,6 @@
     - name: Extract facts from setup
       ansible.builtin.setup:
       register: machine_facts
-      delegate_to: "{{ groups['vm_host'][0] }}"
 
     - ansible.builtin.set_fact:
         host_ip: "{{ machine_facts.ansible_facts.ansible_default_ipv4.address }}"
