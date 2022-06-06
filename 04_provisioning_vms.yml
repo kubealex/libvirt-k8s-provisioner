@@ -113,7 +113,6 @@
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_id }}" 
         recurse: true
-        mode: 0755
         
     - name: Copy key in local folder
       ansible.builtin.copy:
