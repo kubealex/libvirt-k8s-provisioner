@@ -63,7 +63,7 @@
       when: rook_ceph.install_rook
 
     - name: Add masters to given group
-      add_host:
+      ansible.builtin.add_host:
         hostname: '{{ k8s.cluster_name }}-master-{{ item }}.{{ k8s.network.domain }}'
         ansible_ssh_private_key_file: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
         ansible_user: kube
@@ -74,7 +74,7 @@
       loop: "{{ range(0, k8s.control_plane.vms) | list }}"
 
     - name: Add workers to given group
-      add_host:
+      ansible.builtin.add_host:
         hostname: '{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}'
         ansible_ssh_private_key_file: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
         ansible_user: kube
@@ -85,7 +85,7 @@
       loop: "{{ range(0, k8s.worker_nodes.vms) | list }}"
 
     - name: Ensure to clean known_hosts
-      known_hosts:
+      ansible.builtin.known_hosts:
         host: "{{ item }}"
         path: ~/.ssh/known_hosts
         state: absent
@@ -96,21 +96,21 @@
   gather_facts: no
   tasks:
     - name: Wait 600 seconds for target connection to become reachable/usable
-      wait_for_connection:
+      ansible.builtin.wait_for_connection:
         timeout: 600
         delay: 0
 
-    - ping:
+    - ansible.builtin.ping:
 
     - name: Add hosts to correct groups
-      group_by:
+      ansible.builtin.group_by:
         key: "{{ group_children }}"
 
     - name: Extract facts from setup
-      setup:
+      ansible.builtin.setup:
       register: machine_facts
 
-    - set_fact:
+    - ansible.builtin.set_fact:
         host_ip: "{{ machine_facts.ansible_facts.ansible_default_ipv4.address }}"
         host_interface: "{{ machine_facts.ansible_facts.ansible_default_ipv4.interface }}"
         host_mac: "{{ machine_facts.ansible_facts.ansible_default_ipv4.macaddress }}"

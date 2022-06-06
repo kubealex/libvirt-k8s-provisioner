@@ -9,12 +9,12 @@
       - name: Manage packages on CentOS
         block:
         - name: Upgrade all packages
-          yum:
+          ansible.builtin.yum:
             name: '*'
             state: latest
 
         - name: Install packages
-          yum:
+          ansible.builtin.yum:
             name: "{{ packages }}"
             state: latest
         when: k8s.cluster_os == 'CentOS'
@@ -22,18 +22,18 @@
       - name: Manage packages on Ubuntu
         block:
         - name: Upgrade all packages
-          apt:
+          ansible.builtin.apt:
             name: '*'
             state: latest
 
         - name: Install packages
-          apt:
+          ansible.builtin.apt:
             name: "{{ packages }}"
             state: latest
         when: k8s.cluster_os == 'Ubuntu'
 
       - name: Ensure firewalld, haproxy and NM are enabled
-        service:
+        ansible.builtin.service:
           name: "{{ item }}"
           enabled: true
           state: started
@@ -43,7 +43,7 @@
           - NetworkManager
 
       - name: Stop NetworkManager
-        service: 
+        ansible.builtin.service: 
           name: NetworkManager
           state: stopped
 
@@ -55,7 +55,7 @@
           state: enabled
 
       - name: Start NetworkManager
-        service:
+        ansible.builtin.service:
           name: NetworkManager
           state: started
           enabled: true
@@ -77,28 +77,28 @@
         loop: "{{ internal_zone_port }}"
 
       - name: Reload firewalld service
-        service:
+        ansible.builtin.service:
           name: firewalld
           state: restarted 
 
       - name: Enabling selinux boolean for haproxy
-        seboolean:
+        ansible.posix.seboolean:
           name: haproxy_connect_any
           state: yes
           persistent: yes
         when: k8s.cluster_os == 'CentOS'
 
       - name: Firing haproxy template
-        template:
+        ansible.builtin.template:
           src: templates/haproxy.j2
           dest: /etc/haproxy/haproxy.cfg
 
       - name: Reload haproxy service
-        service:
+        ansible.builtin.service:
           name: haproxy
           state: restarted
           enabled: true
       
       - name: Reboot loadbalancer
-        reboot: 
+        ansible.builtin.reboot: 
       when: k8s.control_plane.vms > 1 or (k8s.worker_nodes.vms > 1 and ingress_controller.install_ingress_controller)

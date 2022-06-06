@@ -22,7 +22,7 @@
           register: output_loadbalancer
 
         - name: Add loadbalancer to inventory
-          add_host:
+          ansible.builtin.add_host:
             hostname: '{{ k8s.cluster_name }}-loadbalancer.{{ k8s.network.domain }}'
             ansible_ssh_private_key_file: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
             ansible_user: kube
@@ -31,7 +31,7 @@
               - "loadbalancer"
 
         - name: Ensure to clean known_hosts
-          known_hosts:
+          ansible.builtin.known_hosts:
             host: "{{ item }}"
             path: ~/.ssh/known_hosts
             state: absent
@@ -46,21 +46,20 @@
   tasks:
     - block:
       - name: Wait 600 seconds for target connection to become reachable/usable
-        wait_for_connection:
+        ansible.builtin.wait_for_connection:
           timeout: 600
           delay: 0
 
-      - ping:
+      - ansible.builtin.ping:
 
       - name: Extract facts from setup
-        setup:
+        ansible.builtin.setup:
         register: lb_facts
  
-      - set_fact:
+      - ansible.builtin.set_fact:
           host_ip: "{{ lb_facts.ansible_facts.ansible_default_ipv4.address }}"
           host_interface: "{{ lb_facts.ansible_facts.ansible_default_ipv4.interface }}"
           host_mac: "{{ lb_facts.ansible_facts.ansible_default_ipv4.macaddress }}"
           host_fqdn: "{{ lb_facts.ansible_facts.ansible_fqdn }}"
-
         when: k8s.control_plane.vms > 1 or (k8s.worker_nodes.vms > 1 and ingress_controller.install_ingress_controller)
  
