@@ -37,7 +37,8 @@
           ansible.builtin.slurp:
             src: /etc/kubernetes/admin.conf
           register: kube_master
-        
+          become: true
+          
         - name: Set kubeconfig as fact
           ansible.builtin.set_fact:
             kubeconfig: "{{ kube_master['content'] | b64decode }}"
