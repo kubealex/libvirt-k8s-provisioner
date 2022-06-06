@@ -41,7 +41,6 @@
 - name: Check connection to loadbalancer
   hosts: loadbalancer
   gather_facts: no
-  become: true
   vars_files:
     - vars/k8s_cluster.yml
   tasks:

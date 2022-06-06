@@ -93,7 +93,6 @@
 
 - name: Check connection and set facts
   hosts: masters,workers
-  become: true
   gather_facts: no
   tasks:
     - name: Wait 600 seconds for target connection to become reachable/usable
