@@ -3,4 +3,4 @@ collections:
   - name: ansible.utils
   - name: community.crypto
   - name: community.general
-  - name: community.libvirt
+  - name: kubernetes.core
