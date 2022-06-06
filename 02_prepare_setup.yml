@@ -72,6 +72,7 @@
       kubernetes.core.helm_plugin:
         state: present
         plugin_path: https://github.com/databus23/helm-diff
+      become: false
 
     - name: remove directory
       ansible.builtin.file:
