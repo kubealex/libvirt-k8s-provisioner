@@ -103,6 +103,8 @@
 
 - name: Create temp file with key
   hosts: localhost
+  vars_files:
+    - vars/k8s_cluster.yml
   tasks:
     - name: Ensure cluster folder exists
       ansible.builtin.file:
@@ -112,6 +114,11 @@
         group: "{{ ansible_user_id }}" 
         recurse: true
         mode: 0755
+        
+    - name: Copy key in local folder
+      ansible.builtin.copy:
+        content: "{{ hostvars['vm_host'][kube_key] }}"
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
 
 - name: Check connection and set facts
   hosts: masters,workers
