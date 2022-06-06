@@ -34,11 +34,13 @@
           become: true
   
         - name: Fetch kubeconfig file
-          ansible.builtin.fetch:
+          ansible.builtin.slurp:
             src: /etc/kubernetes/admin.conf
-            dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-            flat: yes
-          become: true
+          register: kube_master
+        
+        - name: Set kubeconfig as fact
+          ansible.builtin.set_fact:
+            kubeconfig: "{{ kube_master['content'] | b64decode }}"
 
         - ansible.builtin.set_fact:
             k8s_installed: true
@@ -49,6 +51,12 @@
     - vars/k8s_cluster.yml
   hosts: vm_host
   tasks:
+
+    - name: Save kubeconfig as file
+      ansible.builtin.copy:
+        content: hostvars[groups['masters'][0]]['kubeconfig']
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+
     - name: Wait for control-plane pods to be up and running
       kubernetes.core.k8s:
         state: present
