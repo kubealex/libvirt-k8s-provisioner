@@ -26,7 +26,6 @@
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_id }}"
         mode: 0755
-      become: false
 
     - name: Populate cluster folder with terraform files
       ansible.builtin.copy:
