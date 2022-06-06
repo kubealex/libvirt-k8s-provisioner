@@ -13,7 +13,8 @@
           ansible.builtin.openssl_certificate_info:
             path: /etc/kubernetes/pki/ca.crt
           register: cert
-  
+          become: true
+
         - name: Set fact for certificate hash
           ansible.builtin.set_fact:
             kubehash: "sha256:{{ cert.public_key_fingerprints.sha256 | replace(':', '') }}"
