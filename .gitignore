@@ -6,3 +6,4 @@ clusters/
 terraform.tfstate*
 .terraform*
 inventory-k8s
+context
