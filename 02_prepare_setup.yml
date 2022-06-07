@@ -3,6 +3,8 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
+    - ansible.builtin.set_fact:
+        home_dir: "{{ ansible_env.HOME }}"
 
     - name: Ensure needed pip packages are present
       ansible.builtin.pip:
@@ -68,9 +70,33 @@
       ansible.builtin.set_fact:
         kubernetes_version: "{{ k8s.cluster_version.split('.') }}"
 
+
     - name: Create ssh keypair
       community.crypto.openssh_keypair:
-        path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
+        path: "{{ playbook_dir }}/id_rsa_k8s"
+      delegate_to: localhost
+
+    - name: Copy SSH keys in working directory
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/{{ item }}"
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ item }}"
+      loop:
+        - id_rsa_k8s
+        - id_rsa_k8s.pub
+
+    - name: Getting ssh private key
+      ansible.builtin.slurp:
+        src: "{{ workspace_directory.base_path }}/id_rsa_{{ k8s.cluster_name }}"
+      register: k8s_key
+
+    - name: Getting ssh public key
+      ansible.builtin.slurp:
+        src: "{{ workspace_directory.base_path }}/id_rsa_{{ k8s.cluster_name }}.pub"
+      register: k8s_key_pub
+
+    - ansible.builtin.set_fact:
+        k8sKey: "{{ k8s_key['content'] | b64decode }}"
+        k8sKeyPub: "{{ k8s_key_pub['content'] | b64decode }}"
 
     - name: Download CentOS image
       ansible.builtin.get_url:

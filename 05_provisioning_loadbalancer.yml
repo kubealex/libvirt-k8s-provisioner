@@ -20,15 +20,17 @@
             state: present
           become: true
           register: output_loadbalancer
+          delegate_to: localhost
 
         - name: Add loadbalancer to inventory
           ansible.builtin.add_host:
             hostname: '{{ k8s.cluster_name }}-loadbalancer.{{ k8s.network.domain }}'
-            ansible_ssh_private_key_file: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
+            ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name }}"
             ansible_user: kube
             ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
             groups:
               - "loadbalancer"
+          delegate_to: localhost
 
         - name: Ensure to clean known_hosts
           ansible.builtin.known_hosts:
@@ -36,6 +38,8 @@
             path: ~/.ssh/known_hosts
             state: absent
           loop: "{{ groups['loadbalancer'] }}"
+          delegate_to: localhost
+
       when: k8s.control_plane.vms > 1 or (k8s.worker_nodes.vms > 1 and ingress_controller.install_ingress_controller)
 
 - name: Check connection to loadbalancer

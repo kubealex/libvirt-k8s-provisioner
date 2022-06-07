@@ -66,24 +66,26 @@
     - name: Add masters to given group
       ansible.builtin.add_host:
         hostname: '{{ k8s.cluster_name }}-master-{{ item }}.{{ k8s.network.domain }}'
-        ansible_ssh_private_key_file: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
+        ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name }}"
         ansible_user: kube
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
         groups:
           - "masters"
         group_children: "k8s_nodes"
       loop: "{{ range(0, k8s.control_plane.vms) | list }}"
+      delegate_to: localhost
 
     - name: Add workers to given group
       ansible.builtin.add_host:
         hostname: '{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}'
-        ansible_ssh_private_key_file: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
+        ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name }}"
         ansible_user: kube
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
         groups:
           - "workers"
         group_children: "k8s_nodes"
       loop: "{{ range(0, k8s.worker_nodes.vms) | list }}"
+      delegate_to: localhost
 
     - name: Ensure to clean known_hosts
       ansible.builtin.known_hosts:
@@ -91,32 +93,7 @@
         path: ~/.ssh/known_hosts
         state: absent
       loop: "{{ query('inventory_hostnames', 'all:!vm_host') }}"
-
-    - name: Fetch SSH key from vm_host
-      ansible.builtin.slurp:
-        src: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
-      register: ssh_key
-
-    - name: Set SSH key as fact
-      ansible.builtin.set_fact:
-        kube_key: "{{ ssh_key['content'] | b64decode }}"
-
-- name: Create temp file with key
-  hosts: localhost
-  vars_files:
-    - vars/k8s_cluster.yml
-  tasks:
-    - name: Ensure cluster folder exists
-      ansible.builtin.file:
-        path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}"
-        state: directory
-        recurse: true
-        
-    - name: Copy key in local folder
-      ansible.builtin.copy:
-        content: "{{ hostvars[groups['vm_host'][0]]['kube_key'] }}"  
-        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa"
-        mode: 0600
+      delegate_to: localhost
 
 - name: Check connection and set facts
   hosts: masters,workers
