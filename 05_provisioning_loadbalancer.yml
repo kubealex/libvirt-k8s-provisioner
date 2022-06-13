@@ -2,7 +2,6 @@
   hosts: vm_host
   vars_files:
     - vars/k8s_cluster.yml
-    
   tasks:
     - name: Provision loadbalancer vm
       block:
@@ -21,7 +20,6 @@
             state: present
           become: true
           register: output_loadbalancer
-          delegate_to: localhost
 
         - name: Add loadbalancer to inventory
           ansible.builtin.add_host:
