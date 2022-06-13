@@ -7,7 +7,7 @@
     - name: Joining control plane nodes
       block: 
       - name: Fire joinConfiguration template for control plane nodes
-        ansible.builtin.tempfile:
+        ansible.builtin.template:
           src: templates/kubeadm-join-cp-config.yaml.j2
           dest: /tmp/kubeadm-join.yaml
       - name: Join control-plane nodes in cluster
