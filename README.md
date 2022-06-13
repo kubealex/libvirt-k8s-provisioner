@@ -75,6 +75,24 @@ To install the cluster:
 
     make create
 
+## Quickstart with Execution Environment
+
+The playbooks are compatible with the newly introduced **Execution environments (EE)**. To use them with an execution environment you need to have [ansible-builder](https://ansible-builder.readthedocs.io/en/stable/) and [ansible-navigator](https://ansible-navigator.readthedocs.io/en/latest/) installed.
+
+### Build EE image
+
+To build the EE image, jump in the *execution-environment* folder and run the build:
+
+    ansible-builder build -f execution-environment/execution-environment.yml -t ocp-ee
+
+### Run playbooks
+
+To run the playbooks use ansible navigator:
+
+    ansible-navigator run main.yml -m stdout 
+
+## Recommended sizing
+
 Recommended sizings are:
 
 | Role | vCPU | RAM |
