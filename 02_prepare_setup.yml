@@ -73,7 +73,7 @@
 
     - name: Create ssh keypair
       community.crypto.openssh_keypair:
-        path: "{{ playbook_dir }}/id_rsa_k8s"
+        path: "{{ playbook_dir }}/id_rsa_{{ k8s.cluster_name }}"
       delegate_to: localhost
 
     - name: Copy SSH keys in working directory
@@ -81,17 +81,17 @@
         src: "{{ playbook_dir }}/{{ item }}"
         dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ item }}"
       loop:
-        - id_rsa_k8s
-        - id_rsa_k8s.pub
+        - id_rsa_{{ k8s.cluster_name }}
+        - id_rsa_{{ k8s.cluster_name }}.pub
 
     - name: Getting ssh private key
       ansible.builtin.slurp:
-        src: "{{ workspace_directory.base_path }}/id_rsa_{{ k8s.cluster_name }}"
+        src: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa_{{ k8s.cluster_name }}"
       register: k8s_key
 
     - name: Getting ssh public key
       ansible.builtin.slurp:
-        src: "{{ workspace_directory.base_path }}/id_rsa_{{ k8s.cluster_name }}.pub"
+        src: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa_{{ k8s.cluster_name }}.pub"
       register: k8s_key_pub
 
     - ansible.builtin.set_fact:
