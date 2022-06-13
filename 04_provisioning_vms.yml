@@ -18,6 +18,7 @@
           memory: "{{ k8s.control_plane.mem }}"
           vm_count: "{{ k8s.control_plane.vms }}"
           os_image_name: "{{ image_name }}.qcow2"
+          sshKey: "{{ k8sKeyPub }}"
         state: present
       become: true
       register: output_masters
@@ -38,6 +39,7 @@
           vm_count: "{{ (k8s.worker_nodes.vms - rook_ceph.rook_cluster_size) if rook_ceph.install_rook else k8s.worker_nodes.vms }}"
           vm_counter: "{{ rook_ceph.rook_cluster_size if rook_ceph.install_rook else 0 }}" 
           os_image_name: "{{ image_name }}.qcow2"
+          sshKey: "{{ k8sKeyPub }}"
         state: present
       become: true
       register: output_workers
@@ -58,6 +60,7 @@
           rook_volume_size: "{{ rook_ceph.volume_size }}"
           vm_count: "{{ rook_ceph.rook_cluster_size }}"
           os_image_name: "{{ image_name }}.qcow2"
+          sshKey: "{{ k8sKeyPub }}"
         state: present
       register: output_workers_rook
       become: true
