@@ -5,7 +5,7 @@
     - vars/k8s_cluster.yml
   tasks:
     - name: Check if distribution is supported
-      fail: 
+      ansible.builtin.fail: 
         msg: Your distribution is actually unsupported. Supported values are 'Fedora', 'CentOS', 'Ubuntu'
       when: 
         - ansible_distribution != 'CentOS'
@@ -13,41 +13,41 @@
         - ansible_distribution != 'Ubuntu'
         
     - name: Check if target distribution is correct
-      fail:
+      ansible.builtin.fail:
         msg: Target distribution is not supported. Supported values are 'Ubuntu', 'CentOS'
       when:
         - k8s.cluster_os != 'CentOS'
         - k8s.cluster_os != 'Ubuntu'
 
     - name: Check if Docker is selected on 1.24
-      fail:
+      ansible.builtin.fail:
         msg: Please select a different container runtime.
       when:
         - k8s.container_runtime == 'docker'
         - k8s.cluster_version == '1.24'
 
     - name: Check at least one vm for control plane is defined
-      fail:
+      ansible.builtin.fail:
         msg: At least one control plane should be selected
       when: 
         - k8s.control_plane.vms is not defined or k8s.control_plane.vms <= 0
 
     - name: Check if master is schedulable in case of clusters composed by control plane VMs
-      fail:
+      ansible.builtin.fail:
         msg: When provisioning a cluster without workers, you need to set k8s.master_schedulable to true in vars.
       when:
         - k8s.worker_nodes.vms is not defined or k8s.worker_nodes.vms <= 0
         - not k8s.master_schedulable 
 
     - name: Fail fast if Rook cluster size exceeds worker nodes.
-      fail: 
+      ansible.builtin.fail: 
         msg: You can't have less worker nodes than Rook cluster size
       when:
         - k8s.worker_nodes.vms < rook_ceph.rook_cluster_size
         - rook_ceph.install_rook 
 
     - name: Fail fast if no container runtime is defined
-      fail:
+      ansible.builtin.fail:
         msg: Select at least container runtime 'docker', 'containerd', 'crio'
       when: 
         - k8s.container_runtime != 'crio'
@@ -55,14 +55,14 @@
         - k8s.container_runtime != 'containerd'
 
     - name: Fail fast if no ingress controller is selected
-      fail:
+      ansible.builtin.fail:
         msg: If you want to install an ingress controller, select one among 'nginx', 'haproxy' or 'contour'
       when:
         - ingress_controller.install_ingress_controller == true
         - ingress_controller.type != 'nginx' and ingress_controller.type != 'haproxy' and ingress_controller.type != 'contour'
 
     - name: Fail fast if no container plugin selected
-      fail:
+      ansible.builtin.fail:
         msg: Select at least a CNI plugin 'calico' or 'flannel'
       when:
         - k8s.network.cni_plugin != 'calico'

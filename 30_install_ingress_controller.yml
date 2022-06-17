@@ -12,7 +12,7 @@
             api_version: v1
             kind: Namespace
             name: projectcontour
-            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             state: present
 
         - name: Add helm chart repository for Contour
@@ -27,7 +27,7 @@
           kubernetes.core.helm:
             name: contour
             chart_ref: "{{ ingress.contour.chart.ref }}"
-            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             release_namespace: projectcontour
             update_repo_cache: true
             values:
@@ -55,7 +55,7 @@
             api_version: v1
             kind: Namespace
             name: haproxy-controller
-            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             state: present
 
         - name: Add helm chart repository for haproxy
@@ -70,7 +70,7 @@
           kubernetes.core.helm:
             name: haproxy
             chart_ref: "{{ ingress.haproxy.chart.ref }}"
-            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             release_namespace: haproxy-controller
             values:
               controller:
@@ -99,7 +99,7 @@
                 labels:
                   app.kubernetes.io/name: ingress-nginx
                   app.kubernetes.io/instance: ingress-nginx
-            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             state: present
               
 
@@ -115,7 +115,7 @@
           kubernetes.core.helm:
             name: nginx
             chart_ref: "{{ ingress.nginx.chart.ref }}"
-            kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             release_namespace: ingress-nginx
             values:
               controller:
@@ -142,12 +142,12 @@
   tasks: 
     - block:
         - name: Fire up new haproxy template
-          template:
+          ansible.builtin.template:
             src: templates/haproxy.j2
             dest: /etc/haproxy/haproxy.cfg
 
         - name: Restart haproxy
-          systemd:
+          ansible.builtin.systemd:
             name: haproxy
             state: restarted
       when:
@@ -162,9 +162,9 @@
   tasks:
     - block:
         - name: Fire up new haproxy template
-          template:
+          ansible.builtin.template:
             src: templates/haproxy.j2
-            dest: "clusters/{{ k8s.cluster_name }}/haproxy.cfg"
+            dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/haproxy.cfg"
       when: 
         - ingress_controller.install_ingress_controller
         - k8s.control_plane.vms > 1 or k8s.worker_nodes.vms > 1

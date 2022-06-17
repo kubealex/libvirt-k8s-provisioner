@@ -1,4 +1,4 @@
-# General configuration
+# General configuration  
 k8s:
   cluster_name: k8s-test
   cluster_os: Ubuntu

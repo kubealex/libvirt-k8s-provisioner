@@ -6,7 +6,7 @@
     - vars/k8s_cluster.yml
   tasks:
     - name: Add Kubernetes repository
-      yum_repository:
+      ansible.builtin.yum_repository:
         name: kubernetes
         description: Kubernetes repo
         baseurl: "{{ kubernetes.centos.k8s_repo }}"
@@ -17,7 +17,7 @@
       when: k8s.cluster_os == 'CentOS'
 
     - name: Ensure required packages for kubetools are installed
-      apt:
+      ansible.builtin.apt:
         name: 
           - apt-transport-https
           - curl
@@ -25,27 +25,26 @@
       when: k8s.cluster_os == 'Ubuntu'
 
     - name: Add kube-repo key
-      apt_key:
+      ansible.builtin.apt_key:
         url: "{{ kubernetes.ubuntu.k8s_repo_key }}"
         state: present
       when: k8s.cluster_os == 'Ubuntu'
 
     - name: Ensure the presence of apt-repo for kubernetes packages
-      apt_repository:
+      ansible.builtin.apt_repository:
         repo: "{{ kubernetes.ubuntu.k8s_repo }}"
         filename: "{{ kubernetes.ubuntu.k8s_repo_file }}"
         state: present
-#        update_cache_retries: 25
       when: k8s.cluster_os == 'Ubuntu'
     
     - name: Ensure Kubernetes packages are installed
-      apt:
+      ansible.builtin.apt:
         name: "{{ kubernetes.ubuntu.k8s_packages }}"
         state: present
       when: k8s.cluster_os == 'Ubuntu'
 
     - name: Ensure kubelet, kubeadm, kubectl are on hold
-      dpkg_selections:
+      ansible.builtin.dpkg_selections:
         name: "{{ item }}"
         selection: hold
       loop:
@@ -55,30 +54,30 @@
       when: k8s.cluster_os == 'Ubuntu'
 
     - name: Disable swap
-      shell: swapoff -a  
+      ansible.builtin.shell: swapoff -a  
 
     - name: Remove swap entry from fstab
-      lineinfile:
+      ansible.builtin.lineinfile:
         line: "/dev/mapper/cl-swap swap"  
         path: /etc/fstab
         state: absent
 
     - name: Disable SELinux
-      selinux:
+      ansible.posix.selinux:
         state: disabled
       register: selinux_output
       notify: reboot
       when: k8s.cluster_os == 'CentOS'
 
     - name: Install kubepackages
-      yum:
+      ansible.builtin.yum:
         name: "{{ kubernetes.centos.k8s_packages }}"
         state: present
         disable_excludes: kubernetes
       when: k8s.cluster_os == 'CentOS'
 
     - name: Install lvm2 for rook support and git for installing rook
-      yum:
+      ansible.builtin.yum:
         name: 
           - lvm2
           - git
@@ -87,7 +86,7 @@
         - k8s.cluster_os == 'CentOS'
 
     - name: Install lvm2 for rook support and git for installing rook
-      apt:
+      ansible.builtin.apt:
         name: 
           - lvm2
           - git
@@ -96,7 +95,7 @@
         - k8s.cluster_os == 'Ubuntu'
 
     - name: Enable kubelet
-      systemd: 
+      ansible.builtin.systemd: 
         name: kubelet
         state: started
         enabled: true
@@ -104,4 +103,4 @@
 
   handlers:
     - name: reboot
-      reboot:
+      ansible.builtin.reboot:

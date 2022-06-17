@@ -7,9 +7,9 @@
   </forward>
   <bridge name='{{ k8s.cluster_name }}' stp='on' delay='0'/>
   <domain name='{{ k8s.network.domain }}' localOnly='yes'/>
-  <ip address='{{ k8s.network.network_cidr | next_nth_usable(1) }}' netmask='{{ k8s.network.network_cidr | ipaddr('netmask') }}'>
+  <ip address='{{ k8s.network.network_cidr | ansible.utils.next_nth_usable(1) }}' netmask='{{ k8s.network.network_cidr | ansible.utils.ipaddr('netmask') }}'>
     <dhcp>
-      <range start='{{ k8s.network.network_cidr | next_nth_usable(2) }}' end='{{ k8s.network.network_cidr | ipaddr('last_usable') }}'/>
+      <range start='{{ k8s.network.network_cidr | ansible.utils.next_nth_usable(2) }}' end='{{ k8s.network.network_cidr | ansible.utils.ipaddr('last_usable') }}'/>
     </dhcp>
   </ip>
 </network>

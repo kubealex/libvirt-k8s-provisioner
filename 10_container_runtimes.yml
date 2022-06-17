@@ -7,17 +7,17 @@
   tasks:
 
     - name: Retrieve the minor version
-      set_fact:
+      ansible.builtin.set_fact:
         kubernetes_version: "{{ k8s.cluster_version.split('.') }}"
 
     - name: Upgrade all packages
-      yum:
+      ansible.builtin.yum:
         name: '*'
         state: latest
       when: k8s.cluster_os == 'CentOS'
 
     - name: Upgrade all packages
-      apt:
+      ansible.builtin.apt:
         name: '*'
         state: latest
       when: k8s.cluster_os == 'Ubuntu'
@@ -25,7 +25,7 @@
     - name: Ensure prerequisites are met.
       block:
         - name: Add modules to autostart
-          blockinfile:
+          ansible.builtin.blockinfile:
             path: /etc/modules-load.d/k8s.conf
             block: |
               overlay
@@ -33,7 +33,7 @@
             create: true
 
         - name: Enable br_netfilter
-          modprobe:
+          community.general.modprobe:
             name: "{{ item }}"
             state: present
           loop:
@@ -58,12 +58,12 @@
         - name: Fix dead traffic on Systemd 245+ for cilium
           block:
           - name: Setup sysctl
-            copy:
+            ansible.builtin.copy:
               dest: /etc/sysctl.d/99-restore-cilium-traffic.conf
               content: "net.ipv4.conf.lxc*.rp_filter = 0"        
 
           - name: Ensure sysctl is restarted
-            service:
+            ansible.builtin.service:
               name: systemd-sysctl
               state: restarted
           when:
@@ -74,7 +74,7 @@
     - name: Configure docker on a Ubuntu machine
       block: 
         - name: Ensure required packages are present
-          apt:
+          ansible.builtin.apt:
             name:
               - apt-transport-https
               - ca-certificates 
@@ -84,19 +84,19 @@
             state: latest
 
         - name: Add docker repo key
-          apt_key:
+          ansible.builtin.apt_key:
             url: "{{ docker.ubuntu.docker_repo_key }}"
             keyring: "{{ docker.ubuntu.docker_repo_key_file }}"
 
             state: present
 
         - name: Ensure the presence of apt-repo for docker
-          apt_repository:
+          ansible.builtin.apt_repository:
             repo: "{{ docker.ubuntu.docker_repo }}"
             state: present
             
         - name: Ensure docker packages are installed
-          apt:
+          ansible.builtin.apt:
             name: "{{ docker.ubuntu.docker_packages }}"
             state: present
 
@@ -107,7 +107,7 @@
     - name: Configure docker on a CentOS machine
       block: 
         - name: Ensure required packages are present
-          yum:
+          ansible.builtin.yum:
             name:
               - yum-utils 
               - device-mapper-persistent-data 
@@ -115,12 +115,12 @@
             state: latest
 
         - name: Add docker repository
-          get_url:
+          ansible.builtin.get_url:
             url: "{{ docker.centos.docker_repo }}"
             dest: "/etc/yum.repos.d/docker-ce.repo"
 
         - name: Ensure docker is installed
-          yum:
+          ansible.builtin.yum:
             name: "{{ docker.centos.docker_packages }}"
             state: latest
 
@@ -131,26 +131,26 @@
     - name: Ensure docker service is configured
       block:
       - name: Create /etc/docker
-        file:
+        ansible.builtin.file:
           state: directory
           path: /etc/docker
       
       - name: Copy docker configuration in /etc/docker
-        copy:
+        ansible.builtin.copy:
           src: files/daemon.json
           dest: /etc/docker/
 
       - name: Create systemd folder for Docker service
-        file:
+        ansible.builtin.file:
           path: /etc/systemd/system/docker.service.d
           state: directory
 
       - name: Force systemd to reread configs
-        systemd:
+        ansible.builtin.systemd:
           daemon_reload: yes
 
       - name: Ensure docker is enabled and started
-        systemd: 
+        ansible.builtin.systemd: 
           name: docker
           state: restarted
           enabled: true
@@ -159,7 +159,7 @@
     - name: Install cri-o
       block:
         - name: Add crio repo key
-          apt_key:
+          ansible.builtin.apt_key:
             url: "{{ item.key }}"
             keyring: "{{ item.keyring }}"
             state: present
@@ -171,7 +171,7 @@
           when: k8s.cluster_os == 'Ubuntu'
 
         - name: Ensure the presence of apt-repo for cri-o
-          apt_repository:
+          ansible.builtin.apt_repository:
             repo: "{{ item.repo }}"
             filename: "{{ item.file }}"
             state: present
@@ -182,7 +182,7 @@
               file: /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:{{ k8s.cluster_version }}.list
 
         - name: Temporary fix for memory swap slices on 20.04
-          lineinfile: 
+          ansible.builtin.lineinfile: 
             path: /etc/default/grub
             regexp: '^GRUB_CMDLINE_LINUX'
             line: 'GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"'
@@ -190,7 +190,7 @@
           when: k8s.cluster_os == 'Ubuntu'
 
         - name: Add kubic CentOS repository
-          get_url:
+          ansible.builtin.get_url:
             url: "{{ item.url }}"
             dest: "{{ item.file }}"
             validate_certs: false
@@ -202,13 +202,13 @@
           when: k8s.cluster_os == 'CentOS'
 
         - name: Ensure cri-o is installed - CentOS
-          yum:
+          ansible.builtin.yum:
             name: cri-o
             state: latest
           when: k8s.cluster_os == 'CentOS'
 
         - name: Ensure cri-o is installed - Ubuntu
-          apt:
+          ansible.builtin.apt:
             name: 
               - cri-o
               - cri-o-runc
@@ -218,7 +218,7 @@
             - kubernetes_version.1 | int <= 20
 
         - name: Ensure cri-o is installed - Ubuntu
-          apt:
+          ansible.builtin.apt:
             name:
               - cri-o
               - crun
@@ -228,12 +228,12 @@
             - kubernetes_version.1 | int > 20
 
         - name: Fire crio-conf template 
-          template: 
+          ansible.builtin.template: 
             src: templates/crio.conf.j2
             dest: /etc/crio/crio.conf
 
         - name: Fire crio-conf template
-          template:
+          ansible.builtin.template:
             src: templates/crio.conf.crun.j2
             dest: /etc/crio/crio.conf.d/01-crio-runc.conf
           when:
@@ -241,7 +241,7 @@
             - kubernetes_version.1 | int > 20
 
         - name: Remove example CNI configs
-          file:
+          ansible.builtin.file:
             path: "/etc/cni/net.d/{{ item }}"
             state: absent
           loop:
@@ -249,11 +249,11 @@
             - 200-loopback.conf
 
         - name: Force systemd to reread configs
-          systemd:
+          ansible.builtin.systemd:
             daemon_reload: yes
 
         - name: Ensure cri-o is enabled and started
-          systemd:
+          ansible.builtin.systemd:
             name: crio
             state: started
             enabled: true
@@ -262,7 +262,7 @@
     - name: Ensure containerd is configured and installed on CentOS machine
       block:
         - name: Ensure required packages are present
-          yum:
+          ansible.builtin.yum:
             name:
               - yum-utils
               - device-mapper-persistent-data
@@ -270,12 +270,12 @@
             state: latest
 
         - name: Add containerd repository
-          get_url:
+          ansible.builtin.get_url:
             url: "{{ containerd.containerd_repo }}"
             dest: "/etc/yum.repos.d/docker-ce.repo"
 
         - name: Ensure containerd is installed
-          yum:
+          ansible.builtin.yum:
             name: containerd.io
             state: latest
       when: 
@@ -283,7 +283,7 @@
         - k8s.cluster_os == 'CentOS'
 
     - name: Ensure containerd is configured and installed on Ubuntu machine
-      apt:
+      ansible.builtin.apt:
         name: containerd
         state: latest
       when: 
@@ -293,23 +293,23 @@
     - name: Ensure containerd service is configured
       block:
         - name: Create /etc/containers
-          file:
+          ansible.builtin.file:
             state: directory
             path: /etc/containerd
 
         - name: Initialize config
-          shell: containerd config default > /etc/containerd/config.toml
+          ansible.builtin.shell: containerd config default > /etc/containerd/config.toml
 
         - name: Force systemd to reread configs
-          systemd:
+          ansible.builtin.systemd:
             daemon_reload: yes
 
         - name: Ensure containerd is enabled and started
-          systemd:
+          ansible.builtin.systemd:
             name: containerd
             state: restarted
             enabled: true
       when: k8s.container_runtime == 'containerd'
 
     - name: Reboot nodes before proceeding
-      reboot:
+      ansible.builtin.reboot:

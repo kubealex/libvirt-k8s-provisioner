@@ -8,7 +8,7 @@
     - block:
 
       - name: Render template for L2 configuration
-        template:
+        ansible.builtin.template:
           src: templates/metallb-l2.j2
           dest: /tmp/{{ k8s.cluster_name }}/metallb-l2.yaml
 
@@ -27,7 +27,7 @@
         kubernetes.core.k8s:
           state: present
           src: "{{ item }}"
-          kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+          kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
           wait: yes
         loop:
           - /tmp/{{ k8s.cluster_name }}/metallb-ns.yaml
@@ -36,14 +36,14 @@
         kubernetes.core.k8s:
           state: present
           src: "{{ item }}"
-          kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+          kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
           #wait: yes
           apply: yes
         loop:
           - /tmp/{{ k8s.cluster_name }}/metallb.yaml
 
       - name: Render template for L2 configuration
-        template:
+        ansible.builtin.template:
           src: templates/metallb-l2.j2
           dest: /tmp/{{ k8s.cluster_name }}/metallb-l2.yaml
 
@@ -51,6 +51,6 @@
         kubernetes.core.k8s:
           state: present
           src: "/tmp/{{ k8s.cluster_name }}/metallb-l2.yaml"
-          kubeconfig: "clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+          kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
           wait: yes
           apply: yes

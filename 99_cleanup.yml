@@ -3,12 +3,14 @@
   hosts: vm_host
   vars_files:
     - vars/k8s_cluster.yml
-  become: true
   tasks:
+    - ansible.builtin.set_fact:
+        home_dir: "{{ ansible_env.HOME }}"
+
     - name: Destroy cluster VM
       community.general.terraform:
         force_init: true
-        project_path: "clusters/{{ k8s.cluster_name }}/{{ item }}"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ item }}"
         state: absent
       loop:
         - workers
@@ -17,11 +19,12 @@
       when: 
         - not rook_ceph.install_rook
         - k8s.control_plane.vms > 1
+      become: true
 
     - name: Destroy cluster VM
       community.general.terraform:
         force_init: true
-        project_path: "clusters/{{ k8s.cluster_name }}/{{ item }}"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ item }}"
         state: absent
       loop:
         - workers
@@ -29,11 +32,12 @@
       when:
         - not rook_ceph.install_rook
         - k8s.control_plane.vms == 1
+      become: true
 
     - name: Destroy cluster VM
       community.general.terraform:
         force_init: true
-        project_path: "clusters/{{ k8s.cluster_name }}/{{ item }}"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ item }}"
         state: absent
       loop:
         - workers-rook
@@ -41,41 +45,45 @@
         - masters
         - loadbalancer
       when: rook_ceph.install_rook
+      become: true
 
     - name: Destroy libvirt pool and network 
       community.general.terraform:
         force_init: true
-        project_path: "clusters/{{ k8s.cluster_name }}/libvirt-resources"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/libvirt-resources"
         state: absent
+      become: true
 
     - name: Ensure images are deleted
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       loop:
         - /tmp/OS-GenericCloud.qcow2
-
-    - name: Delete all created paths - root 
       become: true
-      file:
+
+    - name: Delete all created paths 
+      ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       loop:
-        - clusters/{{ k8s.cluster_name }}
-        - "{{ k8s.cluster_name }}-inventory-k8s"
+        - "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}"
+      become: true
 
     - name: Cleanup local DNS config
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       loop:
         - /etc/NetworkManager/dnsmasq.d/{{ k8s.cluster_name }}-libvirt_dnsmasq.conf
         - /etc/NetworkManager/conf.d/{{ k8s.cluster_name }}-localdns.conf
+      become: true
 
     - name: Restart NetworkManager and libvirtd
-      service:
+      ansible.builtin.service:
         name: "{{ item }}"
         state: restarted
       loop:
         - libvirtd
         - NetworkManager
+      become: true

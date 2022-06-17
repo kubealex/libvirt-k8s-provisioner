@@ -7,23 +7,23 @@
   tasks:
     - block:
       - name: Generate cluster token
-        command: kubeadm token generate
+        ansible.builtin.command: kubeadm token generate
         register: kubetoken_generated
 
       - name: Set generated token as fact
-        set_fact:
+        ansible.builtin.set_fact:
           kubetoken: "{{ kubetoken_generated.stdout }}"
 
       - name: Generate certificate key
-        command: kubeadm {{ 'alpha' if (k8s.cluster_version == '1.19') else '' }} certs certificate-key
+        ansible.builtin.command: kubeadm {{ 'alpha' if (k8s.cluster_version == '1.19') else '' }} certs certificate-key
         register: kubecert_generated
 
       - name: Set generated token as fact
-        set_fact:
+        ansible.builtin.set_fact:
           kubecertkey: "{{ kubecert_generated.stdout }}"
 
       - name: Add kubelet config for node
-        template: 
+        ansible.builtin.template: 
           src: templates/kubeadm-config.yaml.j2
           dest: /tmp/kubeadm-config.yaml
       when: k8s_installed is not defined

@@ -1,0 +1,20 @@
+---
+ansible-navigator:
+  ansible:
+    cmdline: "--forks 15"
+    inventory:
+      help: False
+      entries:
+        - ./inventory
+  execution-environment:
+    container-engine: podman
+    enabled: true
+    image: k8s-ee:latest
+    pull:
+      policy: never
+  logging:
+    level: debug
+#  mode: stdout
+
+  playbook-artifact:
+    enable: false

@@ -5,7 +5,7 @@
   tasks:
     - name: Ensure control plane VMs are in place
       community.general.terraform:
-        project_path: "clusters/{{ k8s.cluster_name }}/masters"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/masters"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-master"
@@ -18,13 +18,14 @@
           memory: "{{ k8s.control_plane.mem }}"
           vm_count: "{{ k8s.control_plane.vms }}"
           os_image_name: "{{ image_name }}.qcow2"
+          sshKey: "{{ k8sKeyPub }}"
         state: present
       become: true
       register: output_masters
 
     - name: Ensure worker VMs are in place
       community.general.terraform:
-        project_path: "clusters/{{ k8s.cluster_name }}/workers"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/workers"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-worker"
@@ -38,13 +39,14 @@
           vm_count: "{{ (k8s.worker_nodes.vms - rook_ceph.rook_cluster_size) if rook_ceph.install_rook else k8s.worker_nodes.vms }}"
           vm_counter: "{{ rook_ceph.rook_cluster_size if rook_ceph.install_rook else 0 }}" 
           os_image_name: "{{ image_name }}.qcow2"
+          sshKey: "{{ k8sKeyPub }}"
         state: present
       become: true
       register: output_workers
 
     - name: Ensure Rook dedicated worker VMs are in place
       community.general.terraform:
-        project_path: "clusters/{{ k8s.cluster_name }}/workers-rook"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/workers-rook"
         force_init: true
         variables:
           hostname: "{{ k8s.cluster_name }}-worker"
@@ -58,60 +60,64 @@
           rook_volume_size: "{{ rook_ceph.volume_size }}"
           vm_count: "{{ rook_ceph.rook_cluster_size }}"
           os_image_name: "{{ image_name }}.qcow2"
+          sshKey: "{{ k8sKeyPub }}"
         state: present
-      become: true
       register: output_workers_rook
+      become: true
       when: rook_ceph.install_rook
 
     - name: Add masters to given group
-      add_host:
+      ansible.builtin.add_host:
         hostname: '{{ k8s.cluster_name }}-master-{{ item }}.{{ k8s.network.domain }}'
-        ansible_ssh_private_key_file: "clusters/{{ k8s.cluster_name }}/id_rsa"
+        ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name }}"
         ansible_user: kube
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
         groups:
           - "masters"
         group_children: "k8s_nodes"
       loop: "{{ range(0, k8s.control_plane.vms) | list }}"
+      delegate_to: localhost
 
     - name: Add workers to given group
-      add_host:
+      ansible.builtin.add_host:
         hostname: '{{ k8s.cluster_name }}-worker-{{ item }}.{{ k8s.network.domain }}'
-        ansible_ssh_private_key_file: "clusters/{{ k8s.cluster_name }}/id_rsa"
+        ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name }}"
         ansible_user: kube
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
         groups:
           - "workers"
         group_children: "k8s_nodes"
       loop: "{{ range(0, k8s.worker_nodes.vms) | list }}"
+      delegate_to: localhost
 
     - name: Ensure to clean known_hosts
-      known_hosts:
+      ansible.builtin.known_hosts:
         host: "{{ item }}"
         path: ~/.ssh/known_hosts
         state: absent
       loop: "{{ query('inventory_hostnames', 'all:!vm_host') }}"
+      delegate_to: localhost
 
 - name: Check connection and set facts
   hosts: masters,workers
   gather_facts: no
   tasks:
     - name: Wait 600 seconds for target connection to become reachable/usable
-      wait_for_connection:
+      ansible.builtin.wait_for_connection:
         timeout: 600
         delay: 0
 
-    - ping:
+    - ansible.builtin.ping:
 
     - name: Add hosts to correct groups
-      group_by:
+      ansible.builtin.group_by:
         key: "{{ group_children }}"
 
     - name: Extract facts from setup
-      setup:
+      ansible.builtin.setup:
       register: machine_facts
 
-    - set_fact:
+    - ansible.builtin.set_fact:
         host_ip: "{{ machine_facts.ansible_facts.ansible_default_ipv4.address }}"
         host_interface: "{{ machine_facts.ansible_facts.ansible_default_ipv4.interface }}"
         host_mac: "{{ machine_facts.ansible_facts.ansible_default_ipv4.macaddress }}"

@@ -9,6 +9,7 @@ variable "libvirt_network" { default = "k8s" }
 variable "libvirt_pool" { default = "k8s" }
 variable "disk_size" { default = 20 }
 variable "os_image_name" { default = "CentOS-GenericCloud-master.qcow2" }
+variable "sshKey" { default = "" }
 
 provider "libvirt" {
   uri = "qemu:///system"
@@ -44,6 +45,7 @@ data "template_file" "user_data" {
     network_manager = var.os == "centos" ? "NetworkManager" : "network-manager"
     hostname = "${var.hostname}-${count.index}.${var.domain}"
     fqdn = "${var.hostname}-${count.index}.${var.domain}"
+    sshKey = var.sshKey
    }
 }
 
