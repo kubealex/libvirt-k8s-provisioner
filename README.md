@@ -36,7 +36,7 @@ You can customize the setup choosing:
 - **additional SANS** to be added to api-server
 - **[nginx-ingress-controller](https://kubernetes.github.io/ingress-nginx/)**, **[haproxy-ingress-controller](https://github.com/haproxytech/kubernetes-ingress)** or **[Project Contour](https://projectcontour.io/)**  if you want to enable ingress management.  
 - **[metalLB](https://metallb.universe.tf/)** to manage bare-metal LoadBalancer services - **WIP** - Only L2 configuration can be set-up via playbook.
-- **[Rook-Ceph](https://rook.io/docs/rook/v1.4/ceph-storage.html)** - **WIP - To be improved, current rook-ceph cluster size is fixed to 3 nodes**
+- **[Rook-Ceph](https://rook.io/docs/rook/v1.4/ceph-storage.html)** - To manage persistent storage, also configurable with single storage node.
 
 ## All VMs are specular,prepared with:
 
