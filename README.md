@@ -83,7 +83,7 @@ The playbooks are compatible with the newly introduced **Execution environments 
 
 To build the EE image, jump in the *execution-environment* folder and run the build:
 
-    ansible-builder build -f execution-environment/execution-environment.yml -t ocp-ee
+    ansible-builder build -f execution-environment/execution-environment.yml -t k8s-ee
 
 ### Run playbooks
 
