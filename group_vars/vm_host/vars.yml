@@ -4,7 +4,7 @@
 workspace_directory:
   base_path: "{{ home_dir }}/k8s-setup"
 
-terraform_url: https://releases.hashicorp.com/terraform/1.1.9/terraform_1.1.9_linux_amd64.zip
+terraform_url: https://releases.hashicorp.com/terraform/1.2.3/terraform_1.2.3_linux_amd64.zip
 image_name: OS-GenericCloud
 centos:
   cloud_image: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20220125.1.x86_64.qcow2
