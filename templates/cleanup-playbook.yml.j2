@@ -22,7 +22,6 @@
         path: "{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
-        - {{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}
         - /tmp/{{ k8s.cluster_name }}
         - "{{ k8s.cluster_name }}-inventory"
         - "{{ k8s.cluster_name }}-cleanup-playbook.yml"
@@ -36,3 +35,11 @@
       loop:
         - libvirtd
         - NetworkManager
+
+
+    - name: Delete all created paths and downloaded resources
+      file:
+        path: "{{ '{{' }} item {{ '}}' }}"
+        state: absent
+      loop:
+        - {{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}
