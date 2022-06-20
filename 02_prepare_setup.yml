@@ -39,7 +39,7 @@
 
     - name: Snapshot cluster configuration for further use
       ansible.builtin.copy:
-        src: "vars/k8s_cluster.yml"
+        src: "vars/"
         dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/"
 
     - name: Ensure helm is installed
