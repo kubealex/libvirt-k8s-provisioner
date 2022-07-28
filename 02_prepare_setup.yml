@@ -66,11 +66,6 @@
         path: /tmp/linux-amd64
         state: absent
 
-    - name: Retrieve the minor version
-      ansible.builtin.set_fact:
-        kubernetes_version: "{{ k8s.cluster_version.split('.') }}"
-
-
     - name: Create ssh keypair
       community.crypto.openssh_keypair:
         path: "{{ playbook_dir }}/id_rsa_{{ k8s.cluster_name }}"
