@@ -1,146 +1,90 @@
+cephClusterSpec:
+  cephVersion:
+    image: quay.io/ceph/ceph:v17.2.1
+    allowUnsupported: false
+  mon:
+    count: "{{ rook_ceph.rook_cluster_size | int }}"
+    allowMultiplePerNode: false
+
+  mgr:
+    count: "{{ rook_ceph.rook_cluster_size | int }}"
+    allowMultiplePerNode: false
 configOverride: |
   [global]
-  osd_pool_default_size = "{{ rook_ceph.rook_cluster_size | int }}"
   mon_warn_on_pool_no_redundancy = false
   bdev_flock_retry = 20
-  bluefs_buffered_io = false    
-cephClusterSpec:
-  mon:
-    count: {{ rook_ceph.rook_cluster_size }}
-  mgr:
-    count: {{ rook_ceph.rook_cluster_size }}
-  resources:
-    mgr:
-      limits:
-        cpu: "1000m"
-        memory: "1Gi"
-      requests:
-        cpu: "100m"
-        memory: "256Mi"
-    mon:
-      limits:
-        cpu: "1000m"
-        memory: "1Gi"
-      requests:
-        cpu: "100m"
-        memory: "256Mi"
-    osd:
-      limits:
-        cpu: "1000m"
-        memory: "1Gi"
-      requests:
-        cpu: "100m"
-        memory: "256Mi"
-    prepareosd:
-      limits:
-        cpu: "1000m"
-        memory: "1Gi"
-      requests:
-        cpu: "100m"
-        memory: "256Mi"
-    mgr-sidecar:
-      limits:
-        cpu: "1000m"
-        memory: "1Gi"
-      requests:
-        cpu: "100m"
-        memory: "256Mi"
-    crashcollector:
-      limits:
-        cpu: "500m"
-        memory: "60Mi"
-      requests:
-        cpu: "100m"
-        memory: "60Mi"
-    logcollector:
-      limits:
-        cpu: "500m"
-        memory: "1Gi"
-      requests:
-        cpu: "100m"
-        memory: "100Mi"
-    cleanup:
-      limits:
-        cpu: "1000m"
-        memory: "1Gi"
-      requests:
-        cpu: "100m"
-        memory: "256Mi"  
+  bluefs_buffered_io = false
+  mon_allow_pool_delete = true
+  osd_pool_default_size = "{{ rook_ceph.rook_cluster_size | int }}"
+  osd_pool_default_min_size = "{{ rook_ceph.rook_cluster_size | int }}"
 cephBlockPools:
   - name: ceph-blockpool
     spec:
       failureDomain: host
       replicated:
-        size: {{ rook_ceph.rook_cluster_size }}
+        size: "{{ rook_ceph.rook_cluster_size | int }}"
     storageClass:
       enabled: true
       name: ceph-block
-      isDefault: false
+      isDefault: true
       reclaimPolicy: Delete
       allowVolumeExpansion: true
-      parameters:
-        imageFormat: "2"
-        imageFeatures: layering
-        csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
-        csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
-        csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
-        csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
-        csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
-        csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
-        csi.storage.k8s.io/fstype: ext4
 cephFileSystems:
   - name: ceph-filesystem
     spec:
       metadataPool:
         replicated:
-          size: {{ rook_ceph.rook_cluster_size }}
-          requireSafeReplicaSize: false
+          size: "{{ rook_ceph.rook_cluster_size | int }}"
       dataPools:
-        - failureDomain: osd
+        - failureDomain: host
           replicated:
-            size: {{ rook_ceph.rook_cluster_size }}
-            requireSafeReplicaSize: false
-      preserveFilesystemOnDelete: false
+            size: "{{ rook_ceph.rook_cluster_size | int }}"
+          name: data0
       metadataServer:
-        activeCount: 1
-        activeStandby: true
+        activeCount: "{{ rook_ceph.rook_cluster_size | int }}"
+        activeStandby: false
+        resources:
+          limits:
+            cpu: "2000m"
+            memory: "4Gi"
+          requests:
+            cpu: "1000m"
+            memory: "512Mi"
+        priorityClassName: system-cluster-critical
     storageClass:
       enabled: true
+      isDefault: false
       name: ceph-filesystem
+      pool: data0
       reclaimPolicy: Delete
-      isDefault: true
-      parameters:
-        csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
-        csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
-        csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
-        csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
-        csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
-        csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
-        csi.storage.k8s.io/fstype: ext4
-cephObjectStores: 
+cephObjectStores:
   - name: ceph-objectstore
     spec:
       metadataPool:
         failureDomain: host
         replicated:
-          size: {{ rook_ceph.rook_cluster_size }}
+          size: "{{ rook_ceph.rook_cluster_size | int }}"
       dataPool:
         failureDomain: host
         erasureCoded:
           dataChunks: 2
           codingChunks: 1
-      preservePoolsOnDelete: false
+      preservePoolsOnDelete: true
       gateway:
         port: 80
+        resources:
+          limits:
+            cpu: "2000m"
+            memory: "2Gi"
+          requests:
+            cpu: "1000m"
+            memory: "1Gi"
         instances: 1
+        priorityClassName: system-cluster-critical
       healthCheck:
         bucket:
           interval: 60s
     storageClass:
-      isDefault: false
       enabled: true
       name: ceph-bucket
       reclaimPolicy: Delete
-      parameters:
-        region: us-east-1
-
