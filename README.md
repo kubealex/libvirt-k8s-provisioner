@@ -11,7 +11,6 @@ Kubernetes version that is installed can be choosen between:
 - **1.22** - Latest 1.22 release (1.22.9) 
 - **1.21** - Latest 1.21 release (1.21.12)
 - **1.20** - Latest 1.20 release (1.20.15)
-- **1.19** - Latest 1.19 release (1.19.16)
 
 Terraform will take care of the provisioning of:
 - Loadbalancer machine with **haproxy** installed and configured for **HA** clusters
@@ -23,7 +22,7 @@ It also takes care of preparing the host machine with needed packages, configuri
 - dedicated libvirt dnsmasq configuration
 - dedicated libvirt network (fully customizable)
 - dedicated libvirt storage pool (fully customizable) 
-- terraform 1.1.9
+- terraform 1.2.6
 - libvirt-terraform-provider ( compiled and initialized based on [https://github.com/dmacvicar/terraform-provider-libvirt](https://github.com/dmacvicar/terraform-provider-libvirt))
 
 You can customize the setup choosing:
@@ -158,7 +157,7 @@ Recommended sizings are:
 Size for **disk** and **mem** is in GB. 
 **disk** allows to provision space in the cloud image for pod's ephemeral storage. 
 
-**cluster_version** can be 1.19, 1.20, 1.21, 1.22, 1.23, 1.24 to install the corresponding latest version for the release
+**cluster_version** can be 1.20, 1.21, 1.22, 1.23, 1.24 to install the corresponding latest version for the release
 
 VMS are created with these names by default (customizing them is work in progress):
 
