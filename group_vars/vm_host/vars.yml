@@ -116,5 +116,5 @@ rook:
       ref: rook-release/rook-ceph-cluster
 
 metallb_setup:
-  manifest_url: https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests
+  manifest_url: https://raw.githubusercontent.com/metallb/metallb/v0.13.4/manifests
 
