@@ -3,11 +3,11 @@ cephClusterSpec:
     image: quay.io/ceph/ceph:v17.2.1
     allowUnsupported: false
   mon:
-    count: "{{ rook_ceph.rook_cluster_size | int }}"
+    count: {{ rook_ceph.rook_cluster_size | int }}
     allowMultiplePerNode: false
 
   mgr:
-    count: "{{ rook_ceph.rook_cluster_size | int }}"
+    count: {{ rook_ceph.rook_cluster_size | int }}
     allowMultiplePerNode: false
 configOverride: |
   [global]
@@ -15,14 +15,14 @@ configOverride: |
   bdev_flock_retry = 20
   bluefs_buffered_io = false
   mon_allow_pool_delete = true
-  osd_pool_default_size = "{{ rook_ceph.rook_cluster_size | int }}"
-  osd_pool_default_min_size = "{{ rook_ceph.rook_cluster_size | int }}"
+  osd_pool_default_size = {{ rook_ceph.rook_cluster_size | int }}
+  osd_pool_default_min_size = {{ rook_ceph.rook_cluster_size | int }}
 cephBlockPools:
   - name: ceph-blockpool
     spec:
       failureDomain: host
       replicated:
-        size: "{{ rook_ceph.rook_cluster_size | int }}"
+        size: {{ rook_ceph.rook_cluster_size | int }}
     storageClass:
       enabled: true
       name: ceph-block
@@ -34,14 +34,14 @@ cephFileSystems:
     spec:
       metadataPool:
         replicated:
-          size: "{{ rook_ceph.rook_cluster_size | int }}"
+          size: {{ rook_ceph.rook_cluster_size | int }}
       dataPools:
         - failureDomain: host
           replicated:
-            size: "{{ rook_ceph.rook_cluster_size | int }}"
+            size: {{ rook_ceph.rook_cluster_size | int }}
           name: data0
       metadataServer:
-        activeCount: "{{ rook_ceph.rook_cluster_size | int }}"
+        activeCount: {{ rook_ceph.rook_cluster_size | int }}
         activeStandby: false
         resources:
           limits:
@@ -63,7 +63,7 @@ cephObjectStores:
       metadataPool:
         failureDomain: host
         replicated:
-          size: "{{ rook_ceph.rook_cluster_size | int }}"
+          size: {{ rook_ceph.rook_cluster_size | int }}
       dataPool:
         failureDomain: host
         erasureCoded:
