@@ -53,10 +53,20 @@
             update_repo_cache: true
             values:
               cephClusterSpec:
-              configOverride: |                                                                                                                                  
-                [global]                                                                                                                                         
-                mon_warn_on_pool_no_redundancy = false                                                                                                           
-                bdev_flock_retry = 20                                                                                                                            
+                cephVersion:
+                  image: quay.io/ceph/ceph:v17.2.1
+                  allowUnsupported: false
+                mon:
+                  count: "{{ rook_ceph.rook_cluster_size | int }}"
+                  allowMultiplePerNode: false
+
+                mgr:
+                  count: "{{ rook_ceph.rook_cluster_size | int }}"
+                  allowMultiplePerNode: false
+              configOverride: |
+                [global]
+                mon_warn_on_pool_no_redundancy = false
+                bdev_flock_retry = 20
                 bluefs_buffered_io = false
                 mon_allow_pool_delete = true
                 osd_pool_default_size = "{{ rook_ceph.rook_cluster_size | int }}"
@@ -132,6 +142,5 @@
                     enabled: true
                     name: ceph-bucket
                     reclaimPolicy: Delete
-
             wait: true
       when: rook_ceph.install_rook
