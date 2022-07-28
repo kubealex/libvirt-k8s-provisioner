@@ -27,6 +27,7 @@
           src: "{{ item }}"
           kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
           apply: yes
+          wait: yes
         loop:
           - /tmp/{{ k8s.cluster_name }}/metallb.yml
 
