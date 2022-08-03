@@ -102,7 +102,7 @@ ingress:
       ref: haproxytech/kubernetes-ingress
 
 helm:
-  helm_installer: https://get.helm.sh/helm-v3.8.2-linux-amd64.tar.gz
+  helm_installer: https://get.helm.sh/helm-v3.9.2-linux-amd64.tar.gz
 
 rook:
   operator:
