@@ -1,4 +1,4 @@
---- 
+---
 - name: Prepare cluster to install rook
   hosts: vm_host
   run_once: true
@@ -43,6 +43,7 @@
           ansible.builtin.template:
             src: templates/rook-values.yml.j2
             dest: /tmp/{{ k8s.cluster_name }}/rook-values.yaml
+            mode: 0755
 
         - name: Ensure rook-ceph-cluster helm chart is installed
           kubernetes.core.helm:

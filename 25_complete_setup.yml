@@ -8,6 +8,7 @@
       ansible.builtin.template:
         src: templates/cleanup-playbook.yml.j2
         dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ k8s.cluster_name }}-cleanup-playbook.yml"
+        mode: 0755
 
     - name: Delete image file
       ansible.builtin.file:

@@ -10,7 +10,7 @@
         variables:
           hostname: "{{ k8s.cluster_name }}-master"
           domain: "{{ k8s.network.domain }}"
-          os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}" 
+          os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}"
           libvirt_network: "{{ k8s.cluster_name }}"
           libvirt_pool: "{{ k8s.cluster_name }}"
           disk_size: "{{ k8s.control_plane.disk }}"
@@ -18,7 +18,7 @@
           memory: "{{ k8s.control_plane.mem }}"
           vm_count: "{{ k8s.control_plane.vms }}"
           os_image_name: "{{ image_name }}.qcow2"
-          sshKey: "{{ k8sKeyPub }}"
+          sshKey: "{{ k8s_key_pub }}"
         state: present
       become: true
       register: output_masters
@@ -30,16 +30,16 @@
         variables:
           hostname: "{{ k8s.cluster_name }}-worker"
           domain: "{{ k8s.network.domain }}"
-          os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}" 
+          os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}"
           libvirt_network: "{{ k8s.cluster_name }}"
           libvirt_pool: "{{ k8s.cluster_name }}"
           disk_size: "{{ k8s.worker_nodes.disk }}"
           cpu: "{{ k8s.worker_nodes.vcpu }}"
           memory: "{{ k8s.worker_nodes.mem }}"
           vm_count: "{{ (k8s.worker_nodes.vms - rook_ceph.rook_cluster_size) if rook_ceph.install_rook else k8s.worker_nodes.vms }}"
-          vm_counter: "{{ rook_ceph.rook_cluster_size if rook_ceph.install_rook else 0 }}" 
+          vm_counter: "{{ rook_ceph.rook_cluster_size if rook_ceph.install_rook else 0 }}"
           os_image_name: "{{ image_name }}.qcow2"
-          sshKey: "{{ k8sKeyPub }}"
+          sshKey: "{{ k8s_key_pub }}"
         state: present
       become: true
       register: output_workers
@@ -51,7 +51,7 @@
         variables:
           hostname: "{{ k8s.cluster_name }}-worker"
           domain: "{{ k8s.network.domain }}"
-          os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}" 
+          os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}"
           libvirt_network: "{{ k8s.cluster_name }}"
           libvirt_pool: "{{ k8s.cluster_name }}"
           disk_size: "{{ k8s.worker_nodes.disk }}"
@@ -60,7 +60,7 @@
           rook_volume_size: "{{ rook_ceph.volume_size }}"
           vm_count: "{{ rook_ceph.rook_cluster_size }}"
           os_image_name: "{{ image_name }}.qcow2"
-          sshKey: "{{ k8sKeyPub }}"
+          sshKey: "{{ k8s_key_pub }}"
         state: present
       register: output_workers_rook
       become: true
@@ -121,4 +121,4 @@
         host_ip: "{{ machine_facts.ansible_facts.ansible_default_ipv4.address }}"
         host_interface: "{{ machine_facts.ansible_facts.ansible_default_ipv4.interface }}"
         host_mac: "{{ machine_facts.ansible_facts.ansible_default_ipv4.macaddress }}"
-        host_fqdn: "{{ machine_facts.ansible_facts.ansible_fqdn }}" 
+        host_fqdn: "{{ machine_facts.ansible_facts.ansible_fqdn }}"

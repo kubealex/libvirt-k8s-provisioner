@@ -1,4 +1,4 @@
---- 
+---
 - name: Prepare cluster to install ingress controller
   hosts: vm_host
   vars_files:
@@ -6,7 +6,7 @@
   run_once: true
   tasks:
     - name: Take all required steps to install contour as ingress controller
-      block:              
+      block:
         - name: Ensure the needed Namespaces exist.
           kubernetes.core.k8s:
             api_version: v1
@@ -47,7 +47,7 @@
                     https: "{{ ingress_controller.node_port.https }}"
             wait: true
       when: ingress_controller.install_ingress_controller and ingress_controller.type == 'contour'
-       
+
     - name: Take all required steps to install haproxy as ingress controller
       block:
         - name: Ensure the needed Namespaces exist.
@@ -86,7 +86,7 @@
             update_repo_cache: true
             wait: true
       when: ingress_controller.install_ingress_controller and ingress_controller.type == 'haproxy'
-      
+
     - name: Take all required steps to install Nginx as ingress controller
       block:
         - name: Ensure the needed Namespaces exist.
@@ -101,7 +101,7 @@
                   app.kubernetes.io/instance: ingress-nginx
             kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             state: present
-              
+
 
         - name: Add helm chart repository for Nginx
           kubernetes.core.helm_repository:
@@ -126,7 +126,7 @@
                     https: "{{ ingress_controller.node_port.https }}"
             update_repo_cache: true
             wait: true
-              
+
       when: ingress_controller.install_ingress_controller and ingress_controller.type == 'nginx'
 
 - name: Refresh facts
@@ -139,12 +139,14 @@
   become: true
   vars_files:
     - vars/k8s_cluster.yml
-  tasks: 
-    - block:
+  tasks:
+    - name: Configure HAProxy on Loadalancer
+      block:
         - name: Fire up new haproxy template
           ansible.builtin.template:
             src: templates/haproxy.j2
             dest: /etc/haproxy/haproxy.cfg
+            mode: 0755
 
         - name: Restart haproxy
           ansible.builtin.systemd:
@@ -160,12 +162,13 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - block:
+    - name: Save HAProxy configuration
+      block:
         - name: Fire up new haproxy template
           ansible.builtin.template:
             src: templates/haproxy.j2
             dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/haproxy.cfg"
-      when: 
+            mode: 0755
+      when:
         - ingress_controller.install_ingress_controller
         - k8s.control_plane.vms > 1 or k8s.worker_nodes.vms > 1
-

@@ -5,100 +5,101 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - block:
-      - name: Manage packages on CentOS
-        block:
-        - name: Upgrade all packages
-          ansible.builtin.yum:
-            name: '*'
-            state: latest
+    - name: Manage packages
+      block:
+        - name: Manage packages on CentOS
+          block:
+            - name: Upgrade all packages
+              ansible.builtin.yum:
+                name: '*'
+                state: latest # noqa package-latest
+            - name: Install packages
+              ansible.builtin.yum:
+                name: "{{ packages }}"
+                state: present
+          when: k8s.cluster_os == 'CentOS'
 
-        - name: Install packages
-          ansible.builtin.yum:
-            name: "{{ packages }}"
-            state: latest
-        when: k8s.cluster_os == 'CentOS'
+        - name: Manage packages on Ubuntu
+          block:
+            - name: Upgrade all packages
+              ansible.builtin.apt:
+                name: '*'
+                state: latest # noqa package-latest
 
-      - name: Manage packages on Ubuntu
-        block:
-        - name: Upgrade all packages
-          ansible.builtin.apt:
-            name: '*'
-            state: latest
+            - name: Install packages
+              ansible.builtin.apt:
+                name: "{{ packages }}"
+                state: present
+          when: k8s.cluster_os == 'Ubuntu'
 
-        - name: Install packages
-          ansible.builtin.apt:
-            name: "{{ packages }}"
-            state: latest
-        when: k8s.cluster_os == 'Ubuntu'
+        - name: Ensure firewalld, haproxy and NM are enabled
+          ansible.builtin.service:
+            name: "{{ item }}"
+            enabled: true
+            state: started
+          loop:
+            - firewalld
+            - haproxy
+            - NetworkManager
 
-      - name: Ensure firewalld, haproxy and NM are enabled
-        ansible.builtin.service:
-          name: "{{ item }}"
-          enabled: true
-          state: started
-        loop:
-          - firewalld
-          - haproxy
-          - NetworkManager
+        - name: Stop NetworkManager
+          ansible.builtin.service:
+            name: NetworkManager
+            state: stopped
 
-      - name: Stop NetworkManager
-        ansible.builtin.service: 
-          name: NetworkManager
-          state: stopped
+        - name: Adding interface to firewall internal zone
+          ansible.posix.firewalld:
+            zone: internal
+            interface: "{{ 'eth0' if k8s.cluster_os == 'CentOS' else 'ens3' }}"
+            permanent: true
+            state: enabled
 
-      - name: Adding interface to firewall internal zone  
-        ansible.posix.firewalld:
-          zone: internal
-          interface: "{{ 'eth0' if k8s.cluster_os == 'CentOS' else 'ens3' }}"
-          permanent: yes
-          state: enabled
+        - name: Start NetworkManager
+          ansible.builtin.service:
+            name: NetworkManager
+            state: started
+            enabled: true
 
-      - name: Start NetworkManager
-        ansible.builtin.service:
-          name: NetworkManager
-          state: started
-          enabled: true
+        - name: Allow service for internal zone
+          ansible.posix.firewalld:
+            zone: internal
+            state: enabled
+            permanent: true
+            service: "{{ item }}"
+          loop: "{{ services }}"
 
-      - name: Allow service for internal zone
-        ansible.posix.firewalld:
-          zone: internal
-          state: enabled
-          permanent: yes
-          service: "{{ item }}"
-        loop: "{{ services }}"
+        - name: Allow ports for internal zone
+          ansible.posix.firewalld:
+            zone: internal
+            state: enabled
+            permanent: true
+            port: "{{ item }}"
+          loop: "{{ internal_zone_port }}"
 
-      - name: Allow ports for internal zone
-        ansible.posix.firewalld:
-          zone: internal
-          state: enabled
-          permanent: yes
-          port: "{{ item }}"
-        loop: "{{ internal_zone_port }}"
+        - name: Reload firewalld service
+          ansible.builtin.service:
+            name: firewalld
+            state: restarted
 
-      - name: Reload firewalld service
-        ansible.builtin.service:
-          name: firewalld
-          state: restarted 
+        - name: Enabling selinux boolean for haproxy
+          ansible.posix.seboolean:
+            name: haproxy_connect_any
+            state: true
+            persistent: true
+          when: k8s.cluster_os == 'CentOS'
 
-      - name: Enabling selinux boolean for haproxy
-        ansible.posix.seboolean:
-          name: haproxy_connect_any
-          state: yes
-          persistent: yes
-        when: k8s.cluster_os == 'CentOS'
+        - name: Firing haproxy template
+          ansible.builtin.template:
+            src: templates/haproxy.j2
+            dest: /etc/haproxy/haproxy.cfg
+            mode: 0755
 
-      - name: Firing haproxy template
-        ansible.builtin.template:
-          src: templates/haproxy.j2
-          dest: /etc/haproxy/haproxy.cfg
+        - name: Reload haproxy service
+          ansible.builtin.service:
+            name: haproxy
+            state: restarted
+            enabled: true
 
-      - name: Reload haproxy service
-        ansible.builtin.service:
-          name: haproxy
-          state: restarted
-          enabled: true
-      
-      - name: Reboot loadbalancer
-        ansible.builtin.reboot: 
+        - name: Reboot loadbalancer
+          ansible.builtin.reboot:
       when: k8s.control_plane.vms > 1 or (k8s.worker_nodes.vms > 1 and ingress_controller.install_ingress_controller)

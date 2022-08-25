@@ -16,7 +16,7 @@
               libvirt_network: "{{ k8s.cluster_name }}"
               libvirt_pool: "{{ k8s.cluster_name }}"
               os_image_name: "{{ image_name }}.qcow2"
-              sshKey: "{{ k8sKeyPub }}"
+              sshKey: "{{ k8s_key_pub }}"
             state: present
           become: true
           register: output_loadbalancer
@@ -58,11 +58,11 @@
       - name: Extract facts from setup
         ansible.builtin.setup:
         register: lb_facts
- 
+
       - ansible.builtin.set_fact:
           host_ip: "{{ lb_facts.ansible_facts.ansible_default_ipv4.address }}"
           host_interface: "{{ lb_facts.ansible_facts.ansible_default_ipv4.interface }}"
           host_mac: "{{ lb_facts.ansible_facts.ansible_default_ipv4.macaddress }}"
           host_fqdn: "{{ lb_facts.ansible_facts.ansible_fqdn }}"
         when: k8s.control_plane.vms > 1 or (k8s.worker_nodes.vms > 1 and ingress_controller.install_ingress_controller)
- 
+
