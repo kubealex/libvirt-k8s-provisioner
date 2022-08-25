@@ -1,0 +1,10 @@
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: JoinConfiguration
+discovery:
+  bootstrapToken:
+    apiServerEndpoint: "{{ hostvars[groups['loadbalancer'][0]].host_fqdn if ( k8s.control_plane.vms > 1 ) else hostvars[groups['masters'][0]].host_fqdn }}:6443"
+    token: "{{ hostvars[groups['masters'][0]].kubetoken }}"
+    caCertHashes:
+    - "{{ hostvars[groups['masters'][0]].kubehash }}"
+controlPlane:
+  certificateKey: "{{ hostvars[groups['masters'][0]].kubecertkey }}"

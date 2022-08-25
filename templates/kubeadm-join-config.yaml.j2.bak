@@ -1,0 +1,25 @@
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: JoinConfiguration
+discovery:
+  bootstrapToken:
+    apiServerEndpoint: "{{ hostvars[groups['loadbalancer'][0]].host_fqdn if ( k8s.control_plane.vms > 1 ) else hostvars[groups['masters'][0]].host_fqdn }}:6443"
+    token: "{{ hostvars[groups['masters'][0]].kubetoken }}"
+    caCertHashes:
+    - "{{ hostvars[groups['masters'][0]].kubehash }}"
+
+apiVersion: kubeadm.k8s.io/v1beta3
+caCertPath: /etc/kubernetes/pki/ca.crt
+discovery:
+  bootstrapToken:
+    apiServerEndpoint: k8s-test-loadbalancer.k8s.test:6443
+    caCertHashes:
+    - sha256:20c2516f591a5b4f51ec04be545d05593f90c7328e20a3bc99d779c5c29915aa
+    token: 89443q.h20t65mz3ctnwa3a
+  timeout: 5m0s
+  tlsBootstrapToken: 89443q.h20t65mz3ctnwa3a
+kind: JoinConfiguration
+nodeRegistration:
+  criSocket: unix:///var/run/containerd/containerd.sock
+  imagePullPolicy: IfNotPresent
+  name: k8s-test-worker-0.k8s.test
+  taints: null

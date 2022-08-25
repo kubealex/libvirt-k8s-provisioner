@@ -1,10 +1,22 @@
-apiVersion: kubeadm.k8s.io/v1beta2
-kind: JoinConfiguration
+apiVersion: kubeadm.k8s.io/v1beta3
+caCertPath: /etc/kubernetes/pki/ca.crt
+controlPlane:
+  certificateKey: "{{ hostvars[groups['masters'][0]].kubecertkey }}"
+  localAPIEndpoint:
+    advertiseAddress: "{{ hostvars[inventory_hostname].host_ip }}"
+    bindPort: 6443
 discovery:
   bootstrapToken:
     apiServerEndpoint: "{{ hostvars[groups['loadbalancer'][0]].host_fqdn if ( k8s.control_plane.vms > 1 ) else hostvars[groups['masters'][0]].host_fqdn }}:6443"
-    token: "{{ hostvars[groups['masters'][0]].kubetoken }}"
     caCertHashes:
     - "{{ hostvars[groups['masters'][0]].kubehash }}"
-controlPlane:
-  certificateKey: "{{ hostvars[groups['masters'][0]].kubecertkey }}"
+    token: "{{ hostvars[groups['masters'][0]].kubetoken }}"
+  timeout: 5m0s
+  tlsBootstrapToken: "{{ hostvars[groups['masters'][0]].kubetoken }}"
+kind: JoinConfiguration
+nodeRegistration:
+  imagePullPolicy: Always
+  name: "{{ hostvars[inventory_hostname].host_fqdn }}"
+  taints:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/control-plane
