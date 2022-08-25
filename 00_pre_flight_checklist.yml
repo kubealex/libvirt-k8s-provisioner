@@ -4,6 +4,16 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
+
+    - name: Retrieve the minor version
+      ansible.builtin.set_fact:
+        kubernetes_version: "{{ k8s.cluster_version.split('.') }}"
+
+    - name: Check if kubernetes version is supported by the provisioner
+      ansible.builtin.fail:
+        msg: The chosen version is not supported, only versions >= 1.20 are supported
+      when: kubernetes_version.1 | int < 20
+
     - name: Check if distribution is supported
       ansible.builtin.fail: 
         msg: Your distribution is actually unsupported. Supported values are 'Fedora', 'CentOS', 'Ubuntu'

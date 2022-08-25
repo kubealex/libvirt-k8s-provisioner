@@ -3,18 +3,18 @@ kubernetes:
     k8s_repo: https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
     k8s_repo_key: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
     k8s_packages:
-      - kubelet{{ '-1.19.16-0' if vars["k8s"]["cluster_version"] == '1.19' else '-1.20.15-0' if vars["k8s"]["cluster_version"] == '1.20' else '-1.21.14-0' if vars["k8s"]["cluster_version"] == '1.21' else '-1.22.12-0' if vars["k8s"]["cluster_version"] == '1.22' else '-1.23.9-0' if vars["k8s"]["cluster_version"] == '1.23' else '' }}
-      - kubeadm{{ '-1.19.16-0' if vars["k8s"]["cluster_version"] == '1.19' else '-1.20.15-0' if vars["k8s"]["cluster_version"] == '1.20' else '-1.21.14-0' if vars["k8s"]["cluster_version"] == '1.21' else '-1.22.12-0' if vars["k8s"]["cluster_version"] == '1.22' else '-1.23.9-0' if vars["k8s"]["cluster_version"] == '1.23' else '' }}
-      - kubectl{{ '-1.19.16-0' if vars["k8s"]["cluster_version"] == '1.19' else '-1.20.15-0' if vars["k8s"]["cluster_version"] == '1.20' else '-1.21.14-0' if vars["k8s"]["cluster_version"] == '1.21' else '-1.22.12-0' if vars["k8s"]["cluster_version"] == '1.22' else '-1.23.9-0' if vars["k8s"]["cluster_version"] == '1.23' else '' }} 
+      - kubelet{{ '-1.20.15-0' if vars["k8s"]["cluster_version"] == '1.20' else '-1.21.14-0' if vars["k8s"]["cluster_version"] == '1.21' else '-1.22.12-0' if vars["k8s"]["cluster_version"] == '1.22' else '-1.23.9-0' if vars["k8s"]["cluster_version"] == '1.23' else '' }}
+      - kubeadm{{ '-1.20.15-0' if vars["k8s"]["cluster_version"] == '1.20' else '-1.21.14-0' if vars["k8s"]["cluster_version"] == '1.21' else '-1.22.12-0' if vars["k8s"]["cluster_version"] == '1.22' else '-1.23.9-0' if vars["k8s"]["cluster_version"] == '1.23' else '' }}
+      - kubectl{{ '-1.20.15-0' if vars["k8s"]["cluster_version"] == '1.20' else '-1.21.14-0' if vars["k8s"]["cluster_version"] == '1.21' else '-1.22.12-0' if vars["k8s"]["cluster_version"] == '1.22' else '-1.23.9-0' if vars["k8s"]["cluster_version"] == '1.23' else '' }} 
 
   ubuntu:
     k8s_repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
     k8s_repo_file: /etc/apt/sources.list.d/kubernetes.list
     k8s_repo_key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     k8s_packages:
-      - kubelet{{ '=1.19.16-00' if vars["k8s"]["cluster_version"] == '1.19' else '=1.20.15-00' if vars["k8s"]["cluster_version"] == '1.20' else '=1.21.14-00' if vars["k8s"]["cluster_version"] == '1.21' else '=1.22.12-00' if vars["k8s"]["cluster_version"] == '1.22' else '=1.23.9-00' if vars["k8s"]["cluster_version"] == '1.23' else '' }}
-      - kubeadm{{ '=1.19.16-00' if vars["k8s"]["cluster_version"] == '1.19' else '=1.20.15-00' if vars["k8s"]["cluster_version"] == '1.20' else '=1.21.14-00' if vars["k8s"]["cluster_version"] == '1.21' else '=1.22.12-00' if vars["k8s"]["cluster_version"] == '1.22' else '=1.23.9-00' if vars["k8s"]["cluster_version"] == '1.23' else '' }}
-      - kubectl{{ '=1.19.16-00' if vars["k8s"]["cluster_version"] == '1.19' else '=1.20.15-00' if vars["k8s"]["cluster_version"] == '1.20' else '=1.21.14-00' if vars["k8s"]["cluster_version"] == '1.21' else '=1.22.12-00' if vars["k8s"]["cluster_version"] == '1.22' else '=1.23.9-00' if vars["k8s"]["cluster_version"] == '1.23' else '' }}
+      - kubelet{{ '=1.20.15-00' if vars["k8s"]["cluster_version"] == '1.20' else '=1.21.14-00' if vars["k8s"]["cluster_version"] == '1.21' else '=1.22.12-00' if vars["k8s"]["cluster_version"] == '1.22' else '=1.23.9-00' if vars["k8s"]["cluster_version"] == '1.23' else '' }}
+      - kubeadm{{ '=1.20.15-00' if vars["k8s"]["cluster_version"] == '1.20' else '=1.21.14-00' if vars["k8s"]["cluster_version"] == '1.21' else '=1.22.12-00' if vars["k8s"]["cluster_version"] == '1.22' else '=1.23.9-00' if vars["k8s"]["cluster_version"] == '1.23' else '' }}
+      - kubectl{{ '=1.20.15-00' if vars["k8s"]["cluster_version"] == '1.20' else '=1.21.14-00' if vars["k8s"]["cluster_version"] == '1.21' else '=1.22.12-00' if vars["k8s"]["cluster_version"] == '1.22' else '=1.23.9-00' if vars["k8s"]["cluster_version"] == '1.23' else '' }}
 docker:
   centos:
     docker_repo: https://download.docker.com/linux/centos/docker-ce.repo

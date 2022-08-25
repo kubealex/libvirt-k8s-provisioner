@@ -39,7 +39,7 @@
 
     - name: Snapshot cluster configuration for further use
       ansible.builtin.copy:
-        src: "vars/"
+        src: "vars"
         dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/"
 
     - name: Ensure helm is installed
@@ -65,11 +65,6 @@
       ansible.builtin.file:
         path: /tmp/linux-amd64
         state: absent
-
-    - name: Retrieve the minor version
-      ansible.builtin.set_fact:
-        kubernetes_version: "{{ k8s.cluster_version.split('.') }}"
-
 
     - name: Create ssh keypair
       community.crypto.openssh_keypair:

@@ -7,3 +7,5 @@ terraform.tfstate*
 .terraform*
 inventory-k8s
 context
+id_rsa*
+*.log
