@@ -13,9 +13,8 @@ localAPIEndpoint:
   advertiseAddress: "{{ hostvars[inventory_hostname].host_ip }}"
   bindPort: 6443
 nodeRegistration:
-  criSocket: unix:///var/run/containerd/containerd.sock
-  imagePullPolicy: IfNotPresent
-  name: k8s-test-master-0.k8s.test
+  imagePullPolicy: Always
+  name: "{{ hostvars[inventory_hostname].host_fqdn }}"
   taints:
   - effect: NoSchedule
     key: node-role.kubernetes.io/control-plane
