@@ -331,12 +331,10 @@
           ansible.builtin.shell: containerd config default > /etc/containerd/config.toml
 
         - name: Configure containerd to work with systemd
-          ansible.builtin.lineinfile:
-            line: |
-              [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-              [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
-              SystemdCgroup = true
+          ansible.builtin.replace:
             path: /etc/containerd/config.toml
+            regexp: "SystemdCgroup = false"
+            replace: "SystemdCgroup = true"
 
         - name: Force systemd to reread configs
           ansible.builtin.systemd:
