@@ -36,11 +36,13 @@ dns: {}
 etcd:
   local:
     dataDir: /var/lib/etcd
-imageRepository: registry.k8s.io
+imageRepository: "{{ 'registry.k8s.io' if k8s.cluster_version == '1.25' else 'k8s.gcr.io' }}"
 kind: ClusterConfiguration
-kubernetesVersion: v{{ k8s.cluster_version }}.0
+kubernetesVersion: v{{ k8s.cluster_version }}.{{ '14' if k8s.cluster_version == '1.21' else '13' if k8s.cluster_version == '1.22' else '10' if k8s.cluster_version == '1.23' else '4' if k8s.cluster_version == '1.24' }}
 networking:
   dnsDomain: cluster.local
   podSubnet: "{{ ('10.244.0.0/16' if (k8s.network.cni_plugin == 'flannel') else k8s.network.pod_cidr) }}"
   serviceSubnet: "{{ k8s.network.service_cidr }}"
 scheduler: {}
+
+14-00' if vars["k8s"]["cluster_version"] == '1.21' else '=1.22.13-00' if vars["k8s"]["cluster_version"] == '1.22' else '=1.23.10-00' if vars["k8s"]["cluster_version"] == '1.23' else '=1.24.4
