@@ -23,7 +23,7 @@
             state: present
 
         - name: Restart libvirtd service
-          ansible.builtin.service: 
+          ansible.builtin.service:
             name: libvirtd
             state: restarted
       when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int  >= 18)
@@ -35,11 +35,13 @@
           ansible.builtin.file:
             path: /etc/systemd/resolved.conf.d/
             state: directory
+            mode: 0755
 
         - name: Enable localdns if systemd-resolved is present
           ansible.builtin.template:
             src: systemd-resolved.j2
             dest: /etc/systemd/resolved.conf.d/{{ k8s.cluster_name }}-local-kube.conf
+            mode: 0755
           notify:
             - Restart systemd-resolved
       when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int >= 33) or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int >= 18)
@@ -48,27 +50,31 @@
       ansible.builtin.file:
         path: /etc/NetworkManager/conf.d
         state: directory
+        mode: 0755
 
     - name: Ensure NM dnsmasq directory exists
       ansible.builtin.file:
         path: /etc/NetworkManager/dnsmasq.d
-        state: directory        
+        state: directory
+        mode: 0755
 
     - name: Configure NetworkManager for local DNS
       ansible.builtin.copy:
         src: files/localdns.conf
         dest: /etc/NetworkManager/conf.d/{{ k8s.cluster_name }}-localdns.conf
-      notify: 
+        mode: 0755
+      notify:
         - Restart NetworkManager
 
     - name: Configure NetworkManager for libvirt network
       ansible.builtin.template:
         src: templates/libvirt_dnsmasq.j2
         dest: /etc/NetworkManager/dnsmasq.d/{{ k8s.cluster_name }}-libvirt_dnsmasq.conf
+        mode: 0755
       notify:
         - Restart NetworkManager
         - Wait for local DNS resolver to be up
-  
+
   handlers:
     - name: Restart systemd-resolved
       ansible.builtin.service:

@@ -5,7 +5,8 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - block:
+    - name: Configure Calico
+      block:
         - name: Download Calico manifest.
           ansible.builtin.get_url:
             url: "{{ item.url }}"
@@ -18,35 +19,36 @@
               url: "{{ cni_plugins.calico.calico_crd }}"
 
         - name: Apply custom CIDR to calico installation manifest
-          ansible.builtin.replace: 
+          ansible.builtin.replace:
             path: /tmp/{{ k8s.cluster_name }}/calico-crd.yaml
             regexp: 192.168.0.0\/16
             replace: "{{ k8s.network.pod_cidr }}"
 
-        - name: Temporary fix for non ascii char in Calico CRD (https://github.com/projectcalico/api/pull/46)
-          ansible.builtin.replace:
-            path: /tmp/{{ k8s.cluster_name }}/calico-operator.yaml
-            regexp: \’
-            replace: ""
+        # - name: Temporary fix for non ascii char in Calico CRD (https://github.com/projectcalico/api/pull/46)
+        #   ansible.builtin.replace:
+        #     path: /tmp/{{ k8s.cluster_name }}/calico-operator.yaml
+        #     regexp: \’
+        #     replace: ""
 
         - name: Apply calico manifests to the cluster.
           kubernetes.core.k8s:
             state: present
             src: "{{ item }}"
             kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-            wait: yes
-          loop: 
+            wait: true
+          loop:
             - /tmp/{{ k8s.cluster_name }}/calico-operator.yaml
             - /tmp/{{ k8s.cluster_name }}/calico-crd.yaml
       when: k8s.network.cni_plugin == 'calico'
 
-    - block:
+    - name: Configure Cilium
+      block:
         - name: Add helm chart repository for Cilium
           kubernetes.core.helm_repository:
             name: "{{ item.name }}"
             repo_url: "{{ item.repo_url }}"
           loop:
-            - name: "{{ cni_plugins.cilium.chart.name }}" 
+            - name: "{{ cni_plugins.cilium.chart.name }}"
               repo_url: "{{ cni_plugins.cilium.chart.url }}"
 
         - name: Ensure Cilium helm chart is installed
@@ -63,12 +65,14 @@
             wait: true
       when: k8s.network.cni_plugin == 'cilium'
 
-    - block:
+    - name: Configure flannel
+      block:
         - name: Download flannel manifest
           ansible.builtin.get_url:
             url: "{{ cni_plugins.flannel.flannel_repo }}"
             dest: /tmp/{{ k8s.cluster_name }}/kube-flannel.yaml
-        
+            mode: 0755
+
         - name: Patch kube-flannel to use host-gw instead of vxlan
           ansible.builtin.replace:
             path: /tmp/{{ k8s.cluster_name }}/kube-flannel.yaml
@@ -80,7 +84,7 @@
             state: present
             src: /tmp/{{ k8s.cluster_name }}/kube-flannel.yaml
             kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-            wait: yes
+            wait: true
       when: k8s.network.cni_plugin == 'flannel'
 
     - name: Wait for core-dns pods to be up and running
@@ -91,4 +95,4 @@
         namespace: kube-system
         name: coredns
         kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-        wait: yes
+        wait: true

@@ -5,13 +5,13 @@
     - vars/k8s_cluster.yml
   tasks:
     - name: Check if distribution is supported
-      ansible.builtin.fail: 
+      ansible.builtin.fail:
         msg: Your distribution is actually unsupported. Supported values are 'Fedora', 'CentOS', 'Ubuntu'
-      when: 
+      when:
         - ansible_distribution != 'CentOS'
         - ansible_distribution != 'Fedora'
         - ansible_distribution != 'Ubuntu'
-        
+
     - name: Check if target distribution is correct
       ansible.builtin.fail:
         msg: Target distribution is not supported. Supported values are 'Ubuntu', 'CentOS'
@@ -29,7 +29,7 @@
     - name: Check at least one vm for control plane is defined
       ansible.builtin.fail:
         msg: At least one control plane should be selected
-      when: 
+      when:
         - k8s.control_plane.vms is not defined or k8s.control_plane.vms <= 0
 
     - name: Check if master is schedulable in case of clusters composed by control plane VMs
@@ -37,19 +37,19 @@
         msg: When provisioning a cluster without workers, you need to set k8s.master_schedulable to true in vars.
       when:
         - k8s.worker_nodes.vms is not defined or k8s.worker_nodes.vms <= 0
-        - not k8s.master_schedulable 
+        - not k8s.master_schedulable
 
     - name: Fail fast if Rook cluster size exceeds worker nodes.
-      ansible.builtin.fail: 
+      ansible.builtin.fail:
         msg: You can't have less worker nodes than Rook cluster size
       when:
         - k8s.worker_nodes.vms < rook_ceph.rook_cluster_size
-        - rook_ceph.install_rook 
+        - rook_ceph.install_rook
 
     - name: Fail fast if no container runtime is defined
       ansible.builtin.fail:
         msg: Select at least container runtime 'docker', 'containerd', 'crio'
-      when: 
+      when:
         - k8s.container_runtime != 'crio'
         - k8s.container_runtime != 'docker'
         - k8s.container_runtime != 'containerd'
@@ -58,7 +58,7 @@
       ansible.builtin.fail:
         msg: If you want to install an ingress controller, select one among 'nginx', 'haproxy' or 'contour'
       when:
-        - ingress_controller.install_ingress_controller == true
+        - ingress_controller.install_ingress_controller
         - ingress_controller.type != 'nginx' and ingress_controller.type != 'haproxy' and ingress_controller.type != 'contour'
 
     - name: Fail fast if no container plugin selected

@@ -18,10 +18,10 @@
 
     - name: Ensure required packages for kubetools are installed
       ansible.builtin.apt:
-        name: 
+        name:
           - apt-transport-https
           - curl
-        state: latest
+        state: present
       when: k8s.cluster_os == 'Ubuntu'
 
     - name: Add kube-repo key
@@ -36,7 +36,7 @@
         filename: "{{ kubernetes.ubuntu.k8s_repo_file }}"
         state: present
       when: k8s.cluster_os == 'Ubuntu'
-    
+
     - name: Ensure Kubernetes packages are installed
       ansible.builtin.apt:
         name: "{{ kubernetes.ubuntu.k8s_packages }}"
@@ -54,11 +54,11 @@
       when: k8s.cluster_os == 'Ubuntu'
 
     - name: Disable swap
-      ansible.builtin.shell: swapoff -a  
+      ansible.builtin.shell: swapoff -a
 
     - name: Remove swap entry from fstab
       ansible.builtin.lineinfile:
-        line: "/dev/mapper/cl-swap swap"  
+        line: "/dev/mapper/cl-swap swap"
         path: /etc/fstab
         state: absent
 
@@ -78,24 +78,24 @@
 
     - name: Install lvm2 for rook support and git for installing rook
       ansible.builtin.yum:
-        name: 
+        name:
           - lvm2
           - git
-      when: 
-        - rook_ceph.install_rook 
+      when:
+        - rook_ceph.install_rook
         - k8s.cluster_os == 'CentOS'
 
     - name: Install lvm2 for rook support and git for installing rook
       ansible.builtin.apt:
-        name: 
+        name:
           - lvm2
           - git
-      when: 
+      when:
         - rook_ceph.install_rook
         - k8s.cluster_os == 'Ubuntu'
 
     - name: Enable kubelet
-      ansible.builtin.systemd: 
+      ansible.builtin.systemd:
         name: kubelet
         state: started
         enabled: true

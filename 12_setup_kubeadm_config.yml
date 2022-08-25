@@ -23,7 +23,8 @@
           kubecertkey: "{{ kubecert_generated.stdout }}"
 
       - name: Add kubelet config for node
-        ansible.builtin.template: 
+        ansible.builtin.template:
           src: templates/kubeadm-config.yaml.j2
           dest: /tmp/kubeadm-config.yaml
+          mode: 0755
       when: k8s_installed is not defined
