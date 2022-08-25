@@ -1,30 +1,24 @@
 global
-    log         127.0.0.1 local0
-    chroot      /var/lib/haproxy
-    pidfile     /var/run/haproxy.pid
-    maxconn     4000
-    user        haproxy
-    group       haproxy
+    log /dev/log local0
+    log /dev/log local1 notice
     daemon
-    stats socket /var/lib/haproxy/stats
 
 defaults
     mode                    http
     log                     global
     option                  httplog
     option                  dontlognull
-    #option http-server-close
+    option http-server-close
     option forwardfor       except 127.0.0.0/8
     option                  redispatch
-    retries                 3
+    retries                 1
     timeout http-request    10s
-    timeout queue           1m
-    timeout connect         10s
-    timeout client          1m
-    timeout server          1m
+    timeout queue           20s
+    timeout connect         5s
+    timeout client          20s
+    timeout server          20s
     timeout http-keep-alive 10s
     timeout check           10s
-    maxconn                 3000
 
 {% if k8s.control_plane.vms > 1  %}
 frontend kubernetes-control-plane
@@ -34,8 +28,11 @@ frontend kubernetes-control-plane
     option tcplog
 
 backend kubernetes-control-plane
-    balance source
+    option httpchk GET /healthz
+    balance roundrobin
     mode tcp
+    option ssl-hello-chk
+
 {% for node in groups['masters'] %}
     server {{ hostvars[node].host_fqdn }} {{ hostvars[node].host_ip }}:6443 check
 {% endfor %}
