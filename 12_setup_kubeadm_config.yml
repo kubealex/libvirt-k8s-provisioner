@@ -5,7 +5,8 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - block:
+    - name: Process installation if cluster is not set
+      block:
       - name: Generate cluster token
         ansible.builtin.command: kubeadm token generate
         register: kubetoken_generated
