@@ -1,26 +1,47 @@
-apiVersion: kubeadm.k8s.io/v1beta2
-kind: InitConfiguration
-certificateKey: "{{ hostvars[groups['masters'][0]].kubecertkey }}"
+apiVersion: kubeadm.k8s.io/v1beta3
 bootstrapTokens:
-  - token: "{{ hostvars[groups['masters'][0]].kubetoken }}"
+- groups:
+  - system:bootstrappers:kubeadm:default-node-token
+  token: "{{ hostvars[groups['masters'][0]].kubetoken }}"
+  ttl: 24h0m0s
+  usages:
+  - signing
+  - authentication
+certificateKey: "{{ hostvars[groups['masters'][0]].kubecertkey }}"
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: "{{ hostvars[inventory_hostname].host_ip }}"
+  bindPort: 6443
+nodeRegistration:
+  criSocket: unix:///var/run/containerd/containerd.sock
+  imagePullPolicy: IfNotPresent
+  name: k8s-test-master-0.k8s.test
+  taints:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/control-plane
 ---
-kind: ClusterConfiguration
-apiVersion: kubeadm.k8s.io/v1beta2
-networking:
-  serviceSubnet: "{{ k8s.network.service_cidr }}"
-  podSubnet: "{{ ('10.244.0.0/16' if (k8s.network.cni_plugin == 'flannel') else k8s.network.pod_cidr) }}"
-{% if k8s.network.additional_san is defined and k8s.network.additional_san != '' %}
 apiServer:
+{% if k8s.network.additional_san is defined and k8s.network.additional_san != '' %}
   certSANs:
     - "{{ k8s.network.additional_san | default('localhost') }}"
 {% endif %}
+  timeoutForControlPlane: 4m0s
+apiVersion: kubeadm.k8s.io/v1beta3
+certificatesDir: /etc/kubernetes/pki
+clusterName: kubernetes
+controllerManager: {}
 {% if k8s.control_plane.vms > 1  %}
-controlPlaneEndpoint: {{ hostvars[groups['loadbalancer'][0]].host_fqdn }}
+controlPlaneEndpoint: "{{ hostvars[groups['loadbalancer'][0]].host_fqdn }}"
 {% endif %}
-
----
-apiVersion: kubelet.config.k8s.io/v1beta1
-kind: KubeletConfiguration
-{% if k8s.container_runtime == 'crio' %}
-cgroupDriver: systemd
-{% endif %}
+dns: {}
+etcd:
+  local:
+    dataDir: /var/lib/etcd
+imageRepository: registry.k8s.io
+kind: ClusterConfiguration
+kubernetesVersion: v{{ k8s.cluster_version }}.0
+networking:
+  dnsDomain: cluster.local
+  podSubnet: "{{ ('10.244.0.0/16' if (k8s.network.cni_plugin == 'flannel') else k8s.network.pod_cidr) }}"
+  serviceSubnet: "{{ k8s.network.service_cidr }}"
+scheduler: {}
