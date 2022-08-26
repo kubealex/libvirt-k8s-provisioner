@@ -51,7 +51,7 @@
           ansible.posix.firewalld:
             zone: internal
             interface: "{{ 'eth0' if k8s.cluster_os == 'CentOS' else 'ens3' }}"
-            permanent: true
+            permanent: yes
             state: enabled
 
         - name: Start NetworkManager
@@ -64,7 +64,7 @@
           ansible.posix.firewalld:
             zone: internal
             state: enabled
-            permanent: true
+            permanent: yes
             service: "{{ item }}"
           loop: "{{ services }}"
 
@@ -72,7 +72,7 @@
           ansible.posix.firewalld:
             zone: internal
             state: enabled
-            permanent: true
+            permanent: yes
             port: "{{ item }}"
           loop: "{{ internal_zone_port }}"
 
