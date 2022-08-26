@@ -3,7 +3,13 @@
 # libvirt-k8s-provisioner - Automate your cluster provisioning from 0 to k8s!
 Welcome to the home of the project!
 
-With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want.
+With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want. 
+
+# DISCLAIMER
+
+It is a hobby project, so it's not supported for production usage, but feel free to open issues and/or contributing to it!
+
+# How does it work?
 
 Kubernetes version that is installed can be choosen between:
 - **1.25** - Latest 1.25 release (1.25.0) !!! cri-o, metalLB and rook are not yet available
