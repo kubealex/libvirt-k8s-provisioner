@@ -42,29 +42,21 @@
             - haproxy
             - NetworkManager
 
-        - name: Stop NetworkManager
-          ansible.builtin.service:
-            name: NetworkManager
-            state: stopped
+        - name: Adding interface {{ 'eth0' if k8s.cluster_os == 'CentOS' else 'ens3' }} to internal zone
+          ansible.builtin.command: nmcli con mod {{ 'eth0' if k8s.cluster_os == 'CentOS' else 'ens3' }} connection.zone internal
 
         - name: Adding interface to firewall internal zone
           ansible.posix.firewalld:
             zone: internal
             interface: "{{ 'eth0' if k8s.cluster_os == 'CentOS' else 'ens3' }}"
-            permanent: yes
+            permanent: true
             state: enabled
-
-        - name: Start NetworkManager
-          ansible.builtin.service:
-            name: NetworkManager
-            state: started
-            enabled: true
 
         - name: Allow service for internal zone
           ansible.posix.firewalld:
             zone: internal
             state: enabled
-            permanent: yes
+            permanent: true
             service: "{{ item }}"
           loop: "{{ services }}"
 
@@ -72,14 +64,17 @@
           ansible.posix.firewalld:
             zone: internal
             state: enabled
-            permanent: yes
+            permanent: true
             port: "{{ item }}"
           loop: "{{ internal_zone_port }}"
 
-        - name: Reload firewalld service
+        - name: Reload firewalld and NetworkManager service
           ansible.builtin.service:
-            name: firewalld
+            name: "{{ item }}"
             state: restarted
+          loop:
+            - NetworkManager
+            - firewalld
 
         - name: Enabling selinux boolean for haproxy
           ansible.posix.seboolean:
