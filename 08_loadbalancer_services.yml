@@ -42,23 +42,40 @@
             - haproxy
             - NetworkManager
 
-        - name: Stop NetworkManager
-          ansible.builtin.service:
-            name: NetworkManager
-            state: stopped
+        - name: Firewall settings for Ubuntu
+          block:
+            - name: Stop NetworkManager
+              ansible.builtin.service:
+                name: NetworkManager
+                state: stopped
 
-        - name: Adding interface to firewall internal zone
-          ansible.posix.firewalld:
-            zone: internal
-            interface: "{{ 'eth0' if k8s.cluster_os == 'CentOS' else 'ens3' }}"
-            permanent: true
-            state: enabled
+            - name: Adding interface to firewall internal zone
+              ansible.posix.firewalld:
+                zone: internal
+                interface: "ens3"
+                permanent: true
+                state: enabled
 
-        - name: Start NetworkManager
-          ansible.builtin.service:
-            name: NetworkManager
-            state: started
-            enabled: true
+            - name: Start NetworkManager
+              ansible.builtin.service:
+                name: NetworkManager
+                state: started
+                enabled: true
+          when: k8s.cluster_os == 'Ubuntu'
+
+        - name: Firewall settings for CentOS
+          block:
+            - name: Adding interface to internal zone
+              ansible.builtin.command: nmcli con mod "System eth0" connection.zone internal
+
+            - name: Refreshing interface
+              ansible.builtin.shell: nmcli con down "System eth0"; nmcli con up "System eth0"
+
+            - name: Restart NetworkManager
+              ansible.builtin.service:
+                name: NetworkManager
+                state: restarted
+          when: k8s.cluster_os == 'CentOS'
 
         - name: Allow service for internal zone
           ansible.posix.firewalld:

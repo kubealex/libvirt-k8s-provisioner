@@ -100,14 +100,15 @@
 
 - name: Check connection and set facts
   hosts: masters,workers
-  gather_facts: no
+  gather_facts: false
   tasks:
     - name: Wait 600 seconds for target connection to become reachable/usable
       ansible.builtin.wait_for_connection:
         timeout: 600
         delay: 0
 
-    - ansible.builtin.ping:
+    - name: Ping host to check status
+      ansible.builtin.ping:
 
     - name: Add hosts to correct groups
       ansible.builtin.group_by:
@@ -117,7 +118,8 @@
       ansible.builtin.setup:
       register: machine_facts
 
-    - ansible.builtin.set_fact:
+    - name: Set relevant facts for the host
+      ansible.builtin.set_fact:
         host_ip: "{{ machine_facts.ansible_facts.ansible_default_ipv4.address }}"
         host_interface: "{{ machine_facts.ansible_facts.ansible_default_ipv4.interface }}"
         host_mac: "{{ machine_facts.ansible_facts.ansible_default_ipv4.macaddress }}"

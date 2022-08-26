@@ -278,7 +278,7 @@
 
         - name: Add containerd repository
           ansible.builtin.get_url:
-            url: "{{ containerd.containerd_repo }}"
+            url: "{{ containerd.centos.containerd_repo }}"
             dest: "/etc/yum.repos.d/docker-ce.repo"
             mode: 0755
 
@@ -290,10 +290,31 @@
         - k8s.container_runtime == 'containerd'
         - k8s.cluster_os == 'CentOS'
 
-    - name: Ensure containerd is configured and installed on Ubuntu machine
-      ansible.builtin.apt:
-        name: containerd
-        state: present
+    - name: Setup containerd on Ubuntu
+      block:
+        - name: Add crio repo key
+          ansible.builtin.apt_key:
+            url: "{{ item.key }}"
+            keyring: "{{ item.keyring }}"
+            state: present
+          loop:
+            - key: "{{ containerd.ubuntu.containerd_repo_key }}"
+              keyring: "{{ containerd.ubuntu.containerd_repo_key_file }}"
+
+        - name: Ensure the presence of apt-repo for cri-o
+          ansible.builtin.apt_repository:
+            repo: "{{ item.repo }}"
+            filename: "{{ item.file }}"
+            state: present
+          loop:
+            - repo: "{{ containerd.ubuntu.containerd_repo }}"
+              file: /etc/apt/sources.list.d/docker.list
+
+        - name: Ensure containerd is configured and installed on Ubuntu machine
+          ansible.builtin.apt:
+            name: containerd.io
+            state: latest # noqa package-latest
+            update_cache: true
       when:
         - k8s.container_runtime == 'containerd'
         - k8s.cluster_os == 'Ubuntu'
@@ -309,12 +330,18 @@
         - name: Initialize config
           ansible.builtin.shell: containerd config default > /etc/containerd/config.toml
 
+        - name: Configure containerd to work with systemd
+          ansible.builtin.replace:
+            path: /etc/containerd/config.toml
+            regexp: "SystemdCgroup = false"
+            replace: "SystemdCgroup = true"
+
         - name: Force systemd to reread configs
           ansible.builtin.systemd:
             daemon_reload: true
 
         - name: Ensure containerd is enabled and started
-          ansible.builtin.systemd:
+          ansible.builtin.service:
             name: containerd
             state: restarted
             enabled: true

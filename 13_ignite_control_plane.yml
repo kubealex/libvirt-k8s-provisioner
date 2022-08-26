@@ -4,7 +4,8 @@
     - vars/k8s_cluster.yml
   hosts: masters[0]
   tasks:
-    - block:
+    - name: Perform k8s setup
+      block:
         - name: Start kubeadm install
           ansible.builtin.shell: kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs
           become: true
@@ -23,6 +24,7 @@
           ansible.builtin.file:
             path: /home/kube/.kube
             state: directory
+            mode: 0755
 
         - name: Copy kubeconfig
           ansible.builtin.copy:
@@ -31,6 +33,7 @@
             remote_src: true
             owner: "{{ ansible_user_id }}"
             group: "{{ ansible_user_id }}"
+            mode: 0755
           become: true
 
         - name: Fetch kubeconfig file
@@ -43,7 +46,8 @@
           ansible.builtin.set_fact:
             kubeconfig: "{{ kube_master['content'] | b64decode }}"
 
-        - ansible.builtin.set_fact:
+        - name: Set a flag if cluster setup is successful
+          ansible.builtin.set_fact:
             k8s_installed: true
       when: k8s_installed is not defined
 
