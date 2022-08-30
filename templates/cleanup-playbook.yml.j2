@@ -22,9 +22,9 @@
         path: "{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
-        - {{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}
         - /etc/NetworkManager/dnsmasq.d/{{ k8s.cluster_name }}-libvirt_dnsmasq.conf
         - /etc/NetworkManager/conf.d/{{ k8s.cluster_name }}-localdns.conf
+        - {{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}
 
     - name: Restart NetworkManager and libvirtd
       service:
