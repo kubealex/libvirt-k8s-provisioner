@@ -12,7 +12,7 @@ It is a hobby project, so it's not supported for production usage, but feel free
 # How does it work?
 
 Kubernetes version that is installed can be choosen between:
-- **1.25** - Latest 1.25 release (1.25.0) !!! cri-o, metalLB and rook are not yet available
+- **1.25** - Latest 1.25 release (1.25.0)
 - **1.24** - Latest 1.24 release (1.24.4)
 - **1.23** - Latest 1.23 release (1.23.10)
 - **1.22** - Latest 1.22 release (1.22.13)

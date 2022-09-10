@@ -184,13 +184,13 @@
               file: /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
             - repo: "{{ crio.ubuntu.crio_repo }}"
               file: /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:{{ k8s.cluster_version }}.list
+          when: k8s.cluster_os == 'Ubuntu'
 
         - name: Temporary fix for memory swap slices on 20.04
           ansible.builtin.lineinfile:
             path: /etc/default/grub
             regexp: '^GRUB_CMDLINE_LINUX'
             line: 'GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"'
-
           when: k8s.cluster_os == 'Ubuntu'
 
         - name: Add kubic CentOS repository
