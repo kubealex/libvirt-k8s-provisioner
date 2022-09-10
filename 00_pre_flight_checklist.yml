@@ -36,6 +36,14 @@
         - k8s.container_runtime == 'docker'
         - k8s.cluster_version == '1.24'
 
+    - name: Check if cri-o is selected on 1.25
+      ansible.builtin.fail:
+        msg: Please select a different container runtime as cri-o packages are not yet available for {{ k8s.cluster_version }}
+      when:
+        - k8s.container_runtime == 'crio'
+        - k8s.cluster_version == '1.25'
+        - k8s.cluster_os == 'CentOS'
+
     - name: Check at least one vm for control plane is defined
       ansible.builtin.fail:
         msg: At least one control plane should be selected
