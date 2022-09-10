@@ -36,18 +36,6 @@
         - k8s.container_runtime == 'docker'
         - k8s.cluster_version == '1.24'
 
-    # - name: Check if cri-o is selected on 1.25
-    #   ansible.builtin.fail:
-    #     msg: Please select a different container runtime as cri-o packages are not yet available for {{ k8s.cluster_version }}
-    #   when:
-    #     - k8s.container_runtime == 'crio'
-    #     - k8s.cluster_version == '1.25'
-
-    # - name: Check if rook or metallb are selected for installation and fail (still unsupported for 1.25)
-    #   ansible.builtin.fail:
-    #     msg: Rook and metalLB are still not working with 1.25, please set the setup to false
-    #   when: rook_ceph.install_rook or metallb.install_metallb
-
     - name: Check at least one vm for control plane is defined
       ansible.builtin.fail:
         msg: At least one control plane should be selected
