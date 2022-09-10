@@ -8,8 +8,6 @@ terraform_url: https://releases.hashicorp.com/terraform/1.2.8/terraform_1.2.8_li
 image_name: OS-GenericCloud
 centos:
   cloud_image: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20220125.1.x86_64.qcow2
-ubuntu:
-  cloud_image: https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img
 ubuntu_jammy:
   cloud_image: https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img
 
