@@ -69,7 +69,6 @@
                 name: systemd-sysctl
                 state: restarted
           when:
-            - kubernetes_version.1 | int >= 20
             - k8s.cluster_os == "Ubuntu"
             - k8s.network.cni_plugin == "cilium"
 
@@ -216,21 +215,10 @@
           ansible.builtin.apt:
             name:
               - cri-o
-              - cri-o-runc
-            state: present
-          when:
-            - k8s.cluster_os == 'Ubuntu'
-            - kubernetes_version.1 | int <= 20
-
-        - name: Ensure cri-o is installed - Ubuntu
-          ansible.builtin.apt:
-            name:
-              - cri-o
               - crun
             state: present
           when:
             - k8s.cluster_os == 'Ubuntu'
-            - kubernetes_version.1 | int > 20
 
         - name: Fire crio-conf template
           ansible.builtin.template:
@@ -245,7 +233,6 @@
             mode: 0755
           when:
             - k8s.cluster_os == 'Ubuntu'
-            - kubernetes_version.1 | int > 20
 
         - name: Remove example CNI configs
           ansible.builtin.file:

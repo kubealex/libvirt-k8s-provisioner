@@ -125,7 +125,7 @@
 
     - name: Download Ubuntu image
       ansible.builtin.get_url:
-        url: "{{ ubuntu_jammy.cloud_image if kubernetes_version.1 | int > 20 else ubuntu.cloud_image }}"
+        url: "{{ ubuntu_jammy.cloud_image }}"
         dest: /tmp/{{ image_name }}.qcow2
         mode: 0777
       when: k8s.cluster_os == 'Ubuntu'

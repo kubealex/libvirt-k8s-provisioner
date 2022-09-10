@@ -2,7 +2,7 @@
 [crio.runtime]
 selinux = false
 cgroup_manager="systemd"
-{% if k8s.cluster_os == "Ubuntu" and hostvars[inventory_hostname]['kubernetes_version'][1] | int > 20 %}
+{% if k8s.cluster_os == "Ubuntu" %}
 default_runtime = "crun"
 {% endif %}
 default_capabilities = [
