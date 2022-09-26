@@ -46,6 +46,7 @@ os_packages:
     - libvirt-dev
     - bridge-utils
     - qemu-kvm
+    - genisoimage
     - virtinst
     - virt-manager
 
