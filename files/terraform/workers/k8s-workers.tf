@@ -35,7 +35,7 @@ resource "libvirt_volume" "os_image_resized" {
 resource "libvirt_cloudinit_disk" "commoninit" {
   count = var.vm_count
   name = "${var.hostname}-${count.index + var.vm_counter}-commoninit.iso"
-  pool = var.libvirt_pool 
+  pool = var.libvirt_pool
   user_data = data.template_file.user_data[count.index].rendered
 }
 
@@ -85,7 +85,7 @@ terraform {
   required_providers {
     libvirt = {
       source  = "dmacvicar/libvirt"
-      version = "0.6.14"
+      version = "0.7.0"
     }
   }
 }

@@ -1,7 +1,7 @@
 variable "domain" { default = "k8s.lab" }
-variable "network_cidr" { 
+variable "network_cidr" {
   type = list
-  default = ["192.168.100.0/24"] 
+  default = ["192.168.100.0/24"]
 }
 variable "cluster_name" { default = "k8s" }
 variable "libvirt_pool_path" { default = "/var/lib/libvirt/images" }
@@ -42,7 +42,7 @@ terraform {
   required_providers {
     libvirt = {
       source = "registry.terraform.io/dmacvicar/libvirt"
-      version = "0.6.14"
+      version = "0.7.0"
     }
   }
 }
