@@ -1,3 +1,4 @@
+---
 - name: Save inventory to disk
   hosts: vm_host
   vars_files:
