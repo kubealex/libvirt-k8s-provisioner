@@ -1,4 +1,4 @@
-# General configuration  
+# General configuration
 k8s:
   cluster_name: k8s-test
   cluster_os: Ubuntu
@@ -51,5 +51,5 @@ ingress_controller:
 
 metallb:
   install_metallb: false
-  l2: 
+  l2:
     iprange: 192.168.200.210-192.168.200.250
