@@ -1,11 +1,10 @@
 cephClusterSpec:
   cephVersion:
-    image: quay.io/ceph/ceph:v17.2.1
+    image: quay.io/ceph/ceph:v17.2.5
     allowUnsupported: false
   mon:
     count: {{ rook_ceph.rook_cluster_size | int }}
     allowMultiplePerNode: false
-
   mgr:
     count: {{ rook_ceph.rook_cluster_size | int }}
     allowMultiplePerNode: false
@@ -53,7 +52,7 @@ cephFileSystems:
         priorityClassName: system-cluster-critical
     storageClass:
       enabled: true
-      isDefault: false
+      isDefault: true
       name: ceph-filesystem
       pool: data0
       reclaimPolicy: Delete
@@ -81,9 +80,6 @@ cephObjectStores:
             memory: "1Gi"
         instances: 1
         priorityClassName: system-cluster-critical
-      healthCheck:
-        bucket:
-          interval: 60s
     storageClass:
       enabled: true
       name: ceph-bucket
