@@ -4,10 +4,10 @@
 workspace_directory:
   base_path: "{{ home_dir }}/k8s-setup"
 
-terraform_url: https://releases.hashicorp.com/terraform/1.2.8/terraform_1.2.8_linux_amd64.zip
+terraform_url: https://releases.hashicorp.com/terraform/1.3.5/terraform_1.3.5_linux_amd64.zip
 image_name: OS-GenericCloud
 centos:
-  cloud_image: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20220125.1.x86_64.qcow2
+  cloud_image: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20220913.0.x86_64.qcow2
 ubuntu_jammy:
   cloud_image: https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img
 
@@ -100,7 +100,7 @@ ingress:
       ref: haproxytech/kubernetes-ingress
 
 helm:
-  helm_installer: https://get.helm.sh/helm-v3.9.2-linux-amd64.tar.gz
+  helm_installer: https://get.helm.sh/helm-v3.10.0-linux-amd64.tar.gz
 
 
 rook:
@@ -116,4 +116,4 @@ rook:
       ref: rook-release/rook-ceph-cluster
 
 metallb_setup:
-  manifest_url: https://raw.githubusercontent.com/metallb/metallb/v0.13.5/config/manifests
+  manifest_url: https://raw.githubusercontent.com/metallb/metallb/v0.13.7/config/manifests
