@@ -2,7 +2,9 @@
 version: 1
 
 #ansible_config: 'ansible.cfg'
-
+build_arg_defaults:
+  EE_BASE_IMAGE: 'quay.io/ansible/ansible-runner:latest'
+  EE_BUILDER_IMAGE: 'quay.io/ansible/ansible-builder:latest'
 dependencies:
   galaxy: requirements.yml
 

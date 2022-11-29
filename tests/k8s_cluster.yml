@@ -1,0 +1,55 @@
+# General configuration
+k8s:
+  cluster_name: k8s-test
+  cluster_os: Ubuntu
+  cluster_version: "1.25"
+  container_runtime: crio
+  master_schedulable: false
+
+# Nodes configuration
+
+  control_plane:
+    vcpu: 4
+    mem: 6
+    vms: 1
+    disk: 10
+
+  worker_nodes:
+    vcpu: 4
+    mem: 6
+    vms: 1
+    disk: 10
+
+# Network configuration
+
+  network:
+    network_cidr: 192.168.200.0/24
+    domain: k8s.test
+    additional_san: ""
+    pod_cidr: 10.20.0.0/16
+    service_cidr: 10.110.0.0/16
+
+# Choose between [calico/flannel/cilium]
+    cni_plugin: cilium
+
+# Rook configuration
+rook_ceph:
+  install_rook: false
+  volume_size: 50
+  rook_cluster_size: 1
+
+# Ingress controller configuration [nginx/haproxy/contour]
+
+ingress_controller:
+  install_ingress_controller: true
+  type: haproxy
+  node_port:
+    http: 31080
+    https: 31443
+
+# Section for metalLB setup
+
+metallb:
+  install_metallb: false
+  l2:
+    iprange: 192.168.200.210-192.168.200.250
