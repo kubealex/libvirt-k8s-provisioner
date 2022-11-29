@@ -1,0 +1,23 @@
+name: Test Ansible workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run playbook
+      uses: dawidd6/action-ansible-playbook@v2
+      with:
+        # Required, playbook filepath
+        playbook: main.yml
+        # Optional, directory where playbooks live
+        directory: ./
+        requirements: requirements.yml
+        options: |
+          --verbose
