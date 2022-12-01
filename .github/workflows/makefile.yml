@@ -13,34 +13,33 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - run: |
-        systemctl status systemd
-        systemctl status libvirtd
-        
+        cat /proc/cpuinfo | egrep "vmx|svm"
+
     - name: Add Ubuntu repo
       uses: myci-actions/add-deb-repo@10
       with:
         repo: deb http://it.archive.ubuntu.com/ubuntu/ focal main universe restricted multiverse
         repo-name: Deb
-        
+
     - name: Add Ubuntu repo
       uses: myci-actions/add-deb-repo@10
       with:
         repo: deb-src http://it.archive.ubuntu.com/ubuntu/ focal main universe restricted multiverse
         repo-name: Deb-src
-    
+
     - name: Install pip and download ansible navigator
       run: |
         pip3 install ansible-navigator ansible-builder
-        
+
     - name: Build execution environment
       working-directory: ./execution-environment
       run:
         ansible-builder build -t k8s-ee
 
     - name: Build inventory and test vars file
-      run: 
+      run:
         sed -i 's/localhost/$(hostname -f)/g' tests/inventory && cp tests/k8s_cluster.yml vars/k8s_cluster.yml
-        
+
     - name: Run playbook with navigator
       run:
         ansible-navigator run main.yml -i tests/inventory -m stdout
