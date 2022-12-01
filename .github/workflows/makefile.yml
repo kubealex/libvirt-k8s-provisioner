@@ -13,7 +13,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - run: |
-        cat /etc/os_release
         systemctl status systemd
         systemctl status libvirtd
         
