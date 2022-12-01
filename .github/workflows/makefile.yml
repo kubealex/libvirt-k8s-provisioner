@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - run: |
-        cat /proc/cpuinfo | egrep "vmx|svm"
+        sudo cat /proc/cpuinfo | egrep "vmx|svm"
 
     - name: Add Ubuntu repo
       uses: myci-actions/add-deb-repo@10
