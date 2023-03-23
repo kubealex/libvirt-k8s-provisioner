@@ -36,7 +36,7 @@ dns: {}
 etcd:
   local:
     dataDir: /var/lib/etcd
-imageRepository: "{{ 'registry.k8s.io' if k8s.cluster_version is version('1.25', '>=') else 'k8s.gcr.io' }}"
+imageRepository: registry.k8s.io
 kind: ClusterConfiguration
 kubernetesVersion: v{{ k8s.cluster_version }}.{{ '14' if k8s.cluster_version is version('1.21', '==') else '17' if k8s.cluster_version is version('1.22', '==') else '15' if k8s.cluster_version is version('1.23', '==') else '9' if k8s.cluster_version is version('1.24', '==') else '5' if k8s.cluster_version is version('1.25', '==') else '0' if k8s.cluster_version is version('1.26', '==') }}
 networking:
