@@ -15,6 +15,7 @@
         state: present
 
     - name: qemu SELinux fix for running images in different folders
+      when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int  >= 18)
       block:
         - name: Ensure security_driver is disabled
           ansible.builtin.lineinfile:
@@ -26,10 +27,11 @@
           ansible.builtin.service:
             name: libvirtd
             state: restarted
-      when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int  >= 18)
 
 
     - name: Take care of systemd-resolved on F33 and Ubuntu hosts
+      when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int < 33) or
+            (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int < 18)
       block:
         - name: Ensure systemd-resolved config dir is present
           ansible.builtin.file:
@@ -44,7 +46,6 @@
             mode: 0755
           notify:
             - Restart systemd-resolved
-      when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int >= 33) or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int >= 18)
 
     - name: Ensure NM configuration directory exists
       ansible.builtin.file:
@@ -91,4 +92,5 @@
       ansible.builtin.wait_for:
         port: 53
         delay: 10
-      when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int < 33) or  (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int < 18)
+      when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int < 33) or
+            (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int < 18)

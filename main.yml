@@ -1,19 +1,73 @@
-- import_playbook: 00_pre_flight_checklist.yml
-- import_playbook: 01_install_virtualization_tools.yml
-- import_playbook: 02_prepare_setup.yml
-- import_playbook: 03_provision_libvirt_resources.yml
-- import_playbook: 04_provisioning_vms.yml
-- import_playbook: 05_provisioning_loadbalancer.yml
-- import_playbook: 08_loadbalancer_services.yml
-- import_playbook: 10_container_runtimes.yml
-- import_playbook: 11_install_kube_packages.yml
-- import_playbook: 12_setup_kubeadm_config.yml
-- import_playbook: 13_ignite_control_plane.yml
-- import_playbook: 22_apply_network_plugin.yml
-- import_playbook: 20_join_control_plane.yml
-- import_playbook: 21_join_nodes.yml
-- import_playbook: 25_complete_setup.yml
-- import_playbook: 29_save_inventory.yml
-- import_playbook: 30_install_ingress_controller.yml
-- import_playbook: 32_install_rook.yml
-- import_playbook: 33_install_metalLB.yml
+- name: Setup | Play to set relevant variables
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Define fact with all vars
+      ansible.builtin.set_fact:
+        varfile: "{{ (lookup('file', 'vars/k8s_cluster.yml') | from_yaml) }}"
+
+- name: Setup | Playbook to run pre-flight test to verify vars
+  import_playbook: 00_pre_flight_checklist.yml
+
+- name: Setup | Playbook to ensure virtualization tools are present
+  import_playbook: 01_install_virtualization_tools.yml
+
+- name: Setup | Playbook to take care of necessary tools
+  import_playbook: 02_prepare_setup.yml
+
+- name: Setup | Playbook to take care of libvirt resources
+  import_playbook: 03_provision_libvirt_resources.yml
+
+- name: Setup | Playbook to ensure VMs are in place
+  import_playbook: 04_provisioning_vms.yml
+
+- name: Setup | Playbook to provision a loadbalancer
+  when: groups['masters'] | length > 1 or
+        (groups['workers'] | length > 1 and varfile.ingress_controller.install_ingress_controller)
+  import_playbook: 05_provisioning_loadbalancer.yml
+
+- name: Setup | Playbook to configure a loadbalancer
+  when: groups['masters'] | length > 1 or
+        (groups['workers'] | length > 1 and varfile.ingress_controller.install_ingress_controller)
+  import_playbook: 08_loadbalancer_services.yml
+
+- name: Setup |  Playbook to ensure a container runtime is configured
+  import_playbook: 10_container_runtimes.yml
+
+- name: Setup | Playbook to setup needed k8s packages
+  import_playbook: 11_install_kube_packages.yml
+
+- name: Setup | Playbook to configure kubeadm
+  import_playbook: 12_setup_kubeadm_config.yml
+
+- name: Setup | Playbook to setup the control plane
+  import_playbook: 13_ignite_control_plane.yml
+
+- name: Setup | Playbook to setup network plugin
+  import_playbook: 22_apply_network_plugin.yml
+
+- name: Setup | Playbook to join additional control plane nodes
+  import_playbook: 20_join_control_plane.yml
+  when: groups['masters'] | length > 1
+
+- name: Setup | Playbook to join worker nodes
+  import_playbook: 21_join_nodes.yml
+  when: groups['workers'] is defined
+
+- name: Setup |  Playbook to complete the setup
+  import_playbook: 25_complete_setup.yml
+
+- name: Setup |  Playbook to persist inventory
+  import_playbook: 29_save_inventory.yml
+
+- name: Setup | Playbook to configure an ingress controller
+  when: varfile.ingress_controller.install_ingress_controller
+  import_playbook: 30_install_ingress_controller.yml
+
+- name: Setup | Playbook to setup Rook
+  when: varfile.rook_ceph.install_rook
+  import_playbook: 32_install_rook.yml
+
+- name: Setup | Playbook to setup MetalLB
+  when: varfile.metallb.install_metallb
+  import_playbook: 33_install_metalLB.yml

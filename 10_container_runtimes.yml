@@ -6,21 +6,10 @@
     - vars/k8s_cluster.yml
   tasks:
 
-    - name: Retrieve the minor version
-      ansible.builtin.set_fact:
-        kubernetes_version: "{{ k8s.cluster_version.split('.') }}"
-
     - name: Upgrade all packages
-      ansible.builtin.yum:
+      ansible.builtin.package:
         name: '*'
         state: latest # noqa package-latest
-      when: k8s.cluster_os == 'CentOS'
-
-    - name: Upgrade all packages
-      ansible.builtin.apt:
-        name: '*'
-        state: latest # noqa package-latest
-      when: k8s.cluster_os == 'Ubuntu'
 
     - name: Ensure prerequisites are met.
       block:
@@ -57,6 +46,9 @@
               value: 1
 
         - name: Fix dead traffic on Systemd 245+ for cilium
+          when:
+            - k8s.cluster_os == "Ubuntu"
+            - k8s.network.cni_plugin == "cilium"
           block:
             - name: Setup sysctl
               ansible.builtin.copy:
@@ -68,98 +60,9 @@
               ansible.builtin.service:
                 name: systemd-sysctl
                 state: restarted
-          when:
-            - k8s.cluster_os == "Ubuntu"
-            - k8s.network.cni_plugin == "cilium"
-
-    - name: Configure docker on a Ubuntu machine
-      block:
-        - name: Ensure required packages are present
-          ansible.builtin.apt:
-            name:
-              - apt-transport-https
-              - ca-certificates
-              - gnupg2
-              - curl
-              - software-properties-common
-            state: present
-
-        - name: Add docker repo key
-          ansible.builtin.apt_key:
-            url: "{{ docker.ubuntu.docker_repo_key }}"
-            keyring: "{{ docker.ubuntu.docker_repo_key_file }}"
-            state: present
-
-        - name: Ensure the presence of apt-repo for docker
-          ansible.builtin.apt_repository:
-            repo: "{{ docker.ubuntu.docker_repo }}"
-            state: present
-
-        - name: Ensure docker packages are installed
-          ansible.builtin.apt:
-            name: "{{ docker.ubuntu.docker_packages }}"
-            state: present
-
-      when:
-        - k8s.container_runtime == 'docker'
-        - k8s.cluster_os == 'Ubuntu'
-
-    - name: Configure docker on a CentOS machine
-      block:
-        - name: Ensure required packages are present
-          ansible.builtin.yum:
-            name:
-              - yum-utils
-              - device-mapper-persistent-data
-              - lvm2
-            state: present
-
-        - name: Add docker repository
-          ansible.builtin.get_url:
-            url: "{{ docker.centos.docker_repo }}"
-            dest: "/etc/yum.repos.d/docker-ce.repo"
-            mode: 0755
-
-        - name: Ensure docker is installed
-          ansible.builtin.yum:
-            name: "{{ docker.centos.docker_packages }}"
-            state: present
-      when:
-        - k8s.container_runtime == 'docker'
-        - k8s.cluster_os == 'CentOS'
-
-    - name: Ensure docker service is configured
-      block:
-        - name: Create /etc/docker
-          ansible.builtin.file:
-            state: directory
-            path: /etc/docker
-            mode: 0755
-
-        - name: Copy docker configuration in /etc/docker
-          ansible.builtin.copy:
-            src: files/daemon.json
-            dest: /etc/docker/
-            mode: 0755
-
-        - name: Create systemd folder for Docker service
-          ansible.builtin.file:
-            path: /etc/systemd/system/docker.service.d
-            state: directory
-            mode: 0755
-
-        - name: Force systemd to reread configs
-          ansible.builtin.systemd:
-            daemon_reload: true
-
-        - name: Ensure docker is enabled and started
-          ansible.builtin.systemd:
-            name: docker
-            state: restarted
-            enabled: true
-      when: k8s.container_runtime == 'docker'
 
     - name: Install cri-o
+      when: k8s.container_runtime == 'crio'
       block:
         - name: Add crio repo key
           ansible.builtin.apt_key:
@@ -251,9 +154,11 @@
             name: crio
             state: started
             enabled: true
-      when: k8s.container_runtime == 'crio'
 
     - name: Ensure containerd is configured and installed on CentOS machine
+      when:
+        - k8s.container_runtime == 'containerd'
+        - k8s.cluster_os == 'CentOS'
       block:
         - name: Ensure required packages are present
           ansible.builtin.yum:
@@ -273,11 +178,11 @@
           ansible.builtin.yum:
             name: containerd.io
             state: present
-      when:
-        - k8s.container_runtime == 'containerd'
-        - k8s.cluster_os == 'CentOS'
 
     - name: Setup containerd on Ubuntu
+      when:
+        - k8s.container_runtime == 'containerd'
+        - k8s.cluster_os == 'Ubuntu'
       block:
         - name: Add crio repo key
           ansible.builtin.apt_key:
@@ -302,11 +207,10 @@
             name: containerd.io
             state: latest # noqa package-latest
             update_cache: true
-      when:
-        - k8s.container_runtime == 'containerd'
-        - k8s.cluster_os == 'Ubuntu'
+
 
     - name: Ensure containerd service is configured
+      when: k8s.container_runtime == 'containerd'
       block:
         - name: Create /etc/containers
           ansible.builtin.file:
@@ -332,7 +236,6 @@
             name: containerd
             state: restarted
             enabled: true
-      when: k8s.container_runtime == 'containerd'
 
     - name: Reboot nodes before proceeding
       ansible.builtin.reboot:

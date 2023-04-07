@@ -5,18 +5,18 @@
     - vars/k8s_cluster.yml
   tasks:
     - name: Joining control plane nodes
-      block:
-      - name: Fire joinConfiguration template for worker nodes
-        ansible.builtin.template:
-          src: templates/kubeadm-join-config.yaml.j2
-          dest: /tmp/kubeadm-join.yaml
-          mode: 0755
-
-      - name: Join worker nodes in cluster
-        ansible.builtin.command: kubeadm join --config /tmp/kubeadm-join.yaml
-        become: true
-
-      - name: Mark node as joined
-        ansible.builtin.set_fact:
-          k8s_joined: true
       when: k8s_joined is not defined
+      block:
+        - name: Fire joinConfiguration template for worker nodes
+          ansible.builtin.template:
+            src: templates/kubeadm-join-config.yaml.j2
+            dest: /tmp/kubeadm-join.yaml
+            mode: 0755
+
+        - name: Join worker nodes in cluster
+          ansible.builtin.command: kubeadm join --config /tmp/kubeadm-join.yaml
+          become: true
+
+        - name: Mark node as joined
+          ansible.builtin.set_fact:
+            k8s_joined: true

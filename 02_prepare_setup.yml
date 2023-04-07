@@ -11,11 +11,7 @@
       ansible.builtin.pip:
         executable: pip3
         name: "{{ item }}"
-      loop:
-        - PyYAML
-        - kubernetes
-        - jsonpatch
-        - netaddr
+      loop: "{{ python_packages }}"
 
     - name: Ensure workspace directory exists
       ansible.builtin.file:

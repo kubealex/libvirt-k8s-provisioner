@@ -5,32 +5,20 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - name: Manage packages
+    - name: Manage loadbalancer configuration
+      when: k8s.control_plane.vms > 1 or (k8s.worker_nodes.vms > 1 and ingress_controller.install_ingress_controller)
       block:
-        - name: Manage packages on CentOS
+        - name: Ensure required packages are present
           block:
             - name: Upgrade all packages
-              ansible.builtin.yum:
-                name: '*'
-                state: latest # noqa package-latest
-            - name: Install packages
-              ansible.builtin.yum:
-                name: "{{ packages }}"
-                state: present
-          when: k8s.cluster_os == 'CentOS'
-
-        - name: Manage packages on Ubuntu
-          block:
-            - name: Upgrade all packages
-              ansible.builtin.apt:
+              ansible.builtin.package:
                 name: '*'
                 state: latest # noqa package-latest
 
-            - name: Install packages
-              ansible.builtin.apt:
-                name: "{{ packages }}"
+            - name: Install needed packages
+              ansible.builtin.package:
+                name: haproxy
                 state: present
-          when: k8s.cluster_os == 'Ubuntu'
 
         - name: Ensure firewalld, haproxy and NM are enabled
           ansible.builtin.service:
@@ -43,6 +31,7 @@
             - NetworkManager
 
         - name: Firewall settings for Ubuntu
+          when: k8s.cluster_os == 'Ubuntu'
           block:
             - name: Stop NetworkManager
               ansible.builtin.service:
@@ -61,9 +50,9 @@
                 name: NetworkManager
                 state: started
                 enabled: true
-          when: k8s.cluster_os == 'Ubuntu'
 
         - name: Firewall settings for CentOS
+          when: k8s.cluster_os == 'CentOS'
           block:
             - name: Adding interface to internal zone
               ansible.builtin.command: nmcli con mod "System eth0" connection.zone internal
@@ -75,7 +64,6 @@
               ansible.builtin.service:
                 name: NetworkManager
                 state: restarted
-          when: k8s.cluster_os == 'CentOS'
 
         - name: Allow service for internal zone
           ansible.posix.firewalld:
@@ -83,15 +71,16 @@
             state: enabled
             permanent: true
             service: "{{ item }}"
-          loop: "{{ services }}"
+          loop:
+            - http
+            - https
 
         - name: Allow ports for internal zone
           ansible.posix.firewalld:
             zone: internal
             state: enabled
             permanent: true
-            port: "{{ item }}"
-          loop: "{{ internal_zone_port }}"
+            port: "6443/tcp"
 
         - name: Reload firewalld service
           ansible.builtin.service:
@@ -119,4 +108,3 @@
 
         - name: Reboot loadbalancer
           ansible.builtin.reboot:
-      when: k8s.control_plane.vms > 1 or (k8s.worker_nodes.vms > 1 and ingress_controller.install_ingress_controller)

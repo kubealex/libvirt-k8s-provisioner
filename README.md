@@ -3,7 +3,7 @@
 # libvirt-k8s-provisioner - Automate your cluster provisioning from 0 to k8s!
 Welcome to the home of the project!
 
-With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want. 
+With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want.
 
 # DISCLAIMER
 
@@ -12,14 +12,13 @@ It is a hobby project, so it's not supported for production usage, but feel free
 # How does it work?
 
 Kubernetes version that is installed can be choosen between:
-- **1.26** - Latest 1.26 release (1.26.0)
-- **1.25** - Latest 1.25 release (1.25.5)
-- **1.24** - Latest 1.24 release (1.24.9)
-- **1.23** - Latest 1.23 release (1.23.15)
-- **1.22** - Latest 1.22 release (1.22.17)
-- **1.21** - Latest 1.21 release (1.21.14)
+- **1.27** - Latest 1.27 release (1.27.0)
+- **1.26** - Latest 1.26 release (1.26.3)
+- **1.25** - Latest 1.25 release (1.25.8)
+- **1.24** - Latest 1.24 release (1.24.12)
 
-Terraform will take care of the provisioning of:
+Terraform will take care of the provisioning via terraform of:
+
 - Loadbalancer machine with **haproxy** installed and configured for **HA** clusters
 - k8s Master(s) VM(s)
 - k8s Worker(s) VM(s)
@@ -29,12 +28,11 @@ It also takes care of preparing the host machine with needed packages, configuri
 - dedicated libvirt dnsmasq configuration
 - dedicated libvirt network (fully customizable)
 - dedicated libvirt storage pool (fully customizable)
-- terraform 1.3.8
 - libvirt-terraform-provider ( compiled and initialized based on [https://github.com/dmacvicar/terraform-provider-libvirt](https://github.com/dmacvicar/terraform-provider-libvirt))
 
 You can customize the setup choosing:
 
-- **container runtime** that you want to use (**docker, cri-o, containerd**).
+- **container runtime** that you want to use (**cri-o, containerd**).
 - **schedulable master** if you want to schedule on your master nodes or leave the taint.
 - **service CIDR** to be used during installation.
 - **pod CIDR** to be used during installation.
@@ -47,7 +45,6 @@ You can customize the setup choosing:
 ## All VMs are specular,prepared with:
 
 - OS:
-  - Ubuntu 20.04 LTS Cloud base image [https://cloud-images.ubuntu.com/releases/focal/release/](https://cloud-images.ubuntu.com/releases/focal/release/)
   - Ubuntu 22.04 LTS Cloud base image [https://cloud-images.ubuntu.com/releases/jammy/release/](https://cloud-images.ubuntu.com/releases/jammy/release/)
   - Centos Stream 8 Generic Cloud base image [https://cloud.centos.org/centos/8-stream/x86_64/images/](https://cloud.centos.org/centos/8-stream/x86_64/images/)
 
