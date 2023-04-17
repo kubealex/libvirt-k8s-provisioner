@@ -11,7 +11,7 @@
           become: true
 
         - name: Get information on generated certificate
-          ansible.builtin.openssl_certificate_info:
+          community.crypto.x509_certificate_info:
             path: /etc/kubernetes/pki/ca.crt
           register: cert
           become: true

@@ -26,6 +26,7 @@
       when: ansible_distribution == 'Fedora' or ansible_distribution == 'CentOS'
 
     - name: Manage packets when distro is 'Ubuntu'
+      when: ansible_distribution == 'Ubuntu'
       block:
         - name: Upgrade all packages
           ansible.builtin.apt:
@@ -36,7 +37,6 @@
           ansible.builtin.apt:
             name: "{{ os_packages.ubuntu }}"
             state: present
-      when: ansible_distribution == 'Ubuntu'
 
     - name: Download and provision Terraform
       ansible.builtin.unarchive:

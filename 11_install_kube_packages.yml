@@ -102,5 +102,5 @@
       notify: reboot
 
   handlers:
-    - name: reboot
+    - name: Reboot host
       ansible.builtin.reboot:

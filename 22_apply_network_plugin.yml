@@ -6,6 +6,7 @@
     - vars/k8s_cluster.yml
   tasks:
     - name: Configure Calico
+      when: k8s.network.cni_plugin == 'calico'
       block:
         - name: Download Calico manifest.
           ansible.builtin.get_url:
@@ -39,9 +40,9 @@
           loop:
             - /tmp/{{ k8s.cluster_name }}/calico-operator.yaml
             - /tmp/{{ k8s.cluster_name }}/calico-crd.yaml
-      when: k8s.network.cni_plugin == 'calico'
 
     - name: Configure Cilium
+      when: k8s.network.cni_plugin == 'cilium'
       block:
         - name: Add helm chart repository for Cilium
           kubernetes.core.helm_repository:
@@ -62,9 +63,9 @@
               ipam:
                 mode: kubernetes
             wait: true
-      when: k8s.network.cni_plugin == 'cilium'
 
     - name: Configure flannel
+      when: k8s.network.cni_plugin == 'flannel'
       block:
         - name: Download flannel manifest
           ansible.builtin.get_url:
@@ -84,7 +85,6 @@
             src: /tmp/{{ k8s.cluster_name }}/kube-flannel.yaml
             kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
             wait: true
-      when: k8s.network.cni_plugin == 'flannel'
 
     - name: Wait for core-dns pods to be up and running
       kubernetes.core.k8s:
