@@ -1,5 +1,5 @@
 - name: Setup | Play to set relevant variables
-  hosts: all
+  hosts: vm_host
   tasks:
     - name: Define fact with all vars
       ansible.builtin.set_fact:
@@ -60,13 +60,13 @@
   import_playbook: 29_save_inventory.yml
 
 - name: Setup | Playbook to configure an ingress controller
-  when: varfile.ingress_controller.install_ingress_controller
+  when: hostvars['vm_host'].varfile.ingress_controller.install_ingress_controller
   import_playbook: 30_install_ingress_controller.yml
 
 - name: Setup | Playbook to setup Rook
-  when: varfile.rook_ceph.install_rook
+  when: hostvars['vm_host'].varfile.rook_ceph.install_rook
   import_playbook: 32_install_rook.yml
 
 - name: Setup | Playbook to setup MetalLB
-  when: varfile.metallb.install_metallb
+  when: hostvars['vm_host'].varfile.metallb.install_metallb
   import_playbook: 33_install_metalLB.yml
