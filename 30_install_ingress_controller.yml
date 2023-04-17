@@ -5,132 +5,135 @@
     - vars/k8s_cluster.yml
   run_once: true
   tasks:
-    - name: Take all required steps to install contour as ingress controller
-      when:
-        - ingress_controller.type == 'contour'
+    - name: Configure Ingress controller
+      when: ingress_controller.install_ingress_controller
       block:
-        - name: Ensure the needed Namespaces exist.
-          kubernetes.core.k8s:
-            api_version: v1
-            kind: Namespace
-            name: projectcontour
-            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-            state: present
+        - name: Take all required steps to install contour as ingress controller
+          when:
+            - ingress_controller.type == 'contour'
+          block:
+            - name: Ensure the needed Namespaces exist.
+              kubernetes.core.k8s:
+                api_version: v1
+                kind: Namespace
+                name: projectcontour
+                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+                state: present
 
-        - name: Add helm chart repository for Contour
-          kubernetes.core.helm_repository:
-            name: "{{ item.name }}"
-            repo_url: "{{ item.repo_url }}"
-          loop:
-            - name: "{{ ingress.contour.chart.name }}"
-              repo_url: "{{ ingress.contour.chart.url }}"
+            - name: Add helm chart repository for Contour
+              kubernetes.core.helm_repository:
+                name: "{{ item.name }}"
+                repo_url: "{{ item.repo_url }}"
+              loop:
+                - name: "{{ ingress.contour.chart.name }}"
+                  repo_url: "{{ ingress.contour.chart.url }}"
 
-        - name: Ensure Contour helm chart is installed
-          kubernetes.core.helm:
-            name: contour
-            chart_ref: "{{ ingress.contour.chart.ref }}"
-            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-            release_namespace: projectcontour
-            update_repo_cache: true
-            values:
-              contour:
-                ingressClass: ""
-              replicaCount: 1
-              defaultBackend:
-                enabled: true
-              envoy:
-                kind: deployment
-                useHostPort: false
-                service:
-                  externalTrafficPolicy: Cluster
-                  type: NodePort
-                  nodePorts:
-                    http: "{{ ingress_controller.node_port.http }}"
-                    https: "{{ ingress_controller.node_port.https }}"
-            wait: true
+            - name: Ensure Contour helm chart is installed
+              kubernetes.core.helm:
+                name: contour
+                chart_ref: "{{ ingress.contour.chart.ref }}"
+                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+                release_namespace: projectcontour
+                update_repo_cache: true
+                values:
+                  contour:
+                    ingressClass: ""
+                  replicaCount: 1
+                  defaultBackend:
+                    enabled: true
+                  envoy:
+                    kind: deployment
+                    useHostPort: false
+                    service:
+                      externalTrafficPolicy: Cluster
+                      type: NodePort
+                      nodePorts:
+                        http: "{{ ingress_controller.node_port.http }}"
+                        https: "{{ ingress_controller.node_port.https }}"
+                wait: true
 
-    - name: Take all required steps to install haproxy as ingress controller
-      when:
-        - ingress_controller.type == 'haproxy'
-      block:
-        - name: Ensure the needed Namespaces exist.
-          kubernetes.core.k8s:
-            api_version: v1
-            kind: Namespace
-            name: haproxy-controller
-            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-            state: present
+        - name: Take all required steps to install haproxy as ingress controller
+          when:
+            - ingress_controller.type == 'haproxy'
+          block:
+            - name: Ensure the needed Namespaces exist.
+              kubernetes.core.k8s:
+                api_version: v1
+                kind: Namespace
+                name: haproxy-controller
+                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+                state: present
 
-        - name: Add helm chart repository for haproxy
-          kubernetes.core.helm_repository:
-            name: "{{ item.name }}"
-            repo_url: "{{ item.repo_url }}"
-          loop:
-            - name: "{{ ingress.haproxy.chart.name }}"
-              repo_url: "{{ ingress.haproxy.chart.url }}"
+            - name: Add helm chart repository for haproxy
+              kubernetes.core.helm_repository:
+                name: "{{ item.name }}"
+                repo_url: "{{ item.repo_url }}"
+              loop:
+                - name: "{{ ingress.haproxy.chart.name }}"
+                  repo_url: "{{ ingress.haproxy.chart.url }}"
 
-        - name: Ensure haproxy helm chart is installed
-          kubernetes.core.helm:
-            name: haproxy
-            chart_ref: "{{ ingress.haproxy.chart.ref }}"
-            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-            release_namespace: haproxy-controller
-            values:
-              controller:
-                ingressClass: null
-                service:
-                  type: NodePort
-                  nodePorts:
-                    http: "{{ ingress_controller.node_port.http }}"
-                    https: "{{ ingress_controller.node_port.https }}"
-                    stat: 31024
-                kind: Deployment
-                replicaCount: 1
-            update_repo_cache: true
-            wait: true
-
-
-    - name: Take all required steps to install Nginx as ingress controller
-      when:
-        - ingress_controller.type == 'nginx'
-      block:
-        - name: Ensure the needed Namespaces exist.
-          kubernetes.core.k8s:
-            definition:
-              api_version: v1
-              kind: Namespace
-              metadata:
-                name: ingress-nginx
-                labels:
-                  app.kubernetes.io/name: ingress-nginx
-                  app.kubernetes.io/instance: ingress-nginx
-            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-            state: present
+            - name: Ensure haproxy helm chart is installed
+              kubernetes.core.helm:
+                name: haproxy
+                chart_ref: "{{ ingress.haproxy.chart.ref }}"
+                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+                release_namespace: haproxy-controller
+                values:
+                  controller:
+                    ingressClass: null
+                    service:
+                      type: NodePort
+                      nodePorts:
+                        http: "{{ ingress_controller.node_port.http }}"
+                        https: "{{ ingress_controller.node_port.https }}"
+                        stat: 31024
+                    kind: Deployment
+                    replicaCount: 1
+                update_repo_cache: true
+                wait: true
 
 
-        - name: Add helm chart repository for Nginx
-          kubernetes.core.helm_repository:
-            name: "{{ item.name }}"
-            repo_url: "{{ item.repo_url }}"
-          loop:
-            - name: "{{ ingress.nginx.chart.name }}"
-              repo_url: "{{ ingress.nginx.chart.url }}"
+        - name: Take all required steps to install Nginx as ingress controller
+          when:
+            - ingress_controller.type == 'nginx'
+          block:
+            - name: Ensure the needed Namespaces exist.
+              kubernetes.core.k8s:
+                definition:
+                  api_version: v1
+                  kind: Namespace
+                  metadata:
+                    name: ingress-nginx
+                    labels:
+                      app.kubernetes.io/name: ingress-nginx
+                      app.kubernetes.io/instance: ingress-nginx
+                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+                state: present
 
-        - name: Ensure Nginx helm chart is installed
-          kubernetes.core.helm:
-            name: nginx
-            chart_ref: "{{ ingress.nginx.chart.ref }}"
-            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-            release_namespace: ingress-nginx
-            values:
-              controller:
-                service:
-                  type: NodePort
-                  nodePorts:
-                    http: "{{ ingress_controller.node_port.http }}"
-                    https: "{{ ingress_controller.node_port.https }}"
-            update_repo_cache: true
-            wait: true
+
+            - name: Add helm chart repository for Nginx
+              kubernetes.core.helm_repository:
+                name: "{{ item.name }}"
+                repo_url: "{{ item.repo_url }}"
+              loop:
+                - name: "{{ ingress.nginx.chart.name }}"
+                  repo_url: "{{ ingress.nginx.chart.url }}"
+
+            - name: Ensure Nginx helm chart is installed
+              kubernetes.core.helm:
+                name: nginx
+                chart_ref: "{{ ingress.nginx.chart.ref }}"
+                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+                release_namespace: ingress-nginx
+                values:
+                  controller:
+                    service:
+                      type: NodePort
+                      nodePorts:
+                        http: "{{ ingress_controller.node_port.http }}"
+                        https: "{{ ingress_controller.node_port.https }}"
+                update_repo_cache: true
+                wait: true
 
 - name: Trigger new haproxy configuration
   hosts: loadbalancer
@@ -138,16 +141,19 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - name: Fire up new haproxy template
-      ansible.builtin.template:
-        src: templates/haproxy.j2
-        dest: /etc/haproxy/haproxy.cfg
-        mode: 0755
+    - name: Configure HAProxy
+      when: ingress_controller.install_ingress_controller
+      block:
+        - name: Fire up new haproxy template
+          ansible.builtin.template:
+            src: templates/haproxy.j2
+            dest: /etc/haproxy/haproxy.cfg
+            mode: 0755
 
-    - name: Restart haproxy
-      ansible.builtin.systemd:
-        name: haproxy
-        state: restarted
+        - name: Restart haproxy
+          ansible.builtin.systemd:
+            name: haproxy
+            state: restarted
 
 - name: Save new haproxy configuration
   hosts: vm_host

@@ -5,35 +5,38 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - name: Render template for L2 configuration
-      ansible.builtin.template:
-        src: templates/metallb-l2.j2
-        dest: /tmp/{{ k8s.cluster_name }}/metallb-l2.yml
-        mode: 0755
+    - name: Configure Rook
+      when: metallb.install_metallb
+      block:
+        - name: Render template for L2 configuration
+          ansible.builtin.template:
+            src: templates/metallb-l2.j2
+            dest: /tmp/{{ k8s.cluster_name }}/metallb-l2.yml
+            mode: 0755
 
-    - name: Download metal-lb CR for later apply
-      ansible.builtin.get_url:
-        url: "{{ item.url }}"
-        dest: "{{ item.name }}"
-        mode: '0664'
-      loop:
-        - name: /tmp/{{ k8s.cluster_name }}/metallb.yml
-          url: "{{ metallb_setup.manifest_url }}/metallb-native.yaml"
+        - name: Download metal-lb CR for later apply
+          ansible.builtin.get_url:
+            url: "{{ item.url }}"
+            dest: "{{ item.name }}"
+            mode: '0664'
+          loop:
+            - name: /tmp/{{ k8s.cluster_name }}/metallb.yml
+              url: "{{ metallb_setup.manifest_url }}/metallb-native.yaml"
 
-    - name: Ensure metal-lb is installed in your cluster
-      kubernetes.core.k8s:
-        state: present
-        src: "{{ item }}"
-        kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-        apply: true
-        wait: true
-      loop:
-        - /tmp/{{ k8s.cluster_name }}/metallb.yml
+        - name: Ensure metal-lb is installed in your cluster
+          kubernetes.core.k8s:
+            state: present
+            src: "{{ item }}"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            apply: true
+            wait: true
+          loop:
+            - /tmp/{{ k8s.cluster_name }}/metallb.yml
 
-    - name: Ensure metal-lb configuration CRD is added in your cluster
-      kubernetes.core.k8s:
-        state: present
-        src: "/tmp/{{ k8s.cluster_name }}/metallb-l2.yml"
-        kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-        wait: true
-        apply: true
+        - name: Ensure metal-lb configuration CRD is added in your cluster
+          kubernetes.core.k8s:
+            state: present
+            src: "/tmp/{{ k8s.cluster_name }}/metallb-l2.yml"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            wait: true
+            apply: true

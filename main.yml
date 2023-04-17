@@ -1,10 +1,3 @@
-- name: Setup | Play to set relevant variables
-  hosts: vm_host
-  tasks:
-    - name: Define fact with all vars
-      ansible.builtin.set_fact:
-        varfile: "{{ (lookup('file', 'vars/k8s_cluster.yml') | from_yaml) }}"
-
 - name: Setup | Playbook to run pre-flight test to verify vars
   import_playbook: 00_pre_flight_checklist.yml
 
@@ -22,12 +15,12 @@
 
 - name: Setup | Playbook to provision a loadbalancer
   when: groups['masters'] | length > 1 or
-        (groups['workers'] | length > 1 and varfile.ingress_controller.install_ingress_controller)
+        groups['workers'] | length > 1
   import_playbook: 05_provisioning_loadbalancer.yml
 
 - name: Setup | Playbook to configure a loadbalancer
   when: groups['masters'] | length > 1 or
-        (groups['workers'] | length > 1 and varfile.ingress_controller.install_ingress_controller)
+        groups['workers'] | length > 1
   import_playbook: 08_loadbalancer_services.yml
 
 - name: Setup |  Playbook to ensure a container runtime is configured
@@ -60,13 +53,10 @@
   import_playbook: 29_save_inventory.yml
 
 - name: Setup | Playbook to configure an ingress controller
-  when: hostvars['vm_host'].varfile.ingress_controller.install_ingress_controller
   import_playbook: 30_install_ingress_controller.yml
 
 - name: Setup | Playbook to setup Rook
-  when: hostvars['vm_host'].varfile.rook_ceph.install_rook
   import_playbook: 32_install_rook.yml
 
 - name: Setup | Playbook to setup MetalLB
-  when: hostvars['vm_host'].varfile.metallb.install_metallb
   import_playbook: 33_install_metalLB.yml
