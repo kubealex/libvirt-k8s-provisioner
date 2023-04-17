@@ -184,7 +184,7 @@
         - k8s.container_runtime == 'containerd'
         - k8s.cluster_os == 'Ubuntu'
       block:
-        - name: Add crio repo key
+        - name: Add containerd repo key
           ansible.builtin.apt_key:
             url: "{{ item.key }}"
             keyring: "{{ item.keyring }}"
@@ -193,7 +193,7 @@
             - key: "{{ containerd.ubuntu.containerd_repo_key }}"
               keyring: "{{ containerd.ubuntu.containerd_repo_key_file }}"
 
-        - name: Ensure the presence of apt-repo for cri-o
+        - name: Ensure the presence of apt-repo for containerd
           ansible.builtin.apt_repository:
             repo: "{{ item.repo }}"
             filename: "{{ item.file }}"
