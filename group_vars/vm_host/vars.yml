@@ -77,9 +77,8 @@ os_packages:
 
 cni_plugins:
   calico:
-    calico_repo: https://docs.projectcalico.org/manifests/calico.yaml
-    calico_operator: https://docs.projectcalico.org/manifests/tigera-operator.yaml
-    calico_crd: https://docs.projectcalico.org/manifests/custom-resources.yaml
+    calico_operator: https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/tigera-operator.yaml
+    calico_crd: https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/custom-resources.yaml
   flannel:
     flannel_repo: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
   cilium:
