@@ -136,6 +136,7 @@
   hosts: all
   become: true
   gather_facts: true
+  ignore_errors: true
 
 - name: Trigger new haproxy configuration
   hosts: loadbalancer
