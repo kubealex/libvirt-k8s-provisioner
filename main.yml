@@ -1,6 +1,5 @@
 - name: Setup | Play to set relevant variables
   hosts: all
-  gather_facts: false
   tasks:
     - name: Define fact with all vars
       ansible.builtin.set_fact:
