@@ -66,7 +66,7 @@
       ansible.posix.selinux:
         state: disabled
       register: selinux_output
-      notify: reboot
+      notify: Reboot host
       when: k8s.cluster_os == 'CentOS'
 
     - name: Install kubepackages
@@ -99,7 +99,7 @@
         name: kubelet
         state: started
         enabled: true
-      notify: reboot
+      notify: Reboot host
 
   handlers:
     - name: Reboot host
