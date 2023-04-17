@@ -132,12 +132,6 @@
             update_repo_cache: true
             wait: true
 
-- name: Refresh facts
-  hosts: all
-  become: true
-  gather_facts: true
-  ignore_errors: true
-
 - name: Trigger new haproxy configuration
   hosts: loadbalancer
   become: true
