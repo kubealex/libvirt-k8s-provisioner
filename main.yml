@@ -1,5 +1,5 @@
 - name: Setup | Play to set relevant variables
-  hosts: localhost
+  hosts: all
   gather_facts: false
   tasks:
     - name: Define fact with all vars
