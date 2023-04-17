@@ -140,6 +140,7 @@
 
 - name: Trigger new haproxy configuration
   hosts: loadbalancer
+  gather_facts: false
   become: true
   vars_files:
     - vars/k8s_cluster.yml
@@ -158,6 +159,7 @@
 - name: Save new haproxy configuration
   hosts: vm_host
   become: true
+  gather_facts: false
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
