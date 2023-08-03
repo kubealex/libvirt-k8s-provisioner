@@ -69,7 +69,7 @@
 
     - name: Add masters to given group
       ansible.builtin.add_host:
-        hostname: '{{ k8s.cluster_name | default('k8s-test', true) }}-master-{{ item }}.{{ k8s.network.domain | default('k8s.test', true) }}'
+        hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-master-{{ item }}.{{ k8s.network.domain | default('k8s.test', true) }}""
         ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
         ansible_user: kube
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
