@@ -23,10 +23,10 @@
 
         - name: Add loadbalancer to inventory
           ansible.builtin.add_host:
-            hostname: '{{ k8s.cluster_name | default('k8s-test', true) }}-loadbalancer.{{ k8s.network.domain | default('k8s.test', true) }}'
+            hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-loadbalancer.{{ k8s.network.domain | default('k8s.test', true) }}"
             ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
             ansible_user: kube
-            ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+            ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
             groups:
               - "loadbalancer"
           delegate_to: localhost
