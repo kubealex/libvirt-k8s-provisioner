@@ -11,7 +11,7 @@
           ansible.builtin.template:
             src: templates/kubeadm-join-cp-config.yaml.j2
             dest: /tmp/kubeadm-join.yaml
-            mode: 0755
+            mode: "0755"
 
         - name: Join control-plane nodes in cluster
           ansible.builtin.command: kubeadm join --config /tmp/kubeadm-join.yaml

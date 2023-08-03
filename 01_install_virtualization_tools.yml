@@ -7,7 +7,7 @@
       block:
         - name: Upgrade all packages
           ansible.builtin.yum:
-            name: '*'
+            name: "*"
             state: latest # noqa package-latest
 
         - name: Install required packages
@@ -30,7 +30,7 @@
       block:
         - name: Upgrade all packages
           ansible.builtin.apt:
-            name: '*'
+            name: "*"
             state: latest # noqa package-latest
 
         - name: Install required packages
@@ -42,7 +42,7 @@
       ansible.builtin.unarchive:
         src: "{{ terraform_url }}"
         dest: /usr/bin/
-        mode: 0755
+        mode: "0755"
         remote_src: true
 
     - name: Virtualization services are enabled

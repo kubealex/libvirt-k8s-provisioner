@@ -24,7 +24,7 @@
           ansible.builtin.file:
             path: /home/kube/.kube
             state: directory
-            mode: 0755
+            mode: "0755"
 
         - name: Copy kubeconfig
           ansible.builtin.copy:
@@ -33,7 +33,7 @@
             remote_src: true
             owner: "{{ ansible_user_id }}"
             group: "{{ ansible_user_id }}"
-            mode: 0755
+            mode: "0755"
           become: true
 
         - name: Fetch kubeconfig file
@@ -56,12 +56,11 @@
     - vars/k8s_cluster.yml
   hosts: vm_host
   tasks:
-
     - name: Save kubeconfig as file
       ansible.builtin.copy:
         content: "{{ hostvars[groups['masters'][0]]['kubeconfig'] }}"
-        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
-        mode: 0755
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/admin.kubeconfig"
+        mode: "0755"
 
     - name: Wait for control-plane pods to be up and running
       kubernetes.core.k8s:
@@ -69,8 +68,7 @@
         api_version: v1
         kind: Pod
         namespace: kube-system
-        label_selectors:
-          tier = control-plane
-        kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+        label_selectors: tier = control-plane
+        kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/admin.kubeconfig"
         wait: true
       when: hostvars[groups['masters'][0]].k8s_installed is not defined

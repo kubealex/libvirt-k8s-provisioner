@@ -17,7 +17,7 @@
                 api_version: v1
                 kind: Namespace
                 name: projectcontour
-                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/admin.kubeconfig"
                 state: present
 
             - name: Add helm chart repository for Contour
@@ -32,7 +32,7 @@
               kubernetes.core.helm:
                 name: contour
                 chart_ref: "{{ ingress.contour.chart.ref }}"
-                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/admin.kubeconfig"
                 release_namespace: projectcontour
                 update_repo_cache: true
                 values:
@@ -61,7 +61,7 @@
                 api_version: v1
                 kind: Namespace
                 name: haproxy-controller
-                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/admin.kubeconfig"
                 state: present
 
             - name: Add helm chart repository for haproxy
@@ -76,7 +76,7 @@
               kubernetes.core.helm:
                 name: haproxy
                 chart_ref: "{{ ingress.haproxy.chart.ref }}"
-                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/admin.kubeconfig"
                 release_namespace: haproxy-controller
                 values:
                   controller:
@@ -92,7 +92,6 @@
                 update_repo_cache: true
                 wait: true
 
-
         - name: Take all required steps to install Nginx as ingress controller
           when:
             - ingress_controller.type == 'nginx'
@@ -107,9 +106,8 @@
                     labels:
                       app.kubernetes.io/name: ingress-nginx
                       app.kubernetes.io/instance: ingress-nginx
-                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/admin.kubeconfig"
                 state: present
-
 
             - name: Add helm chart repository for Nginx
               kubernetes.core.helm_repository:
@@ -123,7 +121,7 @@
               kubernetes.core.helm:
                 name: nginx
                 chart_ref: "{{ ingress.nginx.chart.ref }}"
-                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+                kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/admin.kubeconfig"
                 release_namespace: ingress-nginx
                 values:
                   controller:
@@ -148,7 +146,7 @@
           ansible.builtin.template:
             src: templates/haproxy.j2
             dest: /etc/haproxy/haproxy.cfg
-            mode: 0755
+            mode: "0755"
 
         - name: Restart haproxy
           ansible.builtin.systemd:
@@ -164,5 +162,5 @@
     - name: Save HAProxy configuration
       ansible.builtin.template:
         src: templates/haproxy.j2
-        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/haproxy.cfg"
-        mode: 0755
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/haproxy.cfg"
+        mode: "0755"

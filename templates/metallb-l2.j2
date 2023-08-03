@@ -6,7 +6,7 @@ metadata:
   namespace: metallb-system
 spec:
   addresses:
-  - {{ metallb.l2.iprange }}
+    - {{ metallb.l2.iprange | default('192.168.200.210-192.168.200.250', true) }}
 
 ---
 apiVersion: metallb.io/v1beta1

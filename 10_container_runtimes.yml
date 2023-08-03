@@ -5,10 +5,9 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-
     - name: Upgrade all packages
       ansible.builtin.package:
-        name: '*'
+        name: "*"
         state: latest # noqa package-latest
 
     - name: Ensure prerequisites are met.
@@ -20,7 +19,7 @@
               overlay
               br_netfilter
             create: true
-            mode: 0755
+            mode: "0755"
 
         - name: Enable br_netfilter
           community.general.modprobe:
@@ -54,7 +53,7 @@
               ansible.builtin.copy:
                 dest: /etc/sysctl.d/99-restore-cilium-traffic.conf
                 content: "net.ipv4.conf.lxc*.rp_filter = 0"
-                mode: 0755
+                mode: "0755"
 
             - name: Ensure sysctl is restarted
               ansible.builtin.service:
@@ -91,7 +90,7 @@
         - name: Temporary fix for memory swap slices on 20.04
           ansible.builtin.lineinfile:
             path: /etc/default/grub
-            regexp: '^GRUB_CMDLINE_LINUX'
+            regexp: "^GRUB_CMDLINE_LINUX"
             line: 'GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"'
           when: k8s.cluster_os == 'Ubuntu'
 
@@ -100,7 +99,7 @@
             url: "{{ item.url }}"
             dest: "{{ item.file }}"
             validate_certs: false
-            mode: 0755
+            mode: "0755"
           loop:
             - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable.repo"
               url: "{{ crio.centos.libcontainers_repo }}"
@@ -127,13 +126,13 @@
           ansible.builtin.template:
             src: templates/crio.conf.j2
             dest: /etc/crio/crio.conf
-            mode: 0755
+            mode: "0755"
 
         - name: Fire crio-conf template
           ansible.builtin.template:
             src: templates/crio.conf.crun.j2
             dest: /etc/crio/crio.conf.d/01-crio-runc.conf
-            mode: 0755
+            mode: "0755"
           when:
             - k8s.cluster_os == 'Ubuntu'
 
@@ -172,7 +171,7 @@
           ansible.builtin.get_url:
             url: "{{ containerd.centos.containerd_repo }}"
             dest: "/etc/yum.repos.d/docker-ce.repo"
-            mode: 0755
+            mode: "0755"
 
         - name: Ensure containerd is installed
           ansible.builtin.yum:
@@ -208,7 +207,6 @@
             state: latest # noqa package-latest
             update_cache: true
 
-
     - name: Ensure containerd service is configured
       when: k8s.container_runtime == 'containerd'
       block:
@@ -216,7 +214,7 @@
           ansible.builtin.file:
             state: directory
             path: /etc/containerd
-            mode: 0755
+            mode: "0755"
 
         - name: Initialize config
           ansible.builtin.shell: containerd config default > /etc/containerd/config.toml

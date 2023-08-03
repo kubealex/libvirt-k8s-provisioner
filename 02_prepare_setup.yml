@@ -17,26 +17,26 @@
       ansible.builtin.file:
         path: "{{ workspace_directory.base_path }}"
         state: directory
-        mode: 0755
+        mode: "0755"
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_id }}"
       become: true
 
     - name: Ensure cluster folder exists
       ansible.builtin.file:
-        path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}"
+        path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}"
         state: directory
         recurse: true
-        mode: 0755
+        mode: "0755"
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_id }}"
       become: true
 
     - name: Ensure pivot tmp folder exists
       ansible.builtin.file:
-        path: "/tmp/{{ k8s.cluster_name }}"
+        path: "/tmp/{{ k8s.cluster_name | default('k8s-test', true) }}"
         state: directory
-        mode: 0755
+        mode: "0755"
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_id }}"
       become: true
@@ -44,8 +44,8 @@
     - name: Populate cluster folder with terraform files
       ansible.builtin.copy:
         src: "files/terraform/"
-        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}"
-        mode: 0755
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}"
+        mode: "0755"
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_id }}"
       become: true
@@ -53,8 +53,8 @@
     - name: Snapshot cluster configuration for further use
       ansible.builtin.copy:
         src: "vars"
-        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/"
-        mode: 0755
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/"
+        mode: "0755"
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_id }}"
       become: true
@@ -85,26 +85,26 @@
 
     - name: Create ssh keypair
       community.crypto.openssh_keypair:
-        path: "{{ playbook_dir }}/id_rsa_{{ k8s.cluster_name }}"
+        path: "{{ playbook_dir }}/id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
       delegate_to: localhost
 
     - name: Copy SSH keys in working directory
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/{{ item }}"
-        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ item }}"
-        mode: 0755
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/{{ item }}"
+        mode: "0755"
       loop:
-        - id_rsa_{{ k8s.cluster_name }}
-        - id_rsa_{{ k8s.cluster_name }}.pub
+        - id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}
+        - id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}.pub
 
     - name: Getting ssh private key
       ansible.builtin.slurp:
-        src: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa_{{ k8s.cluster_name }}"
+        src: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
       register: k8s_key
 
     - name: Getting ssh public key
       ansible.builtin.slurp:
-        src: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/id_rsa_{{ k8s.cluster_name }}.pub"
+        src: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}.pub"
       register: k8s_key_pub
 
     - name: Set SSH keys as fact

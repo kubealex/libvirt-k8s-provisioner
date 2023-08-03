@@ -1,6 +1,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # libvirt-k8s-provisioner - Automate your cluster provisioning from 0 to k8s!
+
 Welcome to the home of the project!
 
 With this project, you can build up in minutes a fully working k8s cluster (single master/HA) with as many worker nodes as you want.
@@ -12,10 +13,11 @@ It is a hobby project, so it's not supported for production usage, but feel free
 # How does it work?
 
 Kubernetes version that is installed can be choosen between:
-- **1.27** - Latest 1.27 release (1.27.0)
-- **1.26** - Latest 1.26 release (1.26.3)
-- **1.25** - Latest 1.25 release (1.25.8)
-- **1.24** - Latest 1.24 release (1.24.12)
+
+- **1.27** - Latest 1.27 release (1.27.4)
+- **1.26** - Latest 1.26 release (1.26.7)
+- **1.25** - Latest 1.25 release (1.25.12)
+- **1.24** - Latest 1.24 release (1.24.16)
 
 Terraform will take care of the provisioning via terraform of:
 
@@ -38,13 +40,14 @@ You can customize the setup choosing:
 - **pod CIDR** to be used during installation.
 - **network plugin** to be used, based on the documentation. **[Project Calico](https://www.projectcalico.org/calico-networking-for-kubernetes/)** **[Flannel](https://github.com/coreos/flannel)** **[Project Cilium](https://cilium.io/)**
 - **additional SANS** to be added to api-server
-- **[nginx-ingress-controller](https://kubernetes.github.io/ingress-nginx/)**, **[haproxy-ingress-controller](https://github.com/haproxytech/kubernetes-ingress)** or **[Project Contour](https://projectcontour.io/)**  if you want to enable ingress management.
+- **[nginx-ingress-controller](https://kubernetes.github.io/ingress-nginx/)**, **[haproxy-ingress-controller](https://github.com/haproxytech/kubernetes-ingress)** or **[Project Contour](https://projectcontour.io/)** if you want to enable ingress management.
 - **[metalLB](https://metallb.universe.tf/)** to manage bare-metal LoadBalancer services - **WIP** - Only L2 configuration can be set-up via playbook.
 - **[Rook-Ceph](https://rook.io/docs/rook/v1.4/ceph-storage.html)** - To manage persistent storage, also configurable with single storage node.
 
 ## All VMs are specular,prepared with:
 
 - OS:
+
   - Ubuntu 22.04 LTS Cloud base image [https://cloud-images.ubuntu.com/releases/jammy/release/](https://cloud-images.ubuntu.com/releases/jammy/release/)
   - Centos Stream 8 Generic Cloud base image [https://cloud.centos.org/centos/8-stream/x86_64/images/](https://cloud.centos.org/centos/8-stream/x86_64/images/)
 
@@ -56,6 +59,7 @@ You can customize the setup choosing:
 The user is capable of logging via SSH too.
 
 ## Quickstart
+
 The playbook is meant to be ran against a local host or a remote host that has access to subnets that will be created, defined under **vm_host** group, depending on how many clusters you want to configure at once.
 
 First of all, you need to install required collections to get started:
@@ -84,7 +88,7 @@ The playbooks are compatible with the newly introduced **Execution environments 
 
 ### Build EE image
 
-To build the EE image, jump in the *execution-environment* folder and run the build:
+To build the EE image, jump in the _execution-environment_ folder and run the build:
 
     ansible-builder build -f execution-environment/execution-environment.yml -t k8s-ee
 
@@ -98,65 +102,67 @@ To run the playbooks use ansible navigator:
 
 Recommended sizings are:
 
-| Role | vCPU | RAM |
-|--|--|--|
-| master | 2 | 2G |
-| worker | 2 | 2G |
+| Role   | vCPU | RAM |
+| ------ | ---- | --- |
+| master | 2    | 2G  |
+| worker | 2    | 2G  |
 
 **vars/k8s_cluster.yml**
 
 # General configuration
-	k8s:
-	  cluster_name: k8s-test
-	  cluster_os: Ubuntu
-	  cluster_version: 1.24
-	  container_runtime: crio
-	  master_schedulable: false
 
-	# Nodes configuration
+    k8s:
+      cluster_name: k8s-test
+      cluster_os: Ubuntu
+      cluster_version: 1.24
+      container_runtime: crio
+      master_schedulable: false
 
-	  control_plane:
-	    vcpu: 2
-	    mem: 2
-	    vms: 3
-	    disk: 30
+    # Nodes configuration
 
-	  worker_nodes:
-	    vcpu: 2
-	    mem: 2
-	    vms: 1
-	    disk: 30
+      control_plane:
+        vcpu: 2
+        mem: 2
+        vms: 3
+        disk: 30
 
-	# Network configuration
+      worker_nodes:
+        vcpu: 2
+        mem: 2
+        vms: 1
+        disk: 30
 
-	  network:
-	    network_cidr: 192.168.200.0/24
-	    domain: k8s.test
-	    additional_san: ""
-	    pod_cidr: 10.20.0.0/16
-	    service_cidr: 10.110.0.0/16
-	    cni_plugin: cilium
+    # Network configuration
 
-	rook_ceph:
-	  install_rook: false
-	  volume_size: 50
+      network:
+        network_cidr: 192.168.200.0/24
+        domain: k8s.test
+        additional_san: ""
+        pod_cidr: 10.20.0.0/16
+        service_cidr: 10.110.0.0/16
+        cni_plugin: cilium
+
+    rook_ceph:
+      install_rook: false
+      volume_size: 50
           rook_cluster_size: 1
 
-	# Ingress controller configuration [nginx/haproxy]
+    # Ingress controller configuration [nginx/haproxy]
 
-	ingress_controller:
-	  install_ingress_controller: true
-	  type: haproxy
+    ingress_controller:
+      install_ingress_controller: true
+      type: haproxy
           node_port:
             http: 31080
             https: 31443
 
-	# Section for metalLB setup
+    # Section for metalLB setup
 
-	metallb:
-	  install_metallb: false
-  	  l2:
-        iprange: 192.168.200.210-192.168.200.250
+    metallb:
+      install_metallb: false
+
+l2:
+iprange: 192.168.200.210-192.168.200.250
 
 Size for **disk** and **mem** is in GB.
 **disk** allows to provision space in the cloud image for pod's ephemeral storage.
@@ -165,9 +171,9 @@ Size for **disk** and **mem** is in GB.
 
 VMS are created with these names by default (customizing them is work in progress):
 
-	- **cluster_name**-loadbalancer.**domain**
-	- **cluster_name**-master-N.**domain**
-	- **cluster_name**-worker-N.**domain**
+    - **cluster_name**-loadbalancer.**domain**
+    - **cluster_name**-master-N.**domain**
+    - **cluster_name**-worker-N.**domain**
 
 It is possible to choose **CentOS**/**Ubuntu** as **kubernetes hosts OS**
 
@@ -175,45 +181,47 @@ It is possible to choose **CentOS**/**Ubuntu** as **kubernetes hosts OS**
 
 Since last release, it is now possible to provision multiple clusters on the same host. Each cluster will be self consistent and will have its own folder under the /**/home/user/k8ssetup/clusters** folder in playbook root folder.
 
-	clusters
-	└── k8s-provisioner
-		├── admin.kubeconfig
-		├── haproxy.cfg
-		├── id_rsa
-		├── id_rsa.pub
-		├── libvirt-resources
-		│   ├── libvirt-resources.tf
-		│   └── terraform.tfstate
-		├── loadbalancer
-		│   ├── cloud_init.cfg
-		│   ├── k8s-loadbalancer.tf
-		│   └── terraform.tfstate
-		├── masters
-		│   ├── cloud_init.cfg
-		│   ├── k8s-master.tf
-		│   └── terraform.tfstate
-		├── workers
-		│   ├── cloud_init.cfg
-		│   ├── k8s-workers.tf
-		│   └── terraform.tfstate
-		└── workers-rook
-		    ├── cloud_init.cfg
-		    └── k8s-workers.tf
+    clusters
+    └── k8s-provisioner
+    	├── admin.kubeconfig
+    	├── haproxy.cfg
+    	├── id_rsa
+    	├── id_rsa.pub
+    	├── libvirt-resources
+    	│   ├── libvirt-resources.tf
+    	│   └── terraform.tfstate
+    	├── loadbalancer
+    	│   ├── cloud_init.cfg
+    	│   ├── k8s-loadbalancer.tf
+    	│   └── terraform.tfstate
+    	├── masters
+    	│   ├── cloud_init.cfg
+    	│   ├── k8s-master.tf
+    	│   └── terraform.tfstate
+    	├── workers
+    	│   ├── cloud_init.cfg
+    	│   ├── k8s-workers.tf
+    	│   └── terraform.tfstate
+    	└── workers-rook
+    	    ├── cloud_init.cfg
+    	    └── k8s-workers.tf
 
 In the main folder will be provided a custom script for removing the single cluster, without touching others.
 
-	k8s-provisioner-cleanup-playbook.yml
+    k8s-provisioner-cleanup-playbook.yml
 
 As well as a separated inventory for each cluster:
 
-	k8s-provisioner-inventory-k8s
+    k8s-provisioner-inventory-k8s
 
 In order to keep clusters separated, ensure that you use a different **k8s.cluster_name**,**k8s.network.domain** and **k8s.network.network_cidr** variables.
 
 ## Rook
+
 **Rook** setup actually creates a dedicated kind of worker, with an additional volume on the VMs that are required. Now it is possible to select the size of Rook cluster using **rook_ceph.rook_cluster_size** variable in the settings.
 
 ## MetalLB
+
 Basic setup taken from the documentation. At the moment, the parameter **l2** reports the IPs that can be used (defaults to some IPs in the same subnet of the hosts) as 'external' IPs for accessing the applications
 
 Suggestion and improvements are highly recommended!

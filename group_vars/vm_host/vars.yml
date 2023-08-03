@@ -77,8 +77,8 @@ os_packages:
 
 cni_plugins:
   calico:
-    calico_operator: https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/tigera-operator.yaml
-    calico_crd: https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/custom-resources.yaml
+    calico_operator: https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml
+    calico_crd: https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml
   flannel:
     flannel_repo: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
   cilium:
@@ -105,8 +105,7 @@ ingress:
       ref: haproxytech/kubernetes-ingress
 
 helm:
-  helm_installer: https://get.helm.sh/helm-v3.11.1-linux-amd64.tar.gz
-
+  helm_installer: https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz
 
 rook:
   operator:
@@ -121,4 +120,4 @@ rook:
       ref: rook-release/rook-ceph-cluster
 
 metallb_setup:
-  manifest_url: https://raw.githubusercontent.com/metallb/metallb/v0.13.9/config/manifests
+  manifest_url: https://raw.githubusercontent.com/metallb/metallb/v0.13.10/config/manifests

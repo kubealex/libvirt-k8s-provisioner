@@ -8,24 +8,24 @@
     - name: Process installation if cluster is not set
       when: k8s_installed is not defined
       block:
-      - name: Generate cluster token
-        ansible.builtin.command: kubeadm token generate
-        register: kubetoken_generated
+        - name: Generate cluster token
+          ansible.builtin.command: kubeadm token generate
+          register: kubetoken_generated
 
-      - name: Set generated token as fact
-        ansible.builtin.set_fact:
-          kubetoken: "{{ kubetoken_generated.stdout }}"
+        - name: Set generated token as fact
+          ansible.builtin.set_fact:
+            kubetoken: "{{ kubetoken_generated.stdout }}"
 
-      - name: Generate certificate key
-        ansible.builtin.command: kubeadm certs certificate-key
-        register: kubecert_generated
+        - name: Generate certificate key
+          ansible.builtin.command: kubeadm certs certificate-key
+          register: kubecert_generated
 
-      - name: Set generated token as fact
-        ansible.builtin.set_fact:
-          kubecertkey: "{{ kubecert_generated.stdout }}"
+        - name: Set generated token as fact
+          ansible.builtin.set_fact:
+            kubecertkey: "{{ kubecert_generated.stdout }}"
 
-      - name: Add kubelet config for node
-        ansible.builtin.template:
-          src: templates/kubeadm-config.yaml.j2
-          dest: /tmp/kubeadm-config.yaml
-          mode: 0755
+        - name: Add kubelet config for node
+          ansible.builtin.template:
+            src: templates/kubeadm-config.yaml.j2
+            dest: /tmp/kubeadm-config.yaml
+            mode: "0755"

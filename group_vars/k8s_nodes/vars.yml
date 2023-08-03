@@ -3,18 +3,18 @@ kubernetes:
     k8s_repo: https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
     k8s_repo_key: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
     k8s_packages:
-      - kubelet{{ '-1.24.12-0' if vars["k8s"]["cluster_version"] == '1.24' else '-1.25.8-0' if vars["k8s"]["cluster_version"] == '1.25' else '-1.26.3-0' if vars["k8s"]["cluster_version"] == '1.26' else '' }}
-      - kubeadm{{ '-1.24.12-0' if vars["k8s"]["cluster_version"] == '1.24' else '-1.25.8-0' if vars["k8s"]["cluster_version"] == '1.25' else '-1.26.3-0' if vars["k8s"]["cluster_version"] == '1.26' else '' }}
-      - kubectl{{ '-1.24.12-0' if vars["k8s"]["cluster_version"] == '1.24' else '-1.25.8-0' if vars["k8s"]["cluster_version"] == '1.25' else '-1.26.3-0' if vars["k8s"]["cluster_version"] == '1.26' else '' }}
+      - kubelet{{ '-1.24.16-0' if vars["k8s"]["cluster_version"] == '1.24' else '-1.25.12-0' if vars["k8s"]["cluster_version"] == '1.25' else '-1.26.7-0' if vars["k8s"]["cluster_version"] == '1.26' else '' }}
+      - kubeadm{{ '-1.24.16-0' if vars["k8s"]["cluster_version"] == '1.24' else '-1.25.12-0' if vars["k8s"]["cluster_version"] == '1.25' else '-1.26.7-0' if vars["k8s"]["cluster_version"] == '1.26' else '' }}
+      - kubectl{{ '-1.24.16-0' if vars["k8s"]["cluster_version"] == '1.24' else '-1.25.12-0' if vars["k8s"]["cluster_version"] == '1.25' else '-1.26.7-0' if vars["k8s"]["cluster_version"] == '1.26' else '' }}
 
   ubuntu:
     k8s_repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
     k8s_repo_file: /etc/apt/sources.list.d/kubernetes.list
     k8s_repo_key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     k8s_packages:
-      - kubelet{{ '=1.24.12-00' if vars["k8s"]["cluster_version"] == '1.24' else '=1.25.8-00' if vars["k8s"]["cluster_version"] == '1.25' else '=1.26.3-00' if vars["k8s"]["cluster_version"] == '1.26' else '' }}
-      - kubeadm{{ '=1.24.12-00' if vars["k8s"]["cluster_version"] == '1.24' else '=1.25.8-00' if vars["k8s"]["cluster_version"] == '1.25' else '=1.26.3-00' if vars["k8s"]["cluster_version"] == '1.26' else '' }}
-      - kubectl{{ '=1.24.12-00' if vars["k8s"]["cluster_version"] == '1.24' else '=1.25.8-00' if vars["k8s"]["cluster_version"] == '1.25' else '=1.26.3-00' if vars["k8s"]["cluster_version"] == '1.26' else '' }}
+      - kubelet{{ '=1.24.16-00' if vars["k8s"]["cluster_version"] == '1.24' else '=1.25.12-00' if vars["k8s"]["cluster_version"] == '1.25' else '=1.26.7-00' if vars["k8s"]["cluster_version"] == '1.26' else '' }}
+      - kubeadm{{ '=1.24.16-00' if vars["k8s"]["cluster_version"] == '1.24' else '=1.25.12-00' if vars["k8s"]["cluster_version"] == '1.25' else '=1.26.7-00' if vars["k8s"]["cluster_version"] == '1.26' else '' }}
+      - kubectl{{ '=1.24.16-00' if vars["k8s"]["cluster_version"] == '1.24' else '=1.25.12-00' if vars["k8s"]["cluster_version"] == '1.25' else '=1.26.7-00' if vars["k8s"]["cluster_version"] == '1.26' else '' }}
 
 crio:
   ubuntu:

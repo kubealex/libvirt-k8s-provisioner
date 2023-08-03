@@ -56,6 +56,10 @@ resource "libvirt_domain" "k8s-master" {
   memory = var.memory*1024
   vcpu = var.cpu
 
+  cpu {
+    mode = "host-passthrough"
+  }
+
   disk {
      volume_id = libvirt_volume.os_image_resized[count.index].id
   }
@@ -73,7 +77,7 @@ resource "libvirt_domain" "k8s-master" {
   }
 
   graphics {
-    type = "spice"
+    type = "vnc"
     listen_type = "address"
     autoport = "true"
   }

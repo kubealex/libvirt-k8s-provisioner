@@ -7,14 +7,14 @@
       block:
         - name: Ensure Load Balancer VM is in place
           community.general.terraform:
-            project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/loadbalancer"
+            project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/loadbalancer"
             force_init: true
             variables:
-              hostname: "{{ k8s.cluster_name }}-loadbalancer"
-              domain: "{{ k8s.network.domain }}"
+              hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-loadbalancer"
+              domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
               os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}"
-              libvirt_network: "{{ k8s.cluster_name }}"
-              libvirt_pool: "{{ k8s.cluster_name }}"
+              libvirt_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
+              libvirt_pool: "{{ k8s.cluster_name | default('k8s-test', true) }}"
               os_image_name: "{{ image_name }}.qcow2"
               sshKey: "{{ k8s_key_pub }}"
             state: present
@@ -23,8 +23,8 @@
 
         - name: Add loadbalancer to inventory
           ansible.builtin.add_host:
-            hostname: '{{ k8s.cluster_name }}-loadbalancer.{{ k8s.network.domain }}'
-            ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name }}"
+            hostname: '{{ k8s.cluster_name | default('k8s-test', true) }}-loadbalancer.{{ k8s.network.domain | default('k8s.test', true) }}'
+            ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
             ansible_user: kube
             ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
             groups:

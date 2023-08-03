@@ -6,11 +6,11 @@
   tasks:
     - name: Use TF project to ensure pool and network are defined
       community.general.terraform:
-        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/libvirt-resources"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/libvirt-resources"
         variables:
-          domain: "{{ k8s.network.domain }}"
-          network_cidr: ' ["{{ k8s.network.network_cidr }}"]'
-          cluster_name: "{{ k8s.cluster_name }}"
+          domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
+          network_cidr: ' ["{{ k8s.network.network_cidr | default('192.168.200.0/24', true) }}"]'
+          cluster_name: "{{ k8s.cluster_name | default('k8s-test', true) }}"
         force_init: true
         state: present
 
@@ -28,22 +28,22 @@
             name: libvirtd
             state: restarted
 
-
     - name: Take care of systemd-resolved on F33 and Ubuntu hosts
-      when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int < 33) or
-            (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int < 18)
+      when:
+        (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int < 33) or
+        (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int < 18)
       block:
         - name: Ensure systemd-resolved config dir is present
           ansible.builtin.file:
             path: /etc/systemd/resolved.conf.d/
             state: directory
-            mode: 0755
+            mode: "0755"
 
         - name: Enable localdns if systemd-resolved is present
           ansible.builtin.template:
             src: systemd-resolved.j2
-            dest: /etc/systemd/resolved.conf.d/{{ k8s.cluster_name }}-local-kube.conf
-            mode: 0755
+            dest: /etc/systemd/resolved.conf.d/{{ k8s.cluster_name | default('k8s-test', true) }}-local-kube.conf
+            mode: "0755"
           notify:
             - Restart systemd-resolved
 
@@ -51,27 +51,27 @@
       ansible.builtin.file:
         path: /etc/NetworkManager/conf.d
         state: directory
-        mode: 0755
+        mode: "0755"
 
     - name: Ensure NM dnsmasq directory exists
       ansible.builtin.file:
         path: /etc/NetworkManager/dnsmasq.d
         state: directory
-        mode: 0755
+        mode: "0755"
 
     - name: Configure NetworkManager for local DNS
       ansible.builtin.copy:
         src: files/localdns.conf
-        dest: /etc/NetworkManager/conf.d/{{ k8s.cluster_name }}-localdns.conf
-        mode: 0755
+        dest: /etc/NetworkManager/conf.d/{{ k8s.cluster_name | default('k8s-test', true) }}-localdns.conf
+        mode: "0755"
       notify:
         - Restart NetworkManager
 
     - name: Configure NetworkManager for libvirt network
       ansible.builtin.template:
         src: templates/libvirt_dnsmasq.j2
-        dest: /etc/NetworkManager/dnsmasq.d/{{ k8s.cluster_name }}-libvirt_dnsmasq.conf
-        mode: 0755
+        dest: /etc/NetworkManager/dnsmasq.d/{{ k8s.cluster_name | default('k8s-test', true) }}-libvirt_dnsmasq.conf
+        mode: "0755"
       notify:
         - Restart NetworkManager
         - Wait for local DNS resolver to be up
@@ -92,5 +92,6 @@
       ansible.builtin.wait_for:
         port: 53
         delay: 10
-      when: (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int < 33) or
-            (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int < 18)
+      when:
+        (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int < 33) or
+        (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int < 18)

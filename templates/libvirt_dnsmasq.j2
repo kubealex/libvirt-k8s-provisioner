@@ -1,1 +1,1 @@
-server=/{{ k8s.network.domain }}/{{ k8s.network.network_cidr | ansible.utils.next_nth_usable(1) }}
+server=/{{ k8s.network.domain | default('k8s.test', true) }}/{{ k8s.network.network_cidr | default('192.168.200.0/24', true) | ansible.utils.next_nth_usable(1) }}

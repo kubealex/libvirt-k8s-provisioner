@@ -8,7 +8,7 @@
     - name: Destroy cluster VM and libvirt resources
       community.general.terraform:
         force_init: true
-        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ '{{' }} item {{ '}}' }}"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
         - workers
@@ -22,8 +22,8 @@
         path: "{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
-        - /etc/NetworkManager/dnsmasq.d/{{ k8s.cluster_name }}-libvirt_dnsmasq.conf
-        - /etc/NetworkManager/conf.d/{{ k8s.cluster_name }}-localdns.conf
+        - /etc/NetworkManager/dnsmasq.d/{{ k8s.cluster_name | default('k8s-test', true) }}-libvirt_dnsmasq.conf
+        - /etc/NetworkManager/conf.d/{{ k8s.cluster_name | default('k8s-test', true) }}-localdns.conf
 
     - name: Restart NetworkManager and libvirtd
       service:
@@ -38,4 +38,4 @@
         path: "{{ '{{' }} item {{ '}}' }}"
         state: absent
       loop:
-        - {{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}
+        - {{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}

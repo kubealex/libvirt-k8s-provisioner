@@ -12,22 +12,22 @@
           ansible.builtin.get_url:
             url: "{{ item.url }}"
             dest: "{{ item.name }}"
-            mode: '0664'
+            mode: "0664"
           loop:
-            - name: /tmp/{{ k8s.cluster_name }}/calico-operator.yaml
+            - name: /tmp/{{ k8s.cluster_name | default('k8s-test', true) }}/calico-operator.yaml
               url: "{{ cni_plugins.calico.calico_operator }}"
-            - name: /tmp/{{ k8s.cluster_name }}/calico-crd.yaml
+            - name: /tmp/{{ k8s.cluster_name | default('k8s-test', true) }}/calico-crd.yaml
               url: "{{ cni_plugins.calico.calico_crd }}"
 
         - name: Apply custom CIDR to calico installation manifest
           ansible.builtin.replace:
-            path: /tmp/{{ k8s.cluster_name }}/calico-crd.yaml
+            path: /tmp/{{ k8s.cluster_name | default('k8s-test', true) }}/calico-crd.yaml
             regexp: 192.168.0.0\/16
             replace: "{{ k8s.network.pod_cidr }}"
 
         # - name: Temporary fix for non ascii char in Calico CRD (https://github.com/projectcalico/api/pull/46)
         #   ansible.builtin.replace:
-        #     path: /tmp/{{ k8s.cluster_name }}/calico-operator.yaml
+        #     path: /tmp/{{ k8s.cluster_name | default('k8s-test', true) }}/calico-operator.yaml
         #     regexp: \’
         #     replace: ""
 
@@ -35,11 +35,11 @@
           kubernetes.core.k8s:
             state: present
             src: "{{ item }}"
-            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/admin.kubeconfig"
             wait: true
           loop:
-            - /tmp/{{ k8s.cluster_name }}/calico-operator.yaml
-            - /tmp/{{ k8s.cluster_name }}/calico-crd.yaml
+            - /tmp/{{ k8s.cluster_name | default('k8s-test', true) }}/calico-operator.yaml
+            - /tmp/{{ k8s.cluster_name | default('k8s-test', true) }}/calico-crd.yaml
 
     - name: Configure Cilium
       when: k8s.network.cni_plugin == 'cilium'
@@ -56,7 +56,7 @@
           kubernetes.core.helm:
             name: cilium
             chart_ref: "{{ cni_plugins.cilium.chart.ref }}"
-            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/admin.kubeconfig"
             release_namespace: kube-system
             update_repo_cache: true
             values:
@@ -70,20 +70,20 @@
         - name: Download flannel manifest
           ansible.builtin.get_url:
             url: "{{ cni_plugins.flannel.flannel_repo }}"
-            dest: /tmp/{{ k8s.cluster_name }}/kube-flannel.yaml
-            mode: 0755
+            dest: /tmp/{{ k8s.cluster_name | default('k8s-test', true) }}/kube-flannel.yaml
+            mode: "0755"
 
         - name: Patch kube-flannel to use host-gw instead of vxlan
           ansible.builtin.replace:
-            path: /tmp/{{ k8s.cluster_name }}/kube-flannel.yaml
-            regexp: 'vxlan'
-            replace: 'host-gw'
+            path: /tmp/{{ k8s.cluster_name | default('k8s-test', true) }}/kube-flannel.yaml
+            regexp: "vxlan"
+            replace: "host-gw"
 
         - name: Apply flannel manifests to the cluster.
           kubernetes.core.k8s:
             state: present
-            src: /tmp/{{ k8s.cluster_name }}/kube-flannel.yaml
-            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+            src: /tmp/{{ k8s.cluster_name | default('k8s-test', true) }}/kube-flannel.yaml
+            kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/admin.kubeconfig"
             wait: true
 
     - name: Wait for core-dns pods to be up and running
@@ -93,5 +93,5 @@
         kind: Deployment
         namespace: kube-system
         name: coredns
-        kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+        kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/admin.kubeconfig"
         wait: true

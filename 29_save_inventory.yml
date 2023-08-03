@@ -1,8 +1,7 @@
 ---
 - name: Save inventory to disk
   hosts: vm_host
-  vars_files:
-    vars/k8s_cluster.yml
+  vars_files: vars/k8s_cluster.yml
   tasks:
     - name: Gather facts from all servers
       ansible.builtin.setup:
@@ -13,9 +12,9 @@
     - name: Fire up inventory template
       ansible.builtin.template:
         src: templates/inventory.j2
-        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ k8s.cluster_name }}-inventory-k8s"
-        mode: 0755
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/{{ k8s.cluster_name | default('k8s-test', true) }}-inventory-k8s"
+        mode: "0755"
 
     - name: Print inventory location
       ansible.builtin.debug:
-        msg: Inventory is now saved as {{ k8s.cluster_name }}-inventory-k8s, you can resume next steps by referencing it.
+        msg: Inventory is now saved as {{ k8s.cluster_name | default('k8s-test', true) }}-inventory-k8s, you can resume next steps by referencing it.

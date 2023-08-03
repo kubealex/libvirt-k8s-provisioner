@@ -12,7 +12,7 @@
           block:
             - name: Upgrade all packages
               ansible.builtin.package:
-                name: '*'
+                name: "*"
                 state: latest # noqa package-latest
 
             - name: Install needed packages
@@ -98,7 +98,7 @@
           ansible.builtin.template:
             src: templates/haproxy.j2
             dest: /etc/haproxy/haproxy.cfg
-            mode: 0755
+            mode: "0755"
 
         - name: Reload haproxy service
           ansible.builtin.service:
