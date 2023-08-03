@@ -11,6 +11,12 @@
             name: "*"
             state: latest # noqa package-latest
 
+        - name: Virtualization services are enabled
+          ansible.builtin.service:
+            name: virtqemud
+            state: started
+            enabled: true
+
         - name: Install required packages
           ansible.builtin.yum:
             name: "{{ os_packages.centos }}"
@@ -38,15 +44,15 @@
             name: "{{ os_packages.ubuntu }}"
             state: present
 
+        - name: Virtualization services are enabled
+          ansible.builtin.service:
+            name: libvirtd
+            state: started
+            enabled: true
+
     - name: Download and provision Terraform
       ansible.builtin.unarchive:
         src: "{{ terraform_url }}"
         dest: /usr/bin/
         mode: "0755"
         remote_src: true
-
-    - name: Virtualization services are enabled
-      ansible.builtin.service:
-        name: libvirtd
-        state: started
-        enabled: true
