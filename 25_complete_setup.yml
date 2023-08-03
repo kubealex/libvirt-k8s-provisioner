@@ -7,13 +7,14 @@
     - name: Prepare playbook for cluster deletion
       ansible.builtin.template:
         src: templates/cleanup-playbook.yml.j2
-        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/{{ k8s.cluster_name }}-cleanup-playbook.yml"
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/{{ k8s.cluster_name | default('k8s-test', true) }}-cleanup-playbook.yml"
         mode: "0755"
 
     - name: Delete image file
       ansible.builtin.file:
         path: "{{ item }}"
         state: absent
+        mode: "0755"
       loop:
         - /tmp/{{ image_name }}.qcow2
 
@@ -21,7 +22,7 @@
       kubernetes.core.k8s_json_patch:
         kind: Node
         name: "{{ hostvars[item].host_fqdn }}"
-        kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+        kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/admin.kubeconfig"
         patch:
           - op: add
             path: /metadata/labels/node-role.kubernetes.io~1worker
@@ -32,7 +33,7 @@
       kubernetes.core.k8s_json_patch:
         kind: Node
         name: "{{ hostvars[item].host_fqdn }}"
-        kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name }}/admin.kubeconfig"
+        kubeconfig: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/admin.kubeconfig"
         patch:
           - op: remove
             path: /spec/taints/0
