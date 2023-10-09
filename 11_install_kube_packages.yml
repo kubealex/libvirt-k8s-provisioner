@@ -53,8 +53,8 @@
         - kubelet
       when: k8s.cluster_os == 'Ubuntu'
 
-    - name: Disable swap
-      ansible.builtin.shell: swapoff -a
+    - name: Disable swap # noqa no-changed-when
+      ansible.builtin.command: swapoff -a
 
     - name: Remove swap entry from fstab
       ansible.builtin.lineinfile:

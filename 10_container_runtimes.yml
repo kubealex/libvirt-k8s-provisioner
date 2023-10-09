@@ -216,7 +216,7 @@
             path: /etc/containerd
             mode: "0755"
 
-        - name: Initialize config
+        - name: Initialize config # noqa no-changed-when
           ansible.builtin.shell: containerd config default > /etc/containerd/config.toml
 
         - name: Configure containerd to work with systemd

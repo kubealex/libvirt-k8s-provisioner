@@ -13,7 +13,7 @@
             dest: /tmp/kubeadm-join.yaml
             mode: "0755"
 
-        - name: Join worker nodes in cluster
+        - name: Join worker nodes in cluster # noqa no-changed-when
           ansible.builtin.command: kubeadm join --config /tmp/kubeadm-join.yaml
           become: true
 

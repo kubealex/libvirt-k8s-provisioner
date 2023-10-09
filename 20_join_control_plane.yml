@@ -13,7 +13,7 @@
             dest: /tmp/kubeadm-join.yaml
             mode: "0755"
 
-        - name: Join control-plane nodes in cluster
+        - name: Join control-plane nodes in cluster # noqa no-changed-when
           ansible.builtin.command: kubeadm join --config /tmp/kubeadm-join.yaml
           become: true
 

@@ -7,7 +7,7 @@
     - name: Prepare playbook for cluster deletion
       ansible.builtin.template:
         src: templates/cleanup-playbook.yml.j2
-        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/{{ k8s.cluster_name | default('k8s-test', true) }}-cleanup-playbook.yml"
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/{{ k8s.cluster_name | default('k8s-test', true) }}-cleanup-playbook.yml" # noqa yaml[line-length]
         mode: "0755"
 
     - name: Delete image file

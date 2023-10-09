@@ -14,8 +14,8 @@
         force_init: true
         state: present
 
-    - name: qemu SELinux fix for running images in different folders
-      when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int  >= 18)
+    - name: SELinux fix for running images in different folders
+      when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int >= 18)
       block:
         - name: Ensure security_driver is disabled
           ansible.builtin.lineinfile:

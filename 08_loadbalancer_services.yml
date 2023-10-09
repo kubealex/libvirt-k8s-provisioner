@@ -54,11 +54,11 @@
         - name: Firewall settings for CentOS
           when: k8s.cluster_os == 'CentOS'
           block:
-            - name: Adding interface to internal zone
+            - name: Adding interface to internal zone # noqa no-changed-when
               ansible.builtin.command: nmcli con mod "System eth0" connection.zone internal
 
-            - name: Refreshing interface
-              ansible.builtin.shell: nmcli con down "System eth0"; nmcli con up "System eth0"
+            - name: Refreshing interface # noqa no-changed-when
+              ansible.builtin.command: nmcli con down "System eth0"; nmcli con up "System eth0"
 
             - name: Restart NetworkManager
               ansible.builtin.service:

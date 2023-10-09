@@ -5,8 +5,9 @@
   hosts: masters[0]
   tasks:
     - name: Perform k8s setup
+      when: k8s_installed is not defined
       block:
-        - name: Start kubeadm install
+        - name: Start kubeadm install # noqa no-changed-when # noqa command-instead-of-shell
           ansible.builtin.shell: kubeadm init --config /tmp/kubeadm-config.yaml --upload-certs
           become: true
 
@@ -49,7 +50,6 @@
         - name: Set a flag if cluster setup is successful
           ansible.builtin.set_fact:
             k8s_installed: true
-      when: k8s_installed is not defined
 
 - name: Verify cluster has been initialized
   vars_files:

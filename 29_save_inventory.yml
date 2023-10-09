@@ -12,7 +12,7 @@
     - name: Fire up inventory template
       ansible.builtin.template:
         src: templates/inventory.j2
-        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/{{ k8s.cluster_name | default('k8s-test', true) }}-inventory-k8s"
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/{{ k8s.cluster_name | default('k8s-test', true) }}-inventory-k8s" # noqa yaml[line-length]
         mode: "0755"
 
     - name: Print inventory location
