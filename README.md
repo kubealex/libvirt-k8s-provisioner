@@ -14,10 +14,10 @@ It is a hobby project, so it's not supported for production usage, but feel free
 
 Kubernetes version that is installed can be choosen between:
 
-- **1.27** - Latest 1.27 release (1.27.4)
-- **1.26** - Latest 1.26 release (1.26.7)
-- **1.25** - Latest 1.25 release (1.25.12)
-- **1.24** - Latest 1.24 release (1.24.16)
+- **1.28** - Latest 1.28 release (1.28.2)
+- **1.27** - Latest 1.27 release (1.27.6)
+- **1.26** - Latest 1.26 release (1.26.9)
+- **1.25** - Latest 1.25 release (1.25.14)
 
 Terraform will take care of the provisioning via terraform of:
 
@@ -64,11 +64,15 @@ The playbook is meant to be ran against a local host or a remote host that has a
 
 First of all, you need to install required collections to get started:
 
-    ansible-galaxy collection install -r requirements.yml
+```bash
+ansible-galaxy collection install -r requirements.yml
+```
 
 Once the collections are installed, you can simply run the playbook:
 
-    ansible-playbook main.yml
+```bash
+ansible-playbook main.yml
+```
 
 You can quickly make it work by configuring the needed vars, but you can go straight with the defaults!
 
@@ -76,11 +80,15 @@ You can also install your cluster using the **Makefile** with:
 
 To install collections:
 
-    make setup
+```bash
+make setup
+```
 
 To install the cluster:
 
-    make create
+```bash
+make create
+```
 
 ## Quickstart with Execution Environment
 
@@ -90,13 +98,17 @@ The playbooks are compatible with the newly introduced **Execution environments 
 
 To build the EE image, jump in the _execution-environment_ folder and run the build:
 
-    ansible-builder build -f execution-environment/execution-environment.yml -t k8s-ee
+```bash
+ansible-builder build -f execution-environment/execution-environment.yml -t k8s-ee
+```
 
 ### Run playbooks
 
 To run the playbooks use ansible navigator:
 
-    ansible-navigator run main.yml -m stdout
+```bash
+ansible-navigator run main.yml -m stdout
+```
 
 ## Recommended sizing
 
@@ -108,6 +120,8 @@ Recommended sizings are:
 | worker | 2    | 2G  |
 
 **vars/k8s_cluster.yml**
+
+```yaml
 
 # General configuration
 
@@ -160,20 +174,22 @@ Recommended sizings are:
 
     metallb:
       install_metallb: false
-
-l2:
-iprange: 192.168.200.210-192.168.200.250
+      l2:
+      iprange: 192.168.200.210-192.168.200.250
+```
 
 Size for **disk** and **mem** is in GB.
 **disk** allows to provision space in the cloud image for pod's ephemeral storage.
 
-**cluster_version** can be 1.20, 1.21, 1.22, 1.23, 1.24, 1.25 to install the corresponding latest version for the release
+**cluster_version** can be 1.24, 1.25, 1.28 to install the corresponding latest version for the release
 
 VMS are created with these names by default (customizing them is work in progress):
 
-    - **cluster_name**-loadbalancer.**domain**
-    - **cluster_name**-master-N.**domain**
-    - **cluster_name**-worker-N.**domain**
+```bash
+- **cluster_name**-loadbalancer.**domain**
+- **cluster_name**-master-N.**domain**
+- **cluster_name**-worker-N.**domain**
+```
 
 It is possible to choose **CentOS**/**Ubuntu** as **kubernetes hosts OS**
 
@@ -181,6 +197,7 @@ It is possible to choose **CentOS**/**Ubuntu** as **kubernetes hosts OS**
 
 Since last release, it is now possible to provision multiple clusters on the same host. Each cluster will be self consistent and will have its own folder under the /**/home/user/k8ssetup/clusters** folder in playbook root folder.
 
+```bash
     clusters
     └── k8s-provisioner
     	├── admin.kubeconfig
@@ -205,14 +222,19 @@ Since last release, it is now possible to provision multiple clusters on the sam
     	└── workers-rook
     	    ├── cloud_init.cfg
     	    └── k8s-workers.tf
+```
 
 In the main folder will be provided a custom script for removing the single cluster, without touching others.
 
-    k8s-provisioner-cleanup-playbook.yml
+```bash
+k8s-provisioner-cleanup-playbook.yml
+```
 
 As well as a separated inventory for each cluster:
 
-    k8s-provisioner-inventory-k8s
+```bash
+k8s-provisioner-inventory-k8s
+```
 
 In order to keep clusters separated, ensure that you use a different **k8s.cluster_name**,**k8s.network.domain** and **k8s.network.network_cidr** variables.
 

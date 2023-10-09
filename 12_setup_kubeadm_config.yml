@@ -8,7 +8,7 @@
     - name: Process installation if cluster is not set
       when: k8s_installed is not defined
       block:
-        - name: Generate cluster token
+        - name: Generate cluster token # noqa no-changed-when
           ansible.builtin.command: kubeadm token generate
           register: kubetoken_generated
 
@@ -16,7 +16,7 @@
           ansible.builtin.set_fact:
             kubetoken: "{{ kubetoken_generated.stdout }}"
 
-        - name: Generate certificate key
+        - name: Generate certificate key # noqa no-changed-when
           ansible.builtin.command: kubeadm certs certificate-key
           register: kubecert_generated
 

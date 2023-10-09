@@ -78,7 +78,7 @@
         state: present
         plugin_path: https://github.com/databus23/helm-diff
 
-    - name: remove directory
+    - name: Remove directory
       ansible.builtin.file:
         path: /tmp/linux-amd64
         state: absent
@@ -99,12 +99,12 @@
 
     - name: Getting ssh private key
       ansible.builtin.slurp:
-        src: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
+        src: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}" # noqa yaml[line-length]
       register: k8s_key
 
     - name: Getting ssh public key
       ansible.builtin.slurp:
-        src: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}.pub"
+        src: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}.pub" # noqa yaml[line-length]
       register: k8s_key_pub
 
     - name: Set SSH keys as fact
@@ -116,12 +116,12 @@
       ansible.builtin.get_url:
         url: "{{ centos.cloud_image }}"
         dest: /tmp/{{ image_name }}.qcow2
-        mode: 0777
+        mode: "0777"
       when: k8s.cluster_os == 'CentOS'
 
     - name: Download Ubuntu image
       ansible.builtin.get_url:
         url: "{{ ubuntu_jammy.cloud_image }}"
         dest: /tmp/{{ image_name }}.qcow2
-        mode: 0777
+        mode: "0777"
       when: k8s.cluster_os == 'Ubuntu'
