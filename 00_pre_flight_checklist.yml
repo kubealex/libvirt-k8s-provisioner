@@ -6,8 +6,8 @@
   tasks:
     - name: Check if kubernetes version is supported by the provisioner
       ansible.builtin.fail:
-        msg: The chosen version is not supported, only versions >= 1.25 are supported
-      when: k8s.cluster_version is version('1.25', '<')
+        msg: The chosen version is not supported, only versions >= 1.26 are supported
+      when: k8s.cluster_version is version('1.26', '<')
 
     - name: Check if distribution is supported
       ansible.builtin.fail:
@@ -24,13 +24,13 @@
         - k8s.cluster_os != 'CentOS'
         - k8s.cluster_os != 'Ubuntu'
 
-    # - name: Check if cri-o is selected on 1.27
-    #   ansible.builtin.fail:
-    #     msg: Please select a different container runtime as cri-o packages are not yet available for {{ k8s.cluster_version }} and {{ k8s.cluster_os }}
-    #   when:
-    #     - k8s.container_runtime == 'crio'
-    #     - k8s.cluster_version is version('1.27', '==')
-    #     # - k8s.cluster_os == 'CentOS'
+    - name: Check if cri-o is selected on 1.29
+      ansible.builtin.fail:
+        msg: Please select a different container runtime as cri-o packages are not yet available for {{ k8s.cluster_version }} and {{ k8s.cluster_os }}
+      when:
+        - k8s.container_runtime == 'crio'
+        - k8s.cluster_version is version('1.29', '==')
+        # - k8s.cluster_os == 'CentOS'
 
     - name: Check at least one vm for control plane is defined
       ansible.builtin.fail:
