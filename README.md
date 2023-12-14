@@ -14,10 +14,11 @@ It is a hobby project, so it's not supported for production usage, but feel free
 
 Kubernetes version that is installed can be choosen between:
 
-- **1.28** - Latest 1.28 release (1.28.2)
-- **1.27** - Latest 1.27 release (1.27.6)
-- **1.26** - Latest 1.26 release (1.26.9)
-- **1.25** - Latest 1.25 release (1.25.14)
+- **1.29** - Latest 1.25 release (1.29.0)
+- **1.28** - Latest 1.28 release (1.28.4)
+- **1.27** - Latest 1.27 release (1.27.8)
+- **1.26** - Latest 1.26 release (1.26.11)
+
 
 Terraform will take care of the provisioning via terraform of:
 
