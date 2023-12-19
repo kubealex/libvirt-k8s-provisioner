@@ -4,9 +4,12 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - name: Use TF project to ensure pool and network are defined
+    - name: Use TF project to ensure pool and network are defined # noqa line-length
       community.general.terraform:
-        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/libvirt-resources"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}"
+        targets:
+          - module.libvirt_pool
+          - module.libvirt_network
         variables:
           pool_name: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           network_name: "{{ k8s.cluster_name | default('k8s-test', true) }}"
