@@ -19,6 +19,7 @@ module "libvirt_network" {
 module "master_nodes" {
   source  = "kubealex/libvirt-resources/libvirt//modules/terraform-libvirt-instance"
   version = "0.0.1"
+  depends_on = [ module.libvirt_network, module.libvirt_pool ]
   instance_libvirt_network = var.instance_libvirt_network
   instance_libvirt_pool = var.instance_libvirt_pool
   instance_cloud_image = var.instance_cloud_image
@@ -28,11 +29,13 @@ module "master_nodes" {
   instance_cpu = var.instance_cpu
   instance_count = var.instance_count
   instance_cloud_user = var.instance_cloud_user
+  instance_uefi_enabled = var.instance_uefi_enabled
 }
 
 module "worker_nodes" {
   source  = "kubealex/libvirt-resources/libvirt//modules/terraform-libvirt-instance"
   version = "0.0.1"
+  depends_on = [ module.libvirt_network, module.libvirt_pool ]
   instance_libvirt_network = var.instance_libvirt_network
   instance_libvirt_pool = var.instance_libvirt_pool
   instance_cloud_image = var.instance_cloud_image
@@ -42,4 +45,22 @@ module "worker_nodes" {
   instance_cpu = var.instance_cpu
   instance_count = var.instance_count
   instance_cloud_user = var.instance_cloud_user
+  instance_uefi_enabled = var.instance_uefi_enabled
+}
+
+module "worker_nodes_rook" {
+  source  = "kubealex/libvirt-resources/libvirt//modules/terraform-libvirt-instance"
+  version = "0.0.1"
+  depends_on = [ module.libvirt_network, module.libvirt_pool ]
+  instance_libvirt_network = var.instance_libvirt_network
+  instance_additional_volume_size = var.instance_additional_volume_size
+  instance_libvirt_pool = var.instance_libvirt_pool
+  instance_cloud_image = var.instance_cloud_image
+  instance_hostname = var.instance_hostname
+  instance_domain = var.instance_domain
+  instance_memory = var.instance_memory
+  instance_cpu = var.instance_cpu
+  instance_count = var.instance_count
+  instance_cloud_user = var.instance_cloud_user
+  instance_uefi_enabled = var.instance_uefi_enabled
 }
