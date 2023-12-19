@@ -27,6 +27,7 @@
     - name: Add kube-repo key
       ansible.builtin.apt_key:
         url: "{{ kubernetes.ubuntu.k8s_repo_key }}"
+        keyring: "{{ kubernetes.ubuntu.k8s_repo_keyring }}"
         state: present
       when: k8s.cluster_os == 'Ubuntu'
 

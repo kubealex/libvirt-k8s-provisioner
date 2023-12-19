@@ -81,73 +81,55 @@ variable "pool_path" {
 }
 
 
-variable "instance_count" {
+variable "loadbalancer_instance_count" {
   type = number
   default = 1
   description = "Number of instances to create"
 }
 
-variable "instance_cloud_image" {
+variable "loadbalancer_instance_cloud_image" {
   type = string
   description = "Cloud image to use for instance provisioning"
   default = ""
 }
 
-variable "instance_iso_image" {
-  type = string
-  description = "ISO to use for instance provisioning"
-  default = ""
-}
-
-variable "instance_additional_volume_size" {
+variable "loadbalancer_instance_additional_volume_size" {
   type = number
   description = "Additional block device size"
   default = 0
 }
 
-variable "instance_cloudinit_path" {
-  type = string
-  description = "cloud-init config to use for instance provisioning"
-  default = "./cloud_init.cfg"
-}
-
-variable "instance_type" {
-  type = string
-  description = "Instance type, Windows/Linux"
-  default = "linux"
-}
-
-variable "instance_hostname" {
+variable "loadbalancer_instance_hostname" {
   type = string
   default = "service-vm"
   description = "Hostname to assign the istance via cloud-init"
 }
 
-variable "instance_domain" {
+variable "loadbalancer_instance_domain" {
   type = string
   default = "example.com"
   description = "Hostname to assign the istance via cloud-init"
 }
 
-variable "instance_cpu" {
+variable "loadbalancer_instance_cpu" {
   type = number
   default = 2
   description = "Number of CPUs to configure for the instance"
 }
 
-variable "instance_memory" {
+variable "loadbalancer_instance_memory" {
   type = number
   default = 4
   description = "Instance memory size, in GB"
 }
 
-variable "instance_volume_size" {
+variable "loadbalancer_instance_volume_size" {
   type = number
   default = 20
   description = "Instance memory size, in GB"
 }
 
-variable "instance_cloud_user" {
+variable "loadbalancer_instance_cloud_user" {
   type = object({
     username = string
     password = string
@@ -161,33 +143,262 @@ variable "instance_cloud_user" {
   }
 }
 
-variable "instance_libvirt_network" {
+variable "loadbalancer_instance_libvirt_network" {
   type = string
   description = "The libvirt network to attach the instance to"
   default = "default"
 }
 
-variable "instance_libvirt_pool" {
+variable "loadbalancer_instance_libvirt_pool" {
   type = string
   description = "The libvirt pool to attach the instance to"
   default = "default"
 }
 
-variable "instance_uefi_enabled" {
+variable "loadbalancer_instance_uefi_enabled" {
   type = bool
   default = true
   description = "Set this to true if OS should be installed via ISO"
 }
 
-variable "instance_network_interfaces" {
-  type = list(object({
-    interface_network = string
-    interface_mac_address = string
-    interface_addresses = list(string)
-    interface_hostname = string
-    interface_wait_for_lease = bool
+variable "loadbalancer_enabled" {
+  type = bool
+  default = false
+  description = "Set this to true if OS should be installed via ISO"
+}
+
+
+variable "master_instance_count" {
+  type = number
+  default = 1
+  description = "Number of instances to create"
+}
+
+variable "master_instance_cloud_image" {
+  type = string
+  description = "Cloud image to use for instance provisioning"
+  default = ""
+}
+
+variable "master_instance_hostname" {
+  type = string
+  default = "service-vm"
+  description = "Hostname to assign the istance via cloud-init"
+}
+
+variable "master_instance_domain" {
+  type = string
+  default = "example.com"
+  description = "Hostname to assign the istance via cloud-init"
+}
+
+variable "master_instance_cpu" {
+  type = number
+  default = 2
+  description = "Number of CPUs to configure for the instance"
+}
+
+variable "master_instance_memory" {
+  type = number
+  default = 4
+  description = "Instance memory size, in GB"
+}
+
+variable "master_instance_volume_size" {
+  type = number
+  default = 20
+  description = "Instance memory size, in GB"
+}
+
+variable "master_instance_cloud_user" {
+  type = object({
+    username = string
+    password = string
+    sshkey = optional(string)
   })
-  )
-  default = []
-  description = "A list of network interfaces to add to the instance"
+
+  default = {
+    username = "sysadmin"
+    password = "redhat"
+    sshkey = ""
+  }
+}
+
+variable "master_instance_libvirt_network" {
+  type = string
+  description = "The libvirt network to attach the instance to"
+  default = "default"
+}
+
+variable "master_instance_libvirt_pool" {
+  type = string
+  description = "The libvirt pool to attach the instance to"
+  default = "default"
+}
+
+variable "master_instance_uefi_enabled" {
+  type = bool
+  default = true
+  description = "Set this to true if OS should be installed via ISO"
+}
+
+
+variable "worker_instance_count" {
+  type = number
+  default = 1
+  description = "Number of instances to create"
+}
+
+variable "worker_instance_cloud_image" {
+  type = string
+  description = "Cloud image to use for instance provisioning"
+  default = ""
+}
+
+variable "worker_instance_hostname" {
+  type = string
+  default = "service-vm"
+  description = "Hostname to assign the istance via cloud-init"
+}
+
+variable "worker_instance_domain" {
+  type = string
+  default = "example.com"
+  description = "Hostname to assign the istance via cloud-init"
+}
+
+variable "worker_instance_cpu" {
+  type = number
+  default = 2
+  description = "Number of CPUs to configure for the instance"
+}
+
+variable "worker_instance_memory" {
+  type = number
+  default = 4
+  description = "Instance memory size, in GB"
+}
+
+variable "worker_instance_volume_size" {
+  type = number
+  default = 20
+  description = "Instance memory size, in GB"
+}
+
+variable "worker_instance_cloud_user" {
+  type = object({
+    username = string
+    password = string
+    sshkey = optional(string)
+  })
+
+  default = {
+    username = "sysadmin"
+    password = "redhat"
+    sshkey = ""
+  }
+}
+
+variable "worker_instance_libvirt_network" {
+  type = string
+  description = "The libvirt network to attach the instance to"
+  default = "default"
+}
+
+variable "worker_instance_libvirt_pool" {
+  type = string
+  description = "The libvirt pool to attach the instance to"
+  default = "default"
+}
+
+variable "worker_instance_uefi_enabled" {
+  type = bool
+  default = true
+  description = "Set this to true if OS should be installed via ISO"
+}
+
+variable "worker_rook_instance_count" {
+  type = number
+  default = 1
+  description = "Number of instances to create"
+}
+
+variable "worker_rook_instance_cloud_image" {
+  type = string
+  description = "Cloud image to use for instance provisioning"
+  default = ""
+}
+
+variable "worker_rook_instance_additional_volume_size" {
+  type = number
+  description = "Additional block device size"
+  default = 0
+}
+
+variable "worker_rook_instance_hostname" {
+  type = string
+  default = "service-vm"
+  description = "Hostname to assign the istance via cloud-init"
+}
+
+variable "worker_rook_instance_domain" {
+  type = string
+  default = "example.com"
+  description = "Hostname to assign the istance via cloud-init"
+}
+
+variable "worker_rook_instance_cpu" {
+  type = number
+  default = 2
+  description = "Number of CPUs to configure for the instance"
+}
+
+variable "worker_rook_instance_memory" {
+  type = number
+  default = 4
+  description = "Instance memory size, in GB"
+}
+
+variable "worker_rook_instance_volume_size" {
+  type = number
+  default = 20
+  description = "Instance memory size, in GB"
+}
+
+variable "worker_rook_instance_cloud_user" {
+  type = object({
+    username = string
+    password = string
+    sshkey = optional(string)
+  })
+
+  default = {
+    username = "sysadmin"
+    password = "redhat"
+    sshkey = ""
+  }
+}
+
+variable "worker_rook_instance_libvirt_network" {
+  type = string
+  description = "The libvirt network to attach the instance to"
+  default = "default"
+}
+
+variable "worker_rook_instance_libvirt_pool" {
+  type = string
+  description = "The libvirt pool to attach the instance to"
+  default = "default"
+}
+
+variable "worker_rook_instance_uefi_enabled" {
+  type = bool
+  default = true
+  description = "Set this to true if OS should be installed via ISO"
+}
+
+variable "worker_rook_enabled" {
+  type = bool
+  default = false
+  description = "Set this to true if OS should be installed via ISO"
 }

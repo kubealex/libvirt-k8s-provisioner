@@ -13,11 +13,6 @@
 - name: Setup | Playbook to ensure VMs are in place
   import_playbook: 04_provisioning_vms.yml
 
-- name: Setup | Playbook to provision a loadbalancer
-  when: groups['masters'] | length > 1 or
-        groups['workers'] | length > 1
-  import_playbook: 05_provisioning_loadbalancer.yml
-
 - name: Setup | Playbook to configure a loadbalancer
   when: groups['masters'] | length > 1 or
         groups['workers'] | length > 1

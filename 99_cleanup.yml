@@ -4,53 +4,14 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - ansible.builtin.set_fact:
+    - name: Set home directory
+      ansible.builtin.set_fact:
         home_dir: "{{ ansible_env.HOME }}"
 
     - name: Destroy cluster VM
       community.general.terraform:
         force_init: true
-        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/{{ item }}"
-        state: absent
-      loop:
-        - workers
-        - masters
-        - loadbalancer
-      when:
-        - not rook_ceph.install_rook
-        - k8s.control_plane.vms > 1
-      become: true
-
-    - name: Destroy cluster VM
-      community.general.terraform:
-        force_init: true
-        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/{{ item }}"
-        state: absent
-      loop:
-        - workers
-        - masters
-      when:
-        - not rook_ceph.install_rook
-        - k8s.control_plane.vms == 1
-      become: true
-
-    - name: Destroy cluster VM
-      community.general.terraform:
-        force_init: true
-        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/{{ item }}"
-        state: absent
-      loop:
-        - workers-rook
-        - workers
-        - masters
-        - loadbalancer
-      when: rook_ceph.install_rook
-      become: true
-
-    - name: Destroy libvirt pool and network
-      community.general.terraform:
-        force_init: true
-        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/libvirt-resources"
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}"
         state: absent
       become: true
 
