@@ -45,6 +45,6 @@
         name: "{{ item }}"
         state: restarted
       loop:
-        - libvirtd
+        - virtqemud
         - NetworkManager
       become: true
