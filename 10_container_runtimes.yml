@@ -15,7 +15,7 @@
         name: python3-pip
         state: present
 
-    - name: Ensuring libvirt module is present
+    - name: Ensuring cryptography module is present
       ansible.builtin.pip:
         name: cryptography
       become: true
