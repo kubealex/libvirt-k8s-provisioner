@@ -4,16 +4,6 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
-    - name: Use TF project to ensure pool and network are defined
-      community.general.terraform:
-        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/libvirt-resources"
-        variables:
-          domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
-          network_cidr: ' ["{{ k8s.network.network_cidr | default("192.168.200.0/24", true) }}"]'
-          cluster_name: "{{ k8s.cluster_name | default('k8s-test', true) }}"
-        force_init: true
-        state: present
-
     - name: SELinux fix for running images in different folders
       when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int >= 18)
       block:

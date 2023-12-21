@@ -5,19 +5,41 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
+    - name: Set default network manager
+      ansible.builtin.set_fact:
+        network_manager: "{{ 'NetworkManager' if k8s.cluster_os == 'CentOS' else 'systemd-networkd' }}"
+
     - name: Manage loadbalancer configuration
       when: k8s.control_plane.vms > 1 or (k8s.worker_nodes.vms > 1 and ingress_controller.install_ingress_controller)
       block:
         - name: Ensure required packages are present
+          when: k8s.cluster_os == "CentOS"
           block:
             - name: Upgrade all packages
-              ansible.builtin.package:
+              ansible.builtin.dnf:
                 name: "*"
                 state: latest # noqa package-latest
 
             - name: Install needed packages
-              ansible.builtin.package:
-                name: haproxy
+              ansible.builtin.dnf:
+                name:
+                  - firewalld
+                  - haproxy
+                state: present
+
+        - name: Ensure required packages are present
+          when: k8s.cluster_os == "Ubuntu"
+          block:
+            - name: Upgrade all packages
+              ansible.builtin.apt:
+                name: "*"
+                state: latest # noqa package-latest
+
+            - name: Install needed packages
+              ansible.builtin.apt:
+                name:
+                  - firewalld
+                  - haproxy
                 state: present
 
         - name: Ensure firewalld, haproxy and NM are enabled
@@ -28,27 +50,27 @@
           loop:
             - firewalld
             - haproxy
-            - NetworkManager
+            - "{{ network_manager }}"
 
         - name: Firewall settings for Ubuntu
           when: k8s.cluster_os == 'Ubuntu'
           block:
             - name: Stop NetworkManager
               ansible.builtin.service:
-                name: NetworkManager
+                name: "{{ network_manager }}"
                 state: stopped
 
             - name: Adding interface to firewall internal zone
               ansible.posix.firewalld:
                 zone: internal
-                interface: "ens3"
+                interface: "{{ ansible_default_ipv4.interface }}"
                 permanent: true
                 state: enabled
 
             - name: Start NetworkManager
               ansible.builtin.service:
-                name: NetworkManager
-                state: started
+                name: "{{ network_manager }}"
+                state: restarted
                 enabled: true
 
         - name: Firewall settings for CentOS
@@ -57,12 +79,12 @@
             - name: Adding interface to internal zone # noqa no-changed-when
               ansible.builtin.command: nmcli con mod "System eth0" connection.zone internal
 
-            - name: Refreshing interface # noqa no-changed-when
-              ansible.builtin.command: nmcli con down "System eth0"; nmcli con up "System eth0"
+            - name: Refreshing interface # noqa no-changed-when command-instead-of-shell
+              ansible.builtin.shell: nmcli con down "System eth0"; nmcli con up "System eth0"
 
             - name: Restart NetworkManager
               ansible.builtin.service:
-                name: NetworkManager
+                name: "{{ network_manager }}"
                 state: restarted
 
         - name: Allow service for internal zone

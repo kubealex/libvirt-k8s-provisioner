@@ -4,72 +4,93 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
+    - name: Enumerate Nodes
+      ansible.builtin.set_fact:
+        cp_nodes_count: "{{ k8s.control_plane.vms }}"
+        worker_nodes_count: "{{ k8s.worker_nodes.vms - (rook_ceph.rook_cluster_size if rook_ceph.install_rook else 0) }}"
+        rook_nodes_count: "{{ rook_ceph.rook_cluster_size if rook_ceph.install_rook else 0 }}"
+        loadbalancer_count: "{{ 1 if k8s.control_plane.vms > 1 or k8s.worker_nodes.vms > 1 else 0 }}"
+
     - name: Ensure control plane VMs are in place
       community.general.terraform:
-        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/masters"
+        complex_vars: true
+        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}"
         force_init: true
         variables:
-          hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-master"
-          domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
-          os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}"
-          libvirt_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
-          libvirt_pool: "{{ k8s.cluster_name | default('k8s-test', true) }}"
-          disk_size: "{{ k8s.control_plane.disk }}"
-          cpu: "{{ k8s.control_plane.vcpu }}"
-          memory: "{{ k8s.control_plane.mem }}"
-          vm_count: "{{ k8s.control_plane.vms }}"
-          os_image_name: "{{ image_name }}.qcow2"
-          sshKey: "{{ k8s_key_pub }}"
+          pool_name: "{{ k8s.cluster_name | default('k8s-test', true) }}"
+          network_name: "{{ k8s.cluster_name | default('k8s-test', true) }}"
+          network_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
+          network_cidr: '{{ k8s.network.network_cidr | default("192.168.200.0/24", true) | split(",") }}'
+          network_dhcp_enabled: true
+          network_dhcp_local: true
+          network_dnsmasq_options:
+            server: "/{{ k8s.network.domain | default('k8s.test', true) }}/{{ k8s.network.network_cidr | default('192.168.200.0/24', true) | ansible.utils.next_nth_usable(1) }}" # noqa yaml[line-length]
+          master_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-master"
+          master_instance_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
+          master_instance_libvirt_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
+          master_instance_libvirt_pool: "{{ k8s.cluster_name | default('k8s-test', true) }}"
+          master_instance_volume_size: "{{ k8s.control_plane.disk }}"
+          master_instance_cpu: "{{ k8s.control_plane.vcpu }}"
+          master_instance_memory: "{{ k8s.control_plane.mem }}"
+          master_instance_count: "{{ k8s.control_plane.vms }}"
+          master_instance_cloud_image: "/tmp/{{ image_name }}.qcow2"
+          master_instance_uefi_enabled: "{{ false if k8s.cluster_os == 'CentOS' else true }}"
+          master_instance_cloud_user:
+            username: "sysadmin"
+            password: "$6$rounds=4096$81l4sZd3qjK9Sf8h$0aF.q8JDn98uw2SZLk58rm7gOA2HwgWmy/2ZlT3pJNU2PDAxzT5wS3uF3WlvSLvlnyrg2EtybwUtJytez3VEw0"
+            sshkey: "{{ k8s_key_pub | trim }}"
+          worker_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker"
+          worker_instance_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
+          worker_instance_libvirt_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
+          worker_instance_libvirt_pool: "{{ k8s.cluster_name | default('k8s-test', true) }}"
+          worker_instance_volume_size: "{{ k8s.worker_nodes.disk }}"
+          worker_instance_cpu: "{{ k8s.worker_nodes.vcpu }}"
+          worker_instance_memory: "{{ k8s.worker_nodes.mem }}"
+          worker_instance_count: "{{ (k8s.worker_nodes.vms - rook_ceph.rook_cluster_size) if rook_ceph.install_rook else k8s.worker_nodes.vms }}"
+          worker_instance_uefi_enabled: "{{ false if k8s.cluster_os == 'CentOS' else true }}"
+          worker_instance_cloud_image: "/tmp/{{ image_name }}.qcow2"
+          worker_instance_cloud_user:
+            username: "sysadmin"
+            password: "$6$rounds=4096$81l4sZd3qjK9Sf8h$0aF.q8JDn98uw2SZLk58rm7gOA2HwgWmy/2ZlT3pJNU2PDAxzT5wS3uF3WlvSLvlnyrg2EtybwUtJytez3VEw0"
+            sshkey: "{{ k8s_key_pub | trim }}"
+          worker_rook_enabled: "{{ rook_ceph.install_rook }}"
+          worker_rook_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker-rook"
+          worker_rook_instance_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
+          worker_rook_instance_libvirt_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
+          worker_rook_instance_libvirt_pool: "{{ k8s.cluster_name | default('k8s-test', true) }}"
+          worker_rook_instance_volume_size: "{{ k8s.worker_nodes.disk }}"
+          worker_rook_instance_cpu: "{{ k8s.worker_nodes.vcpu }}"
+          worker_rook_instance_memory: "{{ k8s.worker_nodes.mem }}"
+          worker_rook_instance_count: "{{ rook_ceph.rook_cluster_size }}"
+          worker_rook_instance_uefi_enabled: "false"
+          worker_rook_instance_cloud_image: "/tmp/{{ image_name }}.qcow2"
+          worker_rook_instance_additional_volume_size: "{{ rook_ceph.volume_size }}"
+          worker_rook_instance_cloud_user:
+            username: "sysadmin"
+            password: "$6$rounds=4096$81l4sZd3qjK9Sf8h$0aF.q8JDn98uw2SZLk58rm7gOA2HwgWmy/2ZlT3pJNU2PDAxzT5wS3uF3WlvSLvlnyrg2EtybwUtJytez3VEw0"
+            sshkey: "{{ k8s_key_pub | trim }}"
+          loadbalancer_enabled: "{{ loadbalancer_count | bool }}"
+          loadbalancer_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-loadbalancer"
+          loadbalancer_instance_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
+          loadbalancer_instance_libvirt_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
+          loadbalancer_instance_libvirt_pool: "{{ k8s.cluster_name | default('k8s-test', true) }}"
+          loadbalancer_instance_volume_size: 25
+          loadbalancer_instance_cpu: 1
+          loadbalancer_instance_memory: 4
+          loadbalancer_instance_count: "{{ loadbalancer_count }}"
+          loadbalancer_instance_uefi_enabled: "{{ false if k8s.cluster_os == 'CentOS' else true }}"
+          loadbalancer_instance_cloud_image: "/tmp/{{ image_name }}.qcow2"
+          loadbalancer_instance_cloud_user:
+            username: "sysadmin"
+            password: "$6$rounds=4096$81l4sZd3qjK9Sf8h$0aF.q8JDn98uw2SZLk58rm7gOA2HwgWmy/2ZlT3pJNU2PDAxzT5wS3uF3WlvSLvlnyrg2EtybwUtJytez3VEw0"
+            sshkey: "{{ k8s_key_pub | trim }}"
         state: present
       become: true
-      register: output_masters
-
-    - name: Ensure worker VMs are in place
-      community.general.terraform:
-        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/workers"
-        force_init: true
-        variables:
-          hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker"
-          domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
-          os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}"
-          libvirt_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
-          libvirt_pool: "{{ k8s.cluster_name | default('k8s-test', true) }}"
-          disk_size: "{{ k8s.worker_nodes.disk }}"
-          cpu: "{{ k8s.worker_nodes.vcpu }}"
-          memory: "{{ k8s.worker_nodes.mem }}"
-          vm_count: "{{ (k8s.worker_nodes.vms - rook_ceph.rook_cluster_size) if rook_ceph.install_rook else k8s.worker_nodes.vms }}"
-          vm_counter: "{{ rook_ceph.rook_cluster_size if rook_ceph.install_rook else 0 }}"
-          os_image_name: "{{ image_name }}.qcow2"
-          sshKey: "{{ k8s_key_pub }}"
-        state: present
-      become: true
-      register: output_workers
-
-    - name: Ensure Rook dedicated worker VMs are in place
-      community.general.terraform:
-        project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}/workers-rook"
-        force_init: true
-        variables:
-          hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker"
-          domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
-          os: "{{ 'ubuntu' if k8s.cluster_os == 'Ubuntu' else 'centos' }}"
-          libvirt_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
-          libvirt_pool: "{{ k8s.cluster_name | default('k8s-test', true) }}"
-          disk_size: "{{ k8s.worker_nodes.disk }}"
-          cpu: "{{ k8s.worker_nodes.vcpu }}"
-          memory: "{{ k8s.worker_nodes.mem }}"
-          rook_volume_size: "{{ rook_ceph.volume_size }}"
-          vm_count: "{{ rook_ceph.rook_cluster_size }}"
-          os_image_name: "{{ image_name }}.qcow2"
-          sshKey: "{{ k8s_key_pub }}"
-        state: present
-      register: output_workers_rook
-      become: true
-      when: rook_ceph.install_rook
+      register: output_terraform
 
     - name: Add masters to given group
       ansible.builtin.add_host:
-        hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-master-{{ item }}.{{ k8s.network.domain | default('k8s.test', true) }}"
+        hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-master{{ '-' ~ item if cp_nodes_count | int > 1 else '' }}.{{ k8s.network.domain | default('k8s.test', true) }}" # noqa yaml[line-length]
         ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
         ansible_user: kube
         ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
@@ -81,14 +102,37 @@
 
     - name: Add workers to given group
       ansible.builtin.add_host:
-        hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker-{{ item }}.{{ k8s.network.domain | default('k8s.test', true) }}"
+        hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker{{ '-' ~ item if worker_nodes_count | int > 1 else '' }}.{{ k8s.network.domain | default('k8s.test', true) }}" # noqa yaml[line-length]
         ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
         ansible_user: kube
         ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
         groups:
           - "workers"
         group_children: "k8s_nodes"
-      loop: "{{ range(0, k8s.worker_nodes.vms) | list }}"
+      loop: "{{ range(0, worker_nodes_count | int) | list }}"
+      delegate_to: localhost
+
+    - name: Add rook workers to given group
+      ansible.builtin.add_host:
+        hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker-rook{{ '-' ~ item if rook_nodes_count | int  > 1 else '' }}.{{ k8s.network.domain | default('k8s.test', true) }}" # noqa yaml[line-length]
+        ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
+        ansible_user: kube
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+        groups:
+          - "workers"
+        group_children: "k8s_nodes"
+      loop: "{{ range(0, rook_nodes_count | int) | list }}"
+      delegate_to: localhost
+      when: rook_ceph.install_rook
+
+    - name: Add loadbalancer to inventory
+      ansible.builtin.add_host:
+        hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-loadbalancer.{{ k8s.network.domain | default('k8s.test', true) }}"
+        ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
+        ansible_user: kube
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+        groups:
+          - "loadbalancer"
       delegate_to: localhost
 
     - name: Ensure to clean known_hosts
@@ -100,7 +144,7 @@
       delegate_to: localhost
 
 - name: Check connection and set facts
-  hosts: masters,workers
+  hosts: masters,workers,loadbalancer
   gather_facts: false
   tasks:
     - name: Wait 600 seconds for target connection to become reachable/usable
@@ -108,12 +152,21 @@
         timeout: 600
         delay: 0
 
+    - name: Wait for cloud init to finish
+      community.general.cloud_init_data_facts:
+        filter: status
+      register: cloud_init_state
+      until: "cloud_init_state.cloud_init_data_facts.status.v1.stage is defined and not cloud_init_state.cloud_init_data_facts.status.v1.stage"
+      retries: 50
+      delay: 5
+
     - name: Ping host to check status
       ansible.builtin.ping:
 
     - name: Add hosts to correct groups
       ansible.builtin.group_by:
         key: "{{ group_children }}"
+      when: group_children is defined
 
     - name: Extract facts from setup
       ansible.builtin.setup:
