@@ -50,7 +50,7 @@ You can customize the setup choosing:
 - OS:
 
   - Ubuntu 22.04 LTS Cloud base image [https://cloud-images.ubuntu.com/releases/jammy/release/](https://cloud-images.ubuntu.com/releases/jammy/release/)
-  - Centos Stream 8 Generic Cloud base image [https://cloud.centos.org/centos/8-stream/x86_64/images/](https://cloud.centos.org/centos/8-stream/x86_64/images/)
+  - Centos Stream 9 Generic Cloud base image [https://cloud.centos.org/centos/9-stream/x86_64/images/](https://cloud.centos.org/centos/9-stream/x86_64/images/)
 
 - cloud-init:
   - user: **kube**

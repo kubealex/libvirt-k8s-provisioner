@@ -62,7 +62,7 @@
           worker_rook_instance_cpu: "{{ k8s.worker_nodes.vcpu }}"
           worker_rook_instance_memory: "{{ k8s.worker_nodes.mem }}"
           worker_rook_instance_count: "{{ rook_ceph.rook_cluster_size }}"
-          worker_rook_instance_uefi_enabled: "false"
+          worker_rook_instance_uefi_enabled: "{{ false if k8s.cluster_os == 'CentOS' else true }}"
           worker_rook_instance_cloud_image: "/tmp/{{ image_name }}.qcow2"
           worker_rook_instance_additional_volume_size: "{{ rook_ceph.volume_size }}"
           worker_rook_instance_cloud_user:
