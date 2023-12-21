@@ -20,7 +20,6 @@
           pool_name: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           network_name: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           network_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
-          # network_cidr: ' ["{{ k8s.network.network_cidr | default("192.168.200.0/24", true) }}"]'
           network_cidr: '{{ k8s.network.network_cidr | default("192.168.200.0/24", true) | split(",") }}'
           network_dhcp_enabled: true
           network_dhcp_local: true
@@ -151,7 +150,7 @@
     - name: Wait 600 seconds for target connection to become reachable/usable
       ansible.builtin.wait_for_connection:
         timeout: 600
-        delay: 15
+        delay: 0
 
     - name: Wait for cloud init to finish
       community.general.cloud_init_data_facts:
