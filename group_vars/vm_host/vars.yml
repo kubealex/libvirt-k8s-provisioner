@@ -7,7 +7,7 @@ workspace_directory:
 terraform_url: https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip
 image_name: OS-GenericCloud
 centos:
-  cloud_image: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-latest.x86_64.qcow2
+  cloud_image: https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-GenericCloud-9-latest.x86_64.qcow2
 ubuntu_jammy:
   cloud_image: https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img
 

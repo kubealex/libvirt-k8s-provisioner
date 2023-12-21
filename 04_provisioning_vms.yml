@@ -34,7 +34,7 @@
           master_instance_memory: "{{ k8s.control_plane.mem }}"
           master_instance_count: "{{ k8s.control_plane.vms }}"
           master_instance_cloud_image: "/tmp/{{ image_name }}.qcow2"
-          master_instance_uefi_enabled: "{{ false if k8s.cluster_os == 'CentOS' else true }}"
+          master_instance_uefi_enabled: "true"
           master_instance_cloud_user:
             username: '{{ k8s.vm_user | default("kube", true) }}'
             password: '{{ k8s.vm_password | default("kuberocks", true) | password_hash("sha512", rounds=4096) }}'
@@ -47,7 +47,7 @@
           worker_instance_cpu: "{{ k8s.worker_nodes.vcpu }}"
           worker_instance_memory: "{{ k8s.worker_nodes.mem }}"
           worker_instance_count: "{{ (k8s.worker_nodes.vms - rook_ceph.rook_cluster_size) if rook_ceph.install_rook else k8s.worker_nodes.vms }}"
-          worker_instance_uefi_enabled: "{{ false if k8s.cluster_os == 'CentOS' else true }}"
+          worker_instance_uefi_enabled: "true"
           worker_instance_cloud_image: "/tmp/{{ image_name }}.qcow2"
           worker_instance_cloud_user:
             username: '{{ k8s.vm_user | default("kube", true) }}'
@@ -62,7 +62,7 @@
           worker_rook_instance_cpu: "{{ k8s.worker_nodes.vcpu }}"
           worker_rook_instance_memory: "{{ k8s.worker_nodes.mem }}"
           worker_rook_instance_count: "{{ rook_ceph.rook_cluster_size }}"
-          worker_rook_instance_uefi_enabled: "false"
+          worker_rook_instance_uefi_enabled: "true"
           worker_rook_instance_cloud_image: "/tmp/{{ image_name }}.qcow2"
           worker_rook_instance_additional_volume_size: "{{ rook_ceph.volume_size }}"
           worker_rook_instance_cloud_user:
@@ -78,7 +78,7 @@
           loadbalancer_instance_cpu: 1
           loadbalancer_instance_memory: 4
           loadbalancer_instance_count: "{{ loadbalancer_count }}"
-          loadbalancer_instance_uefi_enabled: "{{ false if k8s.cluster_os == 'CentOS' else true }}"
+          loadbalancer_instance_uefi_enabled: "true"
           loadbalancer_instance_cloud_image: "/tmp/{{ image_name }}.qcow2"
           loadbalancer_instance_cloud_user:
             username: '{{ k8s.vm_user | default("kube", true) }}'
