@@ -36,8 +36,8 @@
           master_instance_cloud_image: "/tmp/{{ image_name }}.qcow2"
           master_instance_uefi_enabled: "{{ false if k8s.cluster_os == 'CentOS' else true }}"
           master_instance_cloud_user:
-            username: "sysadmin"
-            password: "$6$rounds=4096$81l4sZd3qjK9Sf8h$0aF.q8JDn98uw2SZLk58rm7gOA2HwgWmy/2ZlT3pJNU2PDAxzT5wS3uF3WlvSLvlnyrg2EtybwUtJytez3VEw0"
+            username: '{{ k8s.vm_user | default("kube", true) }}'
+            password: '{{ k8s.vm_password | default("kuberocks", true) | password_hash("sha512", rounds=4096) }}'
             sshkey: "{{ k8s_key_pub | trim }}"
           worker_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker"
           worker_instance_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
@@ -50,8 +50,8 @@
           worker_instance_uefi_enabled: "{{ false if k8s.cluster_os == 'CentOS' else true }}"
           worker_instance_cloud_image: "/tmp/{{ image_name }}.qcow2"
           worker_instance_cloud_user:
-            username: "sysadmin"
-            password: "$6$rounds=4096$81l4sZd3qjK9Sf8h$0aF.q8JDn98uw2SZLk58rm7gOA2HwgWmy/2ZlT3pJNU2PDAxzT5wS3uF3WlvSLvlnyrg2EtybwUtJytez3VEw0"
+            username: '{{ k8s.vm_user | default("kube", true) }}'
+            password: '{{ k8s.vm_password | default("kuberocks", true) | password_hash("sha512", rounds=4096) }}'
             sshkey: "{{ k8s_key_pub | trim }}"
           worker_rook_enabled: "{{ rook_ceph.install_rook }}"
           worker_rook_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker-rook"
@@ -66,8 +66,8 @@
           worker_rook_instance_cloud_image: "/tmp/{{ image_name }}.qcow2"
           worker_rook_instance_additional_volume_size: "{{ rook_ceph.volume_size }}"
           worker_rook_instance_cloud_user:
-            username: "sysadmin"
-            password: "$6$rounds=4096$81l4sZd3qjK9Sf8h$0aF.q8JDn98uw2SZLk58rm7gOA2HwgWmy/2ZlT3pJNU2PDAxzT5wS3uF3WlvSLvlnyrg2EtybwUtJytez3VEw0"
+            username: '{{ k8s.vm_user | default("kube", true) }}'
+            password: '{{ k8s.vm_password | default("kuberocks", true) | password_hash("sha512", rounds=4096) }}'
             sshkey: "{{ k8s_key_pub | trim }}"
           loadbalancer_enabled: "{{ loadbalancer_count | bool }}"
           loadbalancer_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-loadbalancer"
@@ -81,8 +81,8 @@
           loadbalancer_instance_uefi_enabled: "{{ false if k8s.cluster_os == 'CentOS' else true }}"
           loadbalancer_instance_cloud_image: "/tmp/{{ image_name }}.qcow2"
           loadbalancer_instance_cloud_user:
-            username: "sysadmin"
-            password: "$6$rounds=4096$81l4sZd3qjK9Sf8h$0aF.q8JDn98uw2SZLk58rm7gOA2HwgWmy/2ZlT3pJNU2PDAxzT5wS3uF3WlvSLvlnyrg2EtybwUtJytez3VEw0"
+            username: '{{ k8s.vm_user | default("kube", true) }}'
+            password: '{{ k8s.vm_password | default("kuberocks", true) | password_hash("sha512", rounds=4096) }}'
             sshkey: "{{ k8s_key_pub | trim }}"
         state: present
       become: true
