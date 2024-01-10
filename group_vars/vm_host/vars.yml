@@ -17,58 +17,62 @@ libvirt:
 
 python_packages:
   - PyYAML
-  - kubernetes
   - jsonpatch
+  - kubernetes
   - netaddr
 
 os_packages:
   centos:
-    - unzip
-    - git
+    - edk2-ovmf
     - gcc
+    - git
+    - libvirt
     - make
+    - python3-libvirt
     - python3-lxml
     - python3-netaddr
-    - python3-libvirt
     - python3-pip
-    - libvirt
     - qemu-kvm
+    - unzip
+    - virt-install
+    - virt-manager
+
+  fedora:
+    - edk2-ovmf
+    - gcc
+    - git
+    - libvirt
+    - libvirt-devel
+    - make
+    - python3-libvirt
+    - python3-lxml
+    - python3-netaddr
+    - python3-pip
+    - qemu-kvm
+    - unzip
     - virt-install
     - virt-manager
 
   ubuntu:
-    - unzip
-    - git
+    - bridge-utils
     - gcc
+    - genisoimage
+    - git
+    - libvirt-clients
+    - libvirt-daemon-system
+    - libvirt-dev
     - make
     - network-manager
+    - ovmf
+    - python3-libvirt
     - python3-lxml
     - python3-netaddr
-    - python3-libvirt
     - python3-pip
-    - libvirt-daemon-system
-    - libvirt-clients
-    - libvirt-dev
-    - bridge-utils
     - qemu-kvm
-    - genisoimage
-    - virtinst
-    - virt-manager
-
-  fedora:
     - unzip
-    - git
-    - gcc
-    - make
-    - python3-lxml
-    - python3-netaddr
-    - python3-libvirt
-    - python3-pip
-    - libvirt-devel
-    - libvirt
-    - qemu-kvm
-    - virt-install
     - virt-manager
+    - virtinst
+
 
 ##################################
 ##      Kubernetes related      ##
