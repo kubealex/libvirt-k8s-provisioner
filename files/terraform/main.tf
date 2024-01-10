@@ -4,13 +4,13 @@ provider "libvirt" {
 
 module "libvirt_pool" {
   source  = "kubealex/libvirt-resources/libvirt//modules/terraform-libvirt-pool"
-  version = "0.0.1"
+
   pool_name = var.pool_name
 }
 
 module "libvirt_network" {
   source  = "kubealex/libvirt-resources/libvirt//modules/terraform-libvirt-network"
-  version = "0.0.1"
+
   network_name = var.network_name
   network_domain = var.network_domain
   network_cidr = var.network_cidr
@@ -22,7 +22,7 @@ module "libvirt_network" {
 
 module "master_nodes" {
   source  = "kubealex/libvirt-resources/libvirt//modules/terraform-libvirt-instance"
-  version = "0.0.1"
+
   depends_on = [ module.libvirt_network, module.libvirt_pool ]
   instance_libvirt_network =    var.master_instance_libvirt_network
   instance_libvirt_pool =       var.master_instance_libvirt_pool
@@ -38,7 +38,7 @@ module "master_nodes" {
 
 module "worker_nodes" {
   source  = "kubealex/libvirt-resources/libvirt//modules/terraform-libvirt-instance"
-  version = "0.0.1"
+
   depends_on = [ module.libvirt_network, module.libvirt_pool ]
   instance_libvirt_network =    var.worker_instance_libvirt_network
   instance_libvirt_pool =       var.worker_instance_libvirt_pool
@@ -54,7 +54,7 @@ module "worker_nodes" {
 
 module "worker_nodes_rook" {
   source  = "kubealex/libvirt-resources/libvirt//modules/terraform-libvirt-instance"
-  version = "0.0.1"
+
   count = var.worker_rook_enabled ? 1 : 0
   depends_on = [ module.libvirt_network, module.libvirt_pool ]
   instance_libvirt_network =        var.worker_rook_instance_libvirt_network
@@ -72,7 +72,7 @@ module "worker_nodes_rook" {
 
 module "loadbalancer" {
   source  = "kubealex/libvirt-resources/libvirt//modules/terraform-libvirt-instance"
-  version = "0.0.1"
+
   count = var.loadbalancer_enabled ? 1 : 0
   depends_on = [ module.libvirt_network, module.libvirt_pool ]
   instance_libvirt_network =        var.loadbalancer_instance_libvirt_network
