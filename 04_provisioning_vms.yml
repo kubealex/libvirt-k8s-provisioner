@@ -28,7 +28,6 @@
             server: "/{{ k8s.network.domain | default('k8s.test', true) }}/{{ k8s.network.network_cidr | default('192.168.200.0/24', true) | ansible.utils.next_nth_usable(1) }}" # noqa yaml[line-length]
           master_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-master"
           master_instance_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
-          master_instance_libvirt_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           master_instance_libvirt_pool: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           master_instance_volume_size: "{{ k8s.control_plane.disk }}"
           master_instance_cpu: "{{ k8s.control_plane.vcpu }}"
@@ -44,7 +43,6 @@
             - interface_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           worker_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker"
           worker_instance_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
-          worker_instance_libvirt_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           worker_instance_libvirt_pool: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           worker_instance_volume_size: "{{ k8s.worker_nodes.disk }}"
           worker_instance_cpu: "{{ k8s.worker_nodes.vcpu }}"
@@ -61,7 +59,6 @@
           worker_rook_enabled: "{{ rook_ceph.install_rook }}"
           worker_rook_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker-rook"
           worker_rook_instance_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
-          worker_rook_instance_libvirt_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           worker_rook_instance_libvirt_pool: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           worker_rook_instance_volume_size: "{{ k8s.worker_nodes.disk }}"
           worker_rook_instance_cpu: "{{ k8s.worker_nodes.vcpu }}"
@@ -79,7 +76,6 @@
           loadbalancer_enabled: "{{ loadbalancer_count | bool }}"
           loadbalancer_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-loadbalancer"
           loadbalancer_instance_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
-          loadbalancer_instance_libvirt_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           loadbalancer_instance_libvirt_pool: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           loadbalancer_instance_volume_size: 25
           loadbalancer_instance_cpu: 1
