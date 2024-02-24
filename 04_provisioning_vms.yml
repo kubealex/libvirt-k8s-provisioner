@@ -40,6 +40,8 @@
             username: '{{ k8s.vm_user | default("kube", true) }}'
             password: '{{ k8s.vm_password | default("kuberocks", true) | password_hash("sha512", rounds=4096) }}'
             sshkey: "{{ k8s_key_pub | trim }}"
+          master_instance_network_interfaces:
+            - interface_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           worker_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker"
           worker_instance_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
           worker_instance_libvirt_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
@@ -54,6 +56,8 @@
             username: '{{ k8s.vm_user | default("kube", true) }}'
             password: '{{ k8s.vm_password | default("kuberocks", true) | password_hash("sha512", rounds=4096) }}'
             sshkey: "{{ k8s_key_pub | trim }}"
+          worker_instance_network_interfaces:
+            - interface_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           worker_rook_enabled: "{{ rook_ceph.install_rook }}"
           worker_rook_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker-rook"
           worker_rook_instance_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
@@ -70,6 +74,8 @@
             username: '{{ k8s.vm_user | default("kube", true) }}'
             password: '{{ k8s.vm_password | default("kuberocks", true) | password_hash("sha512", rounds=4096) }}'
             sshkey: "{{ k8s_key_pub | trim }}"
+          worker_rook_instance_network_interfaces:
+            - interface_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
           loadbalancer_enabled: "{{ loadbalancer_count | bool }}"
           loadbalancer_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-loadbalancer"
           loadbalancer_instance_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
@@ -85,6 +91,8 @@
             username: '{{ k8s.vm_user | default("kube", true) }}'
             password: '{{ k8s.vm_password | default("kuberocks", true) | password_hash("sha512", rounds=4096) }}'
             sshkey: "{{ k8s_key_pub | trim }}"
+          loadbalancer_instance_network_interfaces:
+            - interface_network: "{{ k8s.cluster_name | default('k8s-test', true) }}"
         state: present
       become: true
       register: output_terraform

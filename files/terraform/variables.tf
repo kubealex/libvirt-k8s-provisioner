@@ -149,10 +149,21 @@ variable "loadbalancer_instance_cloud_user" {
   }
 }
 
-variable "loadbalancer_instance_libvirt_network" {
-  type = string
-  description = "The libvirt network to attach the instance to"
-  default = "default"
+
+variable "loadbalancer_instance_network_interfaces" {
+  type = list(object({
+    interface_network = string
+    interface_mac_address = optional(string)
+    interface_addresses = optional(list(string), [])
+    interface_hostname = optional(string)
+    interface_wait_for_lease = optional(bool, true)
+  })
+  )
+  default = [{
+    interface_network = "default"
+    }
+  ]
+  description = "A list of network interfaces to add to the instance"
 }
 
 variable "loadbalancer_instance_libvirt_pool" {
@@ -230,10 +241,20 @@ variable "master_instance_cloud_user" {
   }
 }
 
-variable "master_instance_libvirt_network" {
-  type = string
-  description = "The libvirt network to attach the instance to"
-  default = "default"
+variable "master_instance_network_interfaces" {
+  type = list(object({
+    interface_network = string
+    interface_mac_address = optional(string)
+    interface_addresses = optional(list(string), [])
+    interface_hostname = optional(string)
+    interface_wait_for_lease = optional(bool, true)
+  })
+  )
+  default = [{
+    interface_network = "default"
+    }
+  ]
+  description = "A list of network interfaces to add to the instance"
 }
 
 variable "master_instance_libvirt_pool" {
@@ -305,10 +326,20 @@ variable "worker_instance_cloud_user" {
   }
 }
 
-variable "worker_instance_libvirt_network" {
-  type = string
-  description = "The libvirt network to attach the instance to"
-  default = "default"
+variable "worker_instance_network_interfaces" {
+  type = list(object({
+    interface_network = string
+    interface_mac_address = optional(string)
+    interface_addresses = optional(list(string), [])
+    interface_hostname = optional(string)
+    interface_wait_for_lease = optional(bool, true)
+  })
+  )
+  default = [{
+    interface_network = "default"
+    }
+  ]
+  description = "A list of network interfaces to add to the instance"
 }
 
 variable "worker_instance_libvirt_pool" {
@@ -385,11 +416,22 @@ variable "worker_rook_instance_cloud_user" {
   }
 }
 
-variable "worker_rook_instance_libvirt_network" {
-  type = string
-  description = "The libvirt network to attach the instance to"
-  default = "default"
+variable "worker_rook_instance_network_interfaces" {
+  type = list(object({
+    interface_network = string
+    interface_mac_address = optional(string)
+    interface_addresses = optional(list(string), [])
+    interface_hostname = optional(string)
+    interface_wait_for_lease = optional(bool, true)
+  })
+  )
+  default = [{
+    interface_network = "default"
+    }
+  ]
+  description = "A list of network interfaces to add to the instance"
 }
+
 
 variable "worker_rook_instance_libvirt_pool" {
   type = string
