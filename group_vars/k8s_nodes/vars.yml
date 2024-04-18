@@ -22,12 +22,18 @@ crio:
     libcontainers_repo: deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/ /
     libcontainers_key: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/Release.key
     libcontainers_keyring: /etc/apt/trusted.gpg.d/libcontainers.gpg
-    crio_repo: deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ vars["k8s"]["cluster_version"] }}/xUbuntu_22.04/ /
-    crio_key: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:/{{ vars["k8s"]["cluster_version"] }}/xUbuntu_22.04/Release.key
-    crio_keyring: /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg
+    # crio_repo: deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ vars["k8s"]["cluster_version"] }}/xUbuntu_22.04/ /
+    # crio_key: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:/{{ vars["k8s"]["cluster_version"] }}/xUbuntu_22.04/Release.key
+    # crio_keyring: /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg
+    crio_repo: deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/ /
+    crio_key: https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/Release.key
+    crio_keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    crio_repofile: /etc/apt/sources.list.d/cri-o.list
   centos:
     libcontainers_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_9_Stream/devel:kubic:libcontainers:stable.repo
-    crio_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ vars["k8s"]["cluster_version"] }}/CentOS_9_Stream/devel:kubic:libcontainers:stable:cri-o:{{ vars["k8s"]["cluster_version"] }}.repo # noqa yaml[line-length]
+    # crio_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ vars["k8s"]["cluster_version"] }}/CentOS_9_Stream/devel:kubic:libcontainers:stable:cri-o:{{ vars["k8s"]["cluster_version"] }}.repo # noqa yaml[line-length]
+    crio_repo: https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/rpm/
+    crio_key: https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/rpm/repodata/repomd.xml.key
 containerd:
   centos:
     containerd_repo: https://download.docker.com/linux/centos/docker-ce.repo
