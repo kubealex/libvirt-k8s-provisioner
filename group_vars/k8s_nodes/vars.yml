@@ -27,7 +27,7 @@ crio:
     # crio_keyring: /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg
     crio_repo: deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/ /
     crio_key: https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/Release.key
-    crio_keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    crio_keyring: /etc/apt/keyrings/cri-o-apt-keyring.gpg
     crio_repofile: /etc/apt/sources.list.d/cri-o.list
   centos:
     libcontainers_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_9_Stream/devel:kubic:libcontainers:stable.repo
