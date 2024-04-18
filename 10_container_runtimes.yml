@@ -73,30 +73,6 @@
     - name: Install cri-o
       when: k8s.container_runtime == 'crio'
       block:
-        # - name: Add crio repo key
-        #   ansible.builtin.apt_key:
-        #     url: "{{ item.key }}"
-        #     keyring: "{{ item.keyring }}"
-        #     state: present
-        #   loop:
-        #     - key: "{{ crio.ubuntu.libcontainers_key }}"
-        #       keyring: "{{ crio.ubuntu.libcontainers_keyring }}"
-        #     - key: "{{ crio.ubuntu.crio_key }}"
-        #       keyring: "{{ crio.ubuntu.crio_keyring }}"
-        #   when: k8s.cluster_os == 'Ubuntu'
-
-        # - name: Ensure the presence of apt-repo for cri-o
-        #   ansible.builtin.apt_repository:
-        #     repo: "{{ item.repo }}"
-        #     filename: "{{ item.file }}"
-        #     state: present
-        #   loop:
-        #     - repo: "{{ crio.ubuntu.libcontainers_repo }}"
-        #       file: /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
-        #     - repo: "{{ crio.ubuntu.crio_repo }}"
-        #       file: /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:{{ k8s.cluster_version }}.list
-        #   when: k8s.cluster_os == 'Ubuntu'
-
         - name: Ensure required packages for cri-o are installed
           ansible.builtin.apt:
             name:
@@ -136,19 +112,6 @@
             gpgkey: "{{ crio.centos.crio_key }}"
             exclude: crio
           when: k8s.cluster_os == 'CentOS'
-
-        # - name: Add kubic CentOS repository
-        #   ansible.builtin.get_url:
-        #     url: "{{ item.url }}"
-        #     dest: "{{ item.file }}"
-        #     validate_certs: false
-        #     mode: "0755"
-        #   loop:
-        #     - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable.repo"
-        #       url: "{{ crio.centos.libcontainers_repo }}"
-        #     - file: "/etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o.repo"
-        #       url: "{{ crio.centos.crio_repo }}"
-        #   when: k8s.cluster_os == 'CentOS'
 
         - name: Ensure cri-o is installed - CentOS
           ansible.builtin.yum:
