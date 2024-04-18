@@ -38,7 +38,7 @@ etcd:
     dataDir: /var/lib/etcd
 imageRepository: registry.k8s.io
 kind: ClusterConfiguration
-kubernetesVersion: v{{ k8s.cluster_version }}.{{ '13' if k8s.cluster_version is version('1.27', '==') else '9' if k8s.cluster_version is version('1.28', '==') else '4' if k8s.cluster_version is version('1.29', '==') else '' if k8s.cluster_version is version('1.30', '==') }}
+kubernetesVersion: v{{ k8s.cluster_version }}.{{ '13' if k8s.cluster_version is version('1.27', '==') else '9' if k8s.cluster_version is version('1.28', '==') else '4' if k8s.cluster_version is version('1.29', '==') else '0' if k8s.cluster_version is version('1.30', '==') }}
 networking:
   dnsDomain: cluster.local
   podSubnet: "{{ ('10.244.0.0/16' if (k8s.network.cni_plugin == 'flannel') else k8s.network.pod_cidr) }}"
