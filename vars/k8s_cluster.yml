@@ -2,7 +2,7 @@
 k8s:
   cluster_name: k8s-test
   cluster_os: Ubuntu
-  cluster_version: "1.29"
+  cluster_version: "1.30"
   container_runtime: crio
   master_schedulable: false
 
@@ -30,7 +30,7 @@ k8s:
     service_cidr: 10.110.0.0/16
 
 # Choose between [calico/flannel/cilium]
-    cni_plugin: cilium
+    cni_plugin: calico
 
 # Rook configuration
 rook_ceph:
