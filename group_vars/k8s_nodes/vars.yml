@@ -1,33 +1,28 @@
 kubernetes:
+  packages:
+    k8s_packages:
+      - kubelet
+      - kubeadm
+      - kubectl
   centos:
     k8s_repo: https://pkgs.k8s.io/core:/stable:/v{{ vars["k8s"]["cluster_version"] }}/rpm/
     k8s_repo_key: https://pkgs.k8s.io/core:/stable:/v{{ vars["k8s"]["cluster_version"] }}/rpm/repodata/repomd.xml.key
-    k8s_packages:
-      - kubelet{{ '-1.26.15-0' if vars["k8s"]["cluster_version"] == '1.26' else '-1.27.12-0' if vars["k8s"]["cluster_version"] == '1.27' else '-1.28.8-0' if vars["k8s"]["cluster_version"] == '1.28' else '' }} # noqa yaml[line-length]
-      - kubeadm{{ '-1.26.15-0' if vars["k8s"]["cluster_version"] == '1.26' else '-1.27.12-0' if vars["k8s"]["cluster_version"] == '1.27' else '-1.28.8-0' if vars["k8s"]["cluster_version"] == '1.28' else '' }} # noqa yaml[line-length]
-      - kubectl{{ '-1.26.15-0' if vars["k8s"]["cluster_version"] == '1.26' else '-1.27.12-0' if vars["k8s"]["cluster_version"] == '1.27' else '-1.28.8-0' if vars["k8s"]["cluster_version"] == '1.28' else '' }} # noqa yaml[line-length]
 
   ubuntu:
     k8s_repo: deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ vars["k8s"]["cluster_version"] }}/deb/ /
     k8s_repo_file: /etc/apt/sources.list.d/kubernetes.list
-    k8s_repo_key: https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key
+    k8s_repo_key: https://pkgs.k8s.io/core:/stable:/v{{ vars["k8s"]["cluster_version"] }}/deb/Release.key
     k8s_repo_keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-    k8s_packages:
-      - kubelet{{ '=1.26.15-00' if vars["k8s"]["cluster_version"] == '1.26' else '=1.27.12-00' if vars["k8s"]["cluster_version"] == '1.27' else '=1.28.8-00' if vars["k8s"]["cluster_version"] == '1.28' else '' }} # noqa yaml[line-length]
-      - kubeadm{{ '=1.26.15-00' if vars["k8s"]["cluster_version"] == '1.26' else '=1.27.12-00' if vars["k8s"]["cluster_version"] == '1.27' else '=1.28.8-00' if vars["k8s"]["cluster_version"] == '1.28' else '' }} # noqa yaml[line-length]
-      - kubectl{{ '=1.26.15-00' if vars["k8s"]["cluster_version"] == '1.26' else '=1.27.12-00' if vars["k8s"]["cluster_version"] == '1.27' else '=1.28.8-00' if vars["k8s"]["cluster_version"] == '1.28' else '' }} # noqa yaml[line-length]
 
 crio:
   ubuntu:
-    libcontainers_repo: deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/ /
-    libcontainers_key: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/Release.key
-    libcontainers_keyring: /etc/apt/trusted.gpg.d/libcontainers.gpg
-    crio_repo: deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ vars["k8s"]["cluster_version"] }}/xUbuntu_22.04/ /
-    crio_key: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:/{{ vars["k8s"]["cluster_version"] }}/xUbuntu_22.04/Release.key
-    crio_keyring: /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg
+    crio_repo: deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/ /
+    crio_key: https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/Release.key
+    crio_keyring: /etc/apt/keyrings/cri-o-apt-keyring.gpg
+    crio_repofile: /etc/apt/sources.list.d/cri-o.list
   centos:
-    libcontainers_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_9_Stream/devel:kubic:libcontainers:stable.repo
-    crio_repo: http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ vars["k8s"]["cluster_version"] }}/CentOS_9_Stream/devel:kubic:libcontainers:stable:cri-o:{{ vars["k8s"]["cluster_version"] }}.repo # noqa yaml[line-length]
+    crio_repo: https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/rpm/
+    crio_key: https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/rpm/repodata/repomd.xml.key
 containerd:
   centos:
     containerd_repo: https://download.docker.com/linux/centos/docker-ce.repo
