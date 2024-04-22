@@ -21,7 +21,7 @@
     - name: Take care of systemd-resolved on F33 and Ubuntu hosts
       when:
         (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int < 33) or
-        (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int < 18)
+        (ansible_distribution == 'Ubuntu')
       block:
         - name: Ensure systemd-resolved config dir is present
           ansible.builtin.file:
