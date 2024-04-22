@@ -86,6 +86,12 @@ variable "pool_path" {
   default = "/var/lib/libvirt/images"
 }
 
+variable "os_firmware" {
+  type = string
+  default = "/usr/share/edk2/ovmf/OVMF_CODE.fd"
+  description = "Path to the ovmf firmware on the host machine. Ubuntu=/usr/share/OVMF/OVMF_CODE.fd"
+}
+
 
 variable "loadbalancer_instance_count" {
   type = number
