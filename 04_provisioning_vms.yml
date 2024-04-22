@@ -26,6 +26,7 @@
           network_dhcp_enabled: true
           network_dnsmasq_options:
             server: "/{{ k8s.network.domain | default('k8s.test', true) }}/{{ k8s.network.network_cidr | default('192.168.200.0/24', true) | ansible.utils.next_nth_usable(1) }}" # noqa yaml[line-length]
+          os_firmware: "{{ '/usr/share/OVMF/OVMF_CODE.fd' if ansible_distribution == 'Ubuntu' else '/usr/share/edk2/ovmf/OVMF_CODE.fd' }}"
           master_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-master"
           master_instance_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
           master_instance_libvirt_pool: "{{ k8s.cluster_name | default('k8s-test', true) }}"

@@ -35,6 +35,7 @@ module "master_nodes" {
   instance_count =              var.master_instance_count
   instance_cloud_user =         var.master_instance_cloud_user
   instance_uefi_enabled =       var.master_instance_uefi_enabled
+  instance_firmware =           var.os_firmware
 }
 
 module "worker_nodes" {
@@ -51,6 +52,7 @@ module "worker_nodes" {
   instance_count =              var.worker_instance_count
   instance_cloud_user =         var.worker_instance_cloud_user
   instance_uefi_enabled =       var.worker_instance_uefi_enabled
+  instance_firmware =           var.os_firmware
 }
 
 module "worker_nodes_rook" {
@@ -69,6 +71,7 @@ module "worker_nodes_rook" {
   instance_count =                  var.worker_rook_instance_count
   instance_cloud_user =             var.worker_rook_instance_cloud_user
   instance_uefi_enabled =           var.worker_rook_instance_uefi_enabled
+  instance_firmware =               var.os_firmware
 }
 
 module "loadbalancer" {
@@ -87,6 +90,7 @@ module "loadbalancer" {
   instance_count =                  var.loadbalancer_instance_count
   instance_cloud_user =             var.loadbalancer_instance_cloud_user
   instance_uefi_enabled =           var.loadbalancer_instance_uefi_enabled
+  instance_firmware =               var.os_firmware
 }
 
 
