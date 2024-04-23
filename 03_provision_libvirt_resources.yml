@@ -77,11 +77,3 @@
       ansible.builtin.service:
         name: NetworkManager
         state: restarted
-
-    - name: Wait for local DNS resolver to be up
-      ansible.builtin.wait_for:
-        port: 53
-        delay: 10
-      when:
-        (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int > 33) or
-        (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int > 18)
