@@ -72,6 +72,7 @@ os_packages:
     - unzip
     - virt-manager
     - virtinst
+    - xsltproc
 
 
 ##################################
