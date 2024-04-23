@@ -64,7 +64,6 @@
         mode: "0755"
       notify:
         - Restart NetworkManager
-        - Wait for local DNS resolver to be up
 
   handlers:
     - name: Restart systemd-resolved

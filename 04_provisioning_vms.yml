@@ -11,7 +11,7 @@
         rook_nodes_count: "{{ rook_ceph.rook_cluster_size if rook_ceph.install_rook else 0 }}"
         loadbalancer_count: "{{ 1 if k8s.control_plane.vms > 1 or k8s.worker_nodes.vms > 1 else 0 }}"
 
-    - name: Ensure control plane VMs are in place
+    - name: Ensure cluster VMs are in place
       community.general.terraform:
         complex_vars: true
         project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}"
@@ -132,7 +132,7 @@
       when: rook_ceph.install_rook
 
     - name: Add loadbalancer to inventory
-      when: loadbalancer_count
+      when: loadbalancer_count | bool
       ansible.builtin.add_host:
         hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-loadbalancer.{{ k8s.network.domain | default('k8s.test', true) }}"
         ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
