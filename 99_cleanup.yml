@@ -13,6 +13,9 @@
         force_init: true
         project_path: "{{ workspace_directory.base_path }}/clusters/{{ k8s.cluster_name | default('k8s-test', true) }}"
         state: absent
+        variables:
+          pool_name: "{{ k8s.cluster_name | default('k8s-test', true) }}"
+          network_name: "{{ k8s.cluster_name | default('k8s-test', true) }}"
       become: true
 
     - name: Ensure images are deleted
