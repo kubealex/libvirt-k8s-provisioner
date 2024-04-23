@@ -83,5 +83,5 @@
         port: 53
         delay: 10
       when:
-        (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int < 33) or
-        (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int < 18)
+        (ansible_distribution == 'Fedora' and ansible_distribution_major_version | int > 33) or
+        (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int > 18)

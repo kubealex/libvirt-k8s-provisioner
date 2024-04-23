@@ -132,6 +132,7 @@
       when: rook_ceph.install_rook
 
     - name: Add loadbalancer to inventory
+      when: loadbalancer_count
       ansible.builtin.add_host:
         hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-loadbalancer.{{ k8s.network.domain | default('k8s.test', true) }}"
         ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
