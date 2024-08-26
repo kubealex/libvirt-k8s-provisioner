@@ -14,10 +14,10 @@ It is a hobby project, so it's not supported for production usage, but feel free
 
 Kubernetes version that is installed can be choosen between:
 
-- **1.30** - Latest 1.30 release (1.30.0)
-- **1.29** - Latest 1.29 release (1.29.4)
-- **1.28** - Latest 1.28 release (1.28.9)
-- **1.27** - Latest 1.27 release (1.27.14)
+- **1.31** - Latest 1.31 release (1.31.0)
+- **1.30** - Latest 1.30 release (1.30.4)
+- **1.29** - Latest 1.29 release (1.29.8)
+- **1.28** - Latest 1.28 release (1.28.13)
 
 Terraform will take care of the provisioning via terraform of:
 
@@ -128,7 +128,7 @@ Recommended sizings are:
     k8s:
       cluster_name: k8s-test
       cluster_os: Ubuntu
-      cluster_version: 1.24
+      cluster_version: 1.31
       container_runtime: crio
       master_schedulable: false
 
@@ -181,7 +181,7 @@ Recommended sizings are:
 Size for **disk** and **mem** is in GB.
 **disk** allows to provision space in the cloud image for pod's ephemeral storage.
 
-**cluster_version** can be 1.24, 1.25, 1.28 to install the corresponding latest version for the release
+**cluster_version** can be 1.28, 1.29, 1.30, 1.31 to install the corresponding latest version for the release
 
 VMS are created with these names by default (customizing them is work in progress):
 

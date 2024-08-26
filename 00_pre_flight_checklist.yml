@@ -7,7 +7,7 @@
     - name: Check if kubernetes version is supported by the provisioner
       ansible.builtin.fail:
         msg: The chosen version is not supported, only versions >= 1.26 are supported
-      when: k8s.cluster_version is version('1.26', '<')
+      when: k8s.cluster_version is version('1.28', '<')
 
     - name: Check if distribution is supported
       ansible.builtin.fail:
