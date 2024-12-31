@@ -5,6 +5,10 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
+    - name: Set fact for k8s version
+      ansible.builtin.set_fact:
+        kubernetes_version: v{{ k8s.cluster_version }}.{{ '12' if k8s.cluster_version is version('1.29', '==') else '8' if k8s.cluster_version is version('1.30', '==') else '4' if k8s.cluster_version is version('1.31', '==') else '0' if k8s.cluster_version is version('1.32', '==') }}
+
     - name: Process installation if cluster is not set
       when: k8s_installed is not defined
       block:
