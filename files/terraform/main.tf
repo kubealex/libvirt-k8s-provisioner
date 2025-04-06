@@ -26,6 +26,7 @@ module "master_nodes" {
 
   depends_on = [ module.libvirt_network, module.libvirt_pool ]
   instance_network_interfaces = var.master_instance_network_interfaces
+  instance_volume_size =        var.master_instance_volume_size
   instance_libvirt_pool =       var.master_instance_libvirt_pool
   instance_cloud_image =        var.master_instance_cloud_image
   instance_hostname =           var.master_instance_hostname
@@ -45,6 +46,7 @@ module "worker_nodes" {
   instance_libvirt_pool =       var.worker_instance_libvirt_pool
   instance_network_interfaces = var.worker_instance_network_interfaces
   instance_cloud_image =        var.worker_instance_cloud_image
+  instance_volume_size =        var.worker_instance_volume_size
   instance_hostname =           var.worker_instance_hostname
   instance_domain =             var.worker_instance_domain
   instance_memory =             var.worker_instance_memory
@@ -61,6 +63,7 @@ module "worker_nodes_rook" {
   count = var.worker_rook_enabled ? 1 : 0
   depends_on = [ module.libvirt_network, module.libvirt_pool ]
   instance_additional_volume_size = var.worker_rook_instance_additional_volume_size
+  instance_volume_size =            var.worker_rook_instance_volume_size
   instance_network_interfaces =     var.worker_rook_instance_network_interfaces
   instance_libvirt_pool =           var.worker_rook_instance_libvirt_pool
   instance_cloud_image =            var.worker_rook_instance_cloud_image
