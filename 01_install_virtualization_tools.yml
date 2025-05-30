@@ -38,6 +38,7 @@
           ansible.builtin.apt:
             name: "*"
             state: latest # noqa package-latest
+            update_cache: true
 
         - name: Install required packages
           ansible.builtin.apt:

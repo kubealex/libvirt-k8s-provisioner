@@ -14,10 +14,11 @@ It is a hobby project, so it's not supported for production usage, but feel free
 
 Kubernetes version that is installed can be choosen between:
 
-- **1.32** - Latest 1.32 release (1.32.0)
-- **1.31** - Latest 1.31 release (1.31.4)
-- **1.30** - Latest 1.30 release (1.30.8)
-- **1.29** - Latest 1.29 release (1.29.12)
+- **1.33** - Latest 1.29 release (1.33.1)
+- **1.32** - Latest 1.32 release (1.32.5)
+- **1.31** - Latest 1.31 release (1.31.9)
+- **1.30** - Latest 1.30 release (1.30.13)
+
 
 Terraform will take care of the provisioning via terraform of:
 
@@ -48,7 +49,7 @@ You can customize the setup choosing:
 
 - OS:
 
-  - Ubuntu 22.04 LTS Cloud base image [https://cloud-images.ubuntu.com/releases/jammy/release/](https://cloud-images.ubuntu.com/releases/jammy/release/)
+  - Ubuntu 24.04 LTS Cloud base image [https://cloud-images.ubuntu.com/noble/current/](https://cloud-images.ubuntu.com/noble/current/)
   - Centos Stream 9 Generic Cloud base image [https://cloud.centos.org/centos/9-stream/x86_64/images/](https://cloud.centos.org/centos/9-stream/x86_64/images/)
 
 - cloud-init:

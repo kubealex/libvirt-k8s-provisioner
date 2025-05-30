@@ -5,20 +5,37 @@
   vars_files:
     - vars/k8s_cluster.yml
   tasks:
+    - name: Set user home as fact
+      ansible.builtin.set_fact:
+        home_dir: "{{ ansible_env.HOME }}"
+
     - name: Upgrade all packages
       ansible.builtin.package:
         name: "*"
         state: latest # noqa package-latest
 
-    - name: Install pip
-      ansible.builtin.package:
-        name: python3-pip
-        state: present
+    - name: Manage packets when distro is 'Ubuntu'
+      when: ansible_distribution == 'Ubuntu'
+      block:
+        - name: Install pip packages
+          ansible.builtin.package:
+            name:
+              - python3-cryptography
+            state: present
 
-    - name: Ensuring cryptography module is present
-      ansible.builtin.pip:
-        name: cryptography
-      become: true
+    - name: Manage packets when distro is 'CentOS'
+      when: ansible_distribution == 'Fedora' or ansible_distribution == 'CentOS'
+      block:
+        - name: Install pip
+          ansible.builtin.package:
+            name:
+              - python3-pip
+            state: present
+
+        - name: Ensure needed pip packages are present
+          ansible.builtin.pip:
+            name: cryptography
+            executable: "pip3"
 
     - name: Ensure prerequisites are met.
       block:

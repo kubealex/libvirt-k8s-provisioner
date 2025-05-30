@@ -1,8 +1,8 @@
 # General configuration
 k8s:
   cluster_name: k8s-test
-  cluster_os: Ubuntu
-  cluster_version: "1.32"
+  cluster_os: CentOS
+  cluster_version: "1.33"
   container_runtime: crio
   master_schedulable: false
 
