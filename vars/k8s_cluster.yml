@@ -2,7 +2,7 @@
 k8s:
   cluster_name: k8s-test
   cluster_os: CentOS
-  cluster_version: "1.33"
+  cluster_version: "1.34"
   container_runtime: crio
   master_schedulable: false
 
