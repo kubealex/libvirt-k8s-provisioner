@@ -9,10 +9,10 @@ help:
 setup:
 	@ansible-galaxy collection install -r requirements.yml
 .PHONY: create
-create:
+create: setup
 	@ansible-playbook main.yml
 .PHONY: debug
-debug:       
+debug: setup
 	@ansible-playbook main.yml -vv
 .PHONY: destroy
 destroy:

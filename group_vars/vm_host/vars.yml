@@ -8,7 +8,7 @@ terraform_url: https://releases.hashicorp.com/terraform/1.14.3/terraform_1.14.3_
 image_name: OS-GenericCloud
 centos:
   cloud_image: https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-GenericCloud-9-latest.x86_64.qcow2
-ubuntu_jammy:
+ubuntu:
   cloud_image: https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
 
 libvirt:
@@ -27,7 +27,6 @@ os_packages:
     - python3-netaddr
     - python3-kubernetes
     - python3-jsonpatch
-    - python3-netaddr
     - python3-pip
     - python3-yaml
     - python3-venv
@@ -48,7 +47,6 @@ os_packages:
     - python3-netaddr
     - python3-kubernetes
     - python3-jsonpatch
-    - python3-netaddr
     - python3-pip
     - python3-yaml
     - python3-venv
@@ -73,7 +71,6 @@ os_packages:
     - python3-netaddr
     - python3-kubernetes
     - python3-jsonpatch
-    - python3-netaddr
     - python3-pip
     - python3-yaml
     - python3-venv

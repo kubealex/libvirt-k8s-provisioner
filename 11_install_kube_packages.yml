@@ -25,10 +25,10 @@
       when: k8s.cluster_os == 'Ubuntu'
 
     - name: Add kube-repo key
-      ansible.builtin.apt_key:
-        url: "{{ kubernetes.ubuntu.k8s_repo_key }}"
-        keyring: "{{ kubernetes.ubuntu.k8s_repo_keyring }}"
-        state: present
+      ansible.builtin.shell: |
+        curl -fsSL "{{ kubernetes.ubuntu.k8s_repo_key }}" | gpg --dearmor -o "{{ kubernetes.ubuntu.k8s_repo_keyring }}"
+      args:
+        creates: "{{ kubernetes.ubuntu.k8s_repo_keyring }}"
       when: k8s.cluster_os == 'Ubuntu'
 
     - name: Ensure the presence of apt-repo for kubernetes packages
@@ -57,15 +57,16 @@
     - name: Disable swap # noqa no-changed-when
       ansible.builtin.command: swapoff -a
 
-    - name: Remove swap entry from fstab
+    - name: Remove swap entries from fstab
       ansible.builtin.lineinfile:
-        line: "/dev/mapper/cl-swap swap"
         path: /etc/fstab
+        regexp: '\s+swap\s+'
         state: absent
 
-    - name: Disable SELinux
+    - name: Set SELinux to permissive
       ansible.posix.selinux:
-        state: disabled
+        state: permissive
+        policy: targeted
       register: selinux_output
       notify: Reboot host
       when: k8s.cluster_os == 'CentOS'

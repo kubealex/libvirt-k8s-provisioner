@@ -3,7 +3,7 @@
   hosts: vm_host
   become: true
   tasks:
-    - name: Manage packets when distro is 'CentOS'
+    - name: Manage packages for CentOS/Fedora
       when: ansible_distribution == 'Fedora' or ansible_distribution == 'CentOS'
       block:
         - name: Upgrade all packages
@@ -11,16 +11,10 @@
             name: "*"
             state: latest # noqa package-latest
 
-        - name: Virtualization services are enabled
-          ansible.builtin.service:
-            name: virtqemud
-            state: started
-            enabled: true
-
         - name: Install required packages
           ansible.builtin.yum:
             name: "{{ os_packages.centos }}"
-            state: latest # noqa package-latest
+            state: present
           when:
             - ansible_distribution == 'CentOS'
 
@@ -31,7 +25,13 @@
           when:
             - ansible_distribution == 'Fedora'
 
-    - name: Manage packets when distro is 'Ubuntu'
+        - name: Virtualization services are enabled
+          ansible.builtin.service:
+            name: virtqemud
+            state: started
+            enabled: true
+
+    - name: Manage packages for Ubuntu
       when: ansible_distribution == 'Ubuntu'
       block:
         - name: Upgrade all packages
@@ -44,6 +44,7 @@
           ansible.builtin.apt:
             name: "{{ os_packages.ubuntu }}"
             state: present
+            update_cache: true
 
         - name: Virtualization services are enabled
           ansible.builtin.service:

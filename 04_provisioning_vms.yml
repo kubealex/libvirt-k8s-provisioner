@@ -78,9 +78,9 @@
           loadbalancer_instance_hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-loadbalancer"
           loadbalancer_instance_domain: "{{ k8s.network.domain | default('k8s.test', true) }}"
           loadbalancer_instance_libvirt_pool: "{{ k8s.cluster_name | default('k8s-test', true) }}"
-          loadbalancer_instance_volume_size: 25
-          loadbalancer_instance_cpu: 1
-          loadbalancer_instance_memory: 4
+          loadbalancer_instance_volume_size: "{{ k8s.loadbalancer.disk | default(25, true) }}"
+          loadbalancer_instance_cpu: "{{ k8s.loadbalancer.vcpu | default(1, true) }}"
+          loadbalancer_instance_memory: "{{ k8s.loadbalancer.mem | default(4, true) }}"
           loadbalancer_instance_count: "{{ loadbalancer_count }}"
           loadbalancer_instance_uefi_enabled: "{{ false if k8s.cluster_os == 'CentOS' else true }}"
           loadbalancer_instance_cloud_image: "/tmp/{{ image_name }}.qcow2"
@@ -97,8 +97,8 @@
     - name: Add masters to given group
       ansible.builtin.add_host:
         hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-master{{ '-' ~ item if cp_nodes_count | int > 1 else '' }}.{{ k8s.network.domain | default('k8s.test', true) }}" # noqa yaml[line-length]
-        ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
-        ansible_user: kube
+        ansible_ssh_private_key_file: "{{ playbook_dir }}/id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
+        ansible_user: '{{ k8s.vm_user | default("kube", true) }}'
         ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
         groups:
           - "masters"
@@ -109,8 +109,8 @@
     - name: Add workers to given group
       ansible.builtin.add_host:
         hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker{{ '-' ~ item if worker_nodes_count | int > 1 else '' }}.{{ k8s.network.domain | default('k8s.test', true) }}" # noqa yaml[line-length]
-        ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
-        ansible_user: kube
+        ansible_ssh_private_key_file: "{{ playbook_dir }}/id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
+        ansible_user: '{{ k8s.vm_user | default("kube", true) }}'
         ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
         groups:
           - "workers"
@@ -121,8 +121,8 @@
     - name: Add rook workers to given group
       ansible.builtin.add_host:
         hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-worker-rook{{ '-' ~ item if rook_nodes_count | int  > 1 else '' }}.{{ k8s.network.domain | default('k8s.test', true) }}" # noqa yaml[line-length]
-        ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
-        ansible_user: kube
+        ansible_ssh_private_key_file: "{{ playbook_dir }}/id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
+        ansible_user: '{{ k8s.vm_user | default("kube", true) }}'
         ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
         groups:
           - "workers"
@@ -135,8 +135,8 @@
       when: loadbalancer_count | bool
       ansible.builtin.add_host:
         hostname: "{{ k8s.cluster_name | default('k8s-test', true) }}-loadbalancer.{{ k8s.network.domain | default('k8s.test', true) }}"
-        ansible_ssh_private_key_file: "{{ playbook_dir }}//id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
-        ansible_user: kube
+        ansible_ssh_private_key_file: "{{ playbook_dir }}/id_rsa_{{ k8s.cluster_name | default('k8s-test', true) }}"
+        ansible_user: '{{ k8s.vm_user | default("kube", true) }}'
         ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
         groups:
           - "loadbalancer"

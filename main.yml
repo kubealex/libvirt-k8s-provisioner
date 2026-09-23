@@ -18,7 +18,7 @@
         groups['workers'] | length > 1
   import_playbook: 08_loadbalancer_services.yml
 
-- name: Setup |  Playbook to ensure a container runtime is configured
+- name: Setup | Playbook to ensure a container runtime is configured
   import_playbook: 10_container_runtimes.yml
 
 - name: Setup | Playbook to setup needed k8s packages
@@ -41,10 +41,10 @@
   import_playbook: 21_join_nodes.yml
   when: groups['workers'] is defined
 
-- name: Setup |  Playbook to complete the setup
+- name: Setup | Playbook to complete the setup
   import_playbook: 25_complete_setup.yml
 
-- name: Setup |  Playbook to persist inventory
+- name: Setup | Playbook to persist inventory
   import_playbook: 29_save_inventory.yml
 
 - name: Setup | Playbook to configure an ingress controller

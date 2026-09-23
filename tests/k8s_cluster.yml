@@ -2,9 +2,11 @@
 k8s:
   cluster_name: k8s-test
   cluster_os: Ubuntu
-  cluster_version: "1.25"
+  cluster_version: "1.35"
   container_runtime: crio
   master_schedulable: false
+  vm_user: kube
+  vm_password: kuberocks
 
 # Nodes configuration
 
@@ -19,6 +21,11 @@ k8s:
     mem: 6
     vms: 1
     disk: 10
+
+  loadbalancer:
+    vcpu: 1
+    mem: 4
+    disk: 25
 
 # Network configuration
 

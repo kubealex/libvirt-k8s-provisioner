@@ -46,7 +46,7 @@
               overlay
               br_netfilter
             create: true
-            mode: "0755"
+            mode: "0644"
 
         - name: Enable br_netfilter
           community.general.modprobe:
@@ -55,6 +55,7 @@
           loop:
             - br_netfilter
             - overlay
+          notify: Reboot nodes
 
         - name: Enable sysctl values
           ansible.posix.sysctl:
@@ -80,7 +81,7 @@
               ansible.builtin.copy:
                 dest: /etc/sysctl.d/99-restore-cilium-traffic.conf
                 content: "net.ipv4.conf.lxc*.rp_filter = 0"
-                mode: "0755"
+                mode: "0644"
 
             - name: Ensure sysctl is restarted
               ansible.builtin.service:
@@ -99,10 +100,10 @@
           when: k8s.cluster_os == 'Ubuntu'
 
         - name: Add crio-repo key
-          ansible.builtin.apt_key:
-            url: "{{ crio.ubuntu.crio_key }}"
-            keyring: "{{ crio.ubuntu.crio_keyring }}"
-            state: present
+          ansible.builtin.shell: |
+            curl -fsSL "{{ crio.ubuntu.crio_key }}" | gpg --dearmor -o "{{ crio.ubuntu.crio_keyring }}"
+          args:
+            creates: "{{ crio.ubuntu.crio_keyring }}"
           when: k8s.cluster_os == 'Ubuntu'
 
         - name: Ensure the presence of apt-repo for cri-o packages
@@ -110,13 +111,6 @@
             repo: "{{ crio.ubuntu.crio_repo }}"
             filename: "{{ crio.ubuntu.crio_repofile }}"
             state: present
-          when: k8s.cluster_os == 'Ubuntu'
-
-        - name: Temporary fix for memory swap slices on 20.04
-          ansible.builtin.lineinfile:
-            path: /etc/default/grub
-            regexp: "^GRUB_CMDLINE_LINUX"
-            line: 'GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"'
           when: k8s.cluster_os == 'Ubuntu'
 
         - name: Add cri-o repository
@@ -149,13 +143,13 @@
           ansible.builtin.template:
             src: templates/crio.conf.j2
             dest: /etc/crio/crio.conf
-            mode: "0755"
+            mode: "0644"
 
-        - name: Fire crio-conf template
+        - name: Fire crio-conf crun template
           ansible.builtin.template:
             src: templates/crio.conf.crun.j2
             dest: /etc/crio/crio.conf.d/01-crio-runc.conf
-            mode: "0755"
+            mode: "0644"
           when:
             - k8s.cluster_os == 'Ubuntu'
 
@@ -194,7 +188,7 @@
           ansible.builtin.get_url:
             url: "{{ containerd.centos.containerd_repo }}"
             dest: "/etc/yum.repos.d/docker-ce.repo"
-            mode: "0755"
+            mode: "0644"
 
         - name: Ensure containerd is installed
           ansible.builtin.yum:
@@ -207,46 +201,44 @@
         - k8s.cluster_os == 'Ubuntu'
       block:
         - name: Add containerd repo key
-          ansible.builtin.apt_key:
-            url: "{{ item.key }}"
-            keyring: "{{ item.keyring }}"
-            state: present
-          loop:
-            - key: "{{ containerd.ubuntu.containerd_repo_key }}"
-              keyring: "{{ containerd.ubuntu.containerd_repo_key_file }}"
+          ansible.builtin.shell: |
+            curl -fsSL "{{ containerd.ubuntu.containerd_repo_key }}" | gpg --dearmor -o "{{ containerd.ubuntu.containerd_repo_key_file }}"
+          args:
+            creates: "{{ containerd.ubuntu.containerd_repo_key_file }}"
 
         - name: Ensure the presence of apt-repo for containerd
           ansible.builtin.apt_repository:
-            repo: "{{ item.repo }}"
-            filename: "{{ item.file }}"
+            repo: "{{ containerd.ubuntu.containerd_repo }}"
+            filename: /etc/apt/sources.list.d/docker.list
             state: present
-          loop:
-            - repo: "{{ containerd.ubuntu.containerd_repo }}"
-              file: /etc/apt/sources.list.d/docker.list
 
         - name: Ensure containerd is configured and installed on Ubuntu machine
           ansible.builtin.apt:
             name: containerd.io
-            state: latest # noqa package-latest
+            state: present
             update_cache: true
 
     - name: Ensure containerd service is configured
       when: k8s.container_runtime == 'containerd'
       block:
-        - name: Create /etc/containers
+        - name: Create /etc/containerd
           ansible.builtin.file:
             state: directory
             path: /etc/containerd
             mode: "0755"
 
-        - name: Initialize config # noqa no-changed-when
+        - name: Initialize config
           ansible.builtin.shell: containerd config default > /etc/containerd/config.toml
+          args:
+            creates: /etc/containerd/config.toml
+          notify: Restart containerd
 
         - name: Configure containerd to work with systemd
           ansible.builtin.replace:
             path: /etc/containerd/config.toml
             regexp: "SystemdCgroup = false"
             replace: "SystemdCgroup = true"
+          notify: Restart containerd
 
         - name: Force systemd to reread configs
           ansible.builtin.systemd:
@@ -255,8 +247,14 @@
         - name: Ensure containerd is enabled and started
           ansible.builtin.service:
             name: containerd
-            state: restarted
+            state: started
             enabled: true
 
-    - name: Reboot nodes before proceeding
+  handlers:
+    - name: Restart containerd
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
+
+    - name: Reboot nodes
       ansible.builtin.reboot:

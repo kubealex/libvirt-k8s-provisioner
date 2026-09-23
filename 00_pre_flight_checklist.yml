@@ -24,19 +24,39 @@
         - k8s.cluster_os != 'CentOS'
         - k8s.cluster_os != 'Ubuntu'
 
-    # - name: Check if cri-o is selected on 1.29
-    #   ansible.builtin.fail:
-    #     msg: Please select a different container runtime as cri-o packages are not yet available for {{ k8s.cluster_version }} and {{ k8s.cluster_os }}
-    #   when:
-    #     - k8s.container_runtime == 'crio'
-    #     - k8s.cluster_version is version('1.29', '==')
-    #     # - k8s.cluster_os == 'CentOS'
+    - name: Validate cluster_name is DNS-compatible
+      ansible.builtin.fail:
+        msg: "cluster_name '{{ k8s.cluster_name }}' must be DNS-compatible: lowercase alphanumeric and hyphens only, must start with a letter, max 63 characters"
+      when: k8s.cluster_name is not regex('^[a-z][a-z0-9-]{0,62}$')
 
     - name: Check at least one vm for control plane is defined
       ansible.builtin.fail:
         msg: At least one control plane should be selected
       when:
         - k8s.control_plane.vms is not defined or k8s.control_plane.vms <= 0
+
+    - name: Validate control plane VM resources
+      ansible.builtin.fail:
+        msg: "Control plane resource values must be >= 1 (vcpu: {{ k8s.control_plane.vcpu }}, mem: {{ k8s.control_plane.mem }}, disk: {{ k8s.control_plane.disk }})"
+      when: k8s.control_plane.vcpu < 1 or k8s.control_plane.mem < 1 or k8s.control_plane.disk < 1
+
+    - name: Validate worker node VM resources
+      ansible.builtin.fail:
+        msg: "Worker node resource values must be >= 1 (vcpu: {{ k8s.worker_nodes.vcpu }}, mem: {{ k8s.worker_nodes.mem }}, disk: {{ k8s.worker_nodes.disk }})"
+      when:
+        - k8s.worker_nodes.vms is defined and k8s.worker_nodes.vms > 0
+        - k8s.worker_nodes.vcpu < 1 or k8s.worker_nodes.mem < 1 or k8s.worker_nodes.disk < 1
+
+    - name: Validate network CIDR formats
+      ansible.builtin.fail:
+        msg: "'{{ item.name }}' value '{{ item.value }}' is not a valid CIDR"
+      when: item.value is not ansible.utils.ipaddr('net')
+      loop:
+        - { name: network_cidr, value: "{{ k8s.network.network_cidr }}" }
+        - { name: pod_cidr, value: "{{ k8s.network.pod_cidr }}" }
+        - { name: service_cidr, value: "{{ k8s.network.service_cidr }}" }
+      loop_control:
+        label: "{{ item.name }}"
 
     - name: Check if master is schedulable in case of clusters composed by control plane VMs
       ansible.builtin.fail:
@@ -68,7 +88,7 @@
 
     - name: Fail fast if no container plugin selected
       ansible.builtin.fail:
-        msg: Select at least a CNI plugin 'calico' or 'flannel'
+        msg: Select at least a CNI plugin 'calico', 'flannel', or 'cilium'
       when:
         - k8s.network.cni_plugin != 'calico'
         - k8s.network.cni_plugin != 'flannel'

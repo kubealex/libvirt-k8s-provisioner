@@ -27,6 +27,6 @@ containerd:
   centos:
     containerd_repo: https://download.docker.com/linux/centos/docker-ce.repo
   ubuntu:
-    containerd_repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable"
+    containerd_repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu noble stable"
     containerd_repo_key: https://download.docker.com/linux/ubuntu/gpg
-    containerd_repo_key_file: /etc/apt/trusted.gpg.d/docker.gpg
+    containerd_repo_key_file: /etc/apt/keyrings/docker.gpg
